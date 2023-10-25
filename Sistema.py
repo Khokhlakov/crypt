@@ -51,13 +51,13 @@ class Sistema():
 
     def codifyText(self):
         if self.codificacion == "0a25":
-            self.codeText = map(lambda x: ord(x)-65, self.cleanText)
+            self.codeText = [ord(x)-65 for x in self.cleanText]
         else:
             pass
 
     def decodifyText(self):
         if self.codificacion == "0a25":
-            self.cipherText = map(lambda x: chr(x+65), self.cipherCodeText)
+            self.cipherText = [chr(x+65) for x in self.cipherCodeText]
         else:
             pass
 
