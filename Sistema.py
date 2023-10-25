@@ -18,6 +18,7 @@ class Sistema():
     def setText(self, text):
         self.text = text
         self.depurateText()
+        self.textSize = len(self.cleanText)
         self.codifyText()
 
     def setKey(self, key):
@@ -45,19 +46,27 @@ class Sistema():
                     textList.append(i)
 
             self.cleanText = textList
-            self.textSize = len(textList)
+
+        elif self.codificacion == "noSpaces":
+            self.cleanText = list(''.join(self.text.split()))
         else:
             pass
 
     def codifyText(self):
         if self.codificacion == "0a25":
             self.codeText = [ord(x)-65 for x in self.cleanText]
+
+        elif self.codificacion == "noSpaces":
+            self.codeText = self.cleanText
         else:
             pass
 
     def decodifyText(self):
         if self.codificacion == "0a25":
             self.cipherText = [chr(x+65) for x in self.cipherCodeText]
+
+        elif self.codificacion == "noSpaces":
+            self.cipherText = self.cipherCodeText
         else:
             pass
 
