@@ -9,8 +9,11 @@ from Afin import Afin
 
 from tkinter import PhotoImage
 
-#from PIL import Image, ImageTk
+# Change image format (tkinter only receives .ppm)
+from PIL import Image
 
+# File explorer
+from tkinter import filedialog
 
 import sys
 import os
@@ -31,6 +34,9 @@ customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 
+
+      
+
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
@@ -41,7 +47,7 @@ class App(customtkinter.CTk):
 
         # configure grid layout (4x4)
         self.grid_columnconfigure(1, weight=1)
-        self.grid_columnconfigure((2, 3), weight=0)
+        self.grid_columnconfigure((2, 3, 4), weight=0)
         self.grid_rowconfigure((0, 1, 2), weight=1)
 
         # create sidebar frame with widgets
@@ -68,6 +74,52 @@ class App(customtkinter.CTk):
         self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
 
         # create main entry and button
+
+        #
+        label_file_explorer = tkinter.Label(self, 
+                            text = "File Explorer using Tkinter",
+                            width = 100, height = 4, 
+                            fg = "blue")
+        
+
+        imgName = ""
+        def browseFiles():
+            imgName = filedialog.askopenfilename(initialdir = "/",
+                                                title = "Select a File",
+                                                filetypes = (("Picture files",
+                                                                "*.png;*.jpg;*.ppm;*.bmp"),
+                                                            ('All files', '*.*')))
+            imgList = imgName.split(".")
+            if imgList[1] != "ppm":
+                anyFormatImage = Image.open(imgName)
+                imgName = imgList[0]+".ppm"
+                anyFormatImage.save(imgName)
+
+
+            # Change label contents
+            label_file_explorer.configure(text="File Opened: "+filename)
+            print(imgName)
+            imgPrueba = PhotoImage(file=imgName)
+
+            testImg.configure(image=imgPrueba)
+            testImg.image = imgPrueba
+
+        
+        button_explore = tkinter.Button(self, 
+                                text = "Browse Files",
+                                command = browseFiles) 
+        
+        
+
+        label_file_explorer.grid(column = 4, row = 0)
+        
+        button_explore.grid(column = 4, row = 1)
+
+        testImg = tkinter.Label(self)
+        
+        testImg.grid(column = 4,row = 2)
+        #
+
         self.entry = customtkinter.CTkEntry(self, placeholder_text="CTkEntry")
         self.entry.grid(row=3, column=1, columnspan=2, padx=(20, 0), pady=(20, 20), sticky="nsew")
 
@@ -204,3 +256,9 @@ class App(customtkinter.CTk):
 if __name__ == "__main__":
     app = App()
     app.mainloop()
+
+
+
+  
+
+                                                                                                  
