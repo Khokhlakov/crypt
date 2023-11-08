@@ -208,12 +208,12 @@ class SDES:
     def ECB_encrypt(self, plain_message):
         # Create list of bytes of cipher message
         cipher_message_bytes_list = []
-        print("len_plain_message: ", len(plain_message))
+        #print("len_plain_message: ", len(plain_message))
         
         i = 0
         # Iterate over each byte of plain message string of bytes
         for byte in plain_message:
-            if i%100000==0: print("i: ",i)
+            #if i%100000==0: print("i: ",i)
             i+=1
             #Get the byte binary representation, remove the '0b' prefix, and ensure 8 characters
             bits_str = format(byte , '08b')
@@ -235,12 +235,12 @@ class SDES:
     def ECB_decrypt(self, cipher_message):
         # Create list of bytes of cipher message
         plain_message_bytes_list = []
-        print("len_plain_message: ", len(cipher_message))
+        #print("len_plain_message: ", len(cipher_message))
         
         i = 0
         # Iterate over each byte of plain message string of bytes
         for byte in cipher_message:
-            if i%100000==0: print("i: ",i)
+            #if i%100000==0: print("i: ",i)
             i+=1
             #Get the byte binary representation, remove the '0b' prefix, and ensure 8 characters
             bits_str = format(byte , '08b')
@@ -263,14 +263,14 @@ class SDES:
     def CBC_encrypt(self, plain_message):
         # Create list of bytes of cipher message
         cipher_message_bytes_list = []
-        print("len_plain_message: ", len(plain_message))
+        #print("len_plain_message: ", len(plain_message))
 
         cipher_bits_str = self.iv
-        print("Cv_",cipher_bits_str)
+        #print("Cv_",cipher_bits_str)
         i = 0
         # Iterate over each byte of plain message string of bytes
         for byte in plain_message:
-            if i%100000==0: print("i: ",i)
+            #if i%100000==0: print("i: ",i)
             
             #Get the byte binary representation, remove the '0b' prefix, and ensure 8 characters
             bits_str = format(byte , '08b')
@@ -296,15 +296,15 @@ class SDES:
     def CBC_decrypt(self, cipher_message):
         # Create list of bytes of cipher message
         plain_message_bytes_list = []
-        print("len_plain_message: ", len(cipher_message))
+        #print("len_plain_message: ", len(cipher_message))
 
         #set first cipher_bits_list_0 as iv, used for xor
         cipher_bits_list_0 = self.str_to_list(self.iv)
-        print("Cv_",cipher_bits_list_0)
+        #print("Cv_",cipher_bits_list_0)
         i = 0
         # Iterate over each byte of plain message string of bytes
         for byte in cipher_message:
-            if i%100000==0: print("i: ",i)
+            #if i%100000==0: print("i: ",i)
             
             #Get the byte binary representation, remove the '0b' prefix, and ensure 8 characters
             bits_str = format(byte , '08b')
@@ -337,14 +337,14 @@ class SDES:
     def OFB_encrypt(self, plain_message):
         # Create list of bytes of cipher message
         cipher_message_bytes_list = []
-        print("len_plain_message: ", len(plain_message))
+        #print("len_plain_message: ", len(plain_message))
 
         cipher_bits_str_iv = self.iv
-        print("Cv_",cipher_bits_str_iv)
+        #print("Cv_",cipher_bits_str_iv)
         i = 0
         # Iterate over each byte of plain message string of bytes
         for byte in plain_message:
-            if i%100000==0: print("i: ",i)
+            #if i%100000==0: print("i: ",i)
             
             #encrypt binary representation with standar S-DES of cipher_bits_str_iv
             cipher_bits_list_iv = self.std_encrypt(cipher_bits_str_iv)
@@ -373,14 +373,14 @@ class SDES:
     def CTR_encrypt(self, plain_message):
         # Create list of bytes of cipher message
         cipher_message_bytes_list = []
-        print("len_plain_message: ", len(plain_message))
+        #print("len_plain_message: ", len(plain_message))
         #we use iv as counter
         ctr = int(self.iv,2) 
-        print("Cv_",ctr)
+        #print("Cv_",ctr)
         i = 0
         # Iterate over each byte of plain message string of bytes
         for byte in plain_message:
-            if i%100000==0: print("i: ",i)
+            #if i%100000==0: print("i: ",i)
             ctr_str = bin((ctr + i) % 256)[2:].zfill(8)
             
             #encrypt binary representation with standar S-DES of ctr_str
