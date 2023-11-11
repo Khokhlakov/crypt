@@ -1,4 +1,5 @@
-import tkinter
+import tkinter as tk
+from tkinter import ttk
 import tkinter.messagebox
 import customtkinter
 
@@ -34,52 +35,20 @@ customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 
+LARGEFONT =("Verdana", 35)
 
-      
 
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
+        """
+        
 
-        # configure window
-        self.title("CustomTkinter complex_example.py")
-        self.geometry(f"{1100}x{580}")
-
-        # configure grid layout (4x4)
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_columnconfigure((2, 3, 4), weight=0)
-        self.grid_rowconfigure((0, 1, 2), weight=1)
-
-        # create sidebar frame with widgets
-        self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
-        self.sidebar_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
-        self.sidebar_frame.grid_rowconfigure(4, weight=1)
-        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="CustomTkinter", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
-        self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event)
-        self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
-        self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event)
-        self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
-        self.sidebar_button_3 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event)
-        self.sidebar_button_3.grid(row=3, column=0, padx=20, pady=10)
-        self.appearance_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Appearance Mode:", anchor="w")
-        self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
-        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["Light", "Dark", "System"],
-                                                                       command=self.change_appearance_mode_event)
-        self.appearance_mode_optionemenu.grid(row=6, column=0, padx=20, pady=(10, 10))
-        self.scaling_label = customtkinter.CTkLabel(self.sidebar_frame, text="UI Scaling:", anchor="w")
-        self.scaling_label.grid(row=7, column=0, padx=20, pady=(10, 0))
-        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["80%", "90%", "100%", "110%", "120%"],
-                                                               command=self.change_scaling_event)
-        self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
-
+        ### Start img mngmnt
         # create main entry and button
-
-        #
-        label_file_explorer = tkinter.Label(self, 
+        label_file_explorer = customtkinter.CTkLabel(self, 
                             text = "File Explorer using Tkinter",
-                            width = 100, height = 4, 
-                            fg = "blue")
+                            width = 100, height = 4)
         
 
         imgName = ""
@@ -97,7 +66,7 @@ class App(customtkinter.CTk):
 
 
             # Change label contents
-            label_file_explorer.configure(text="File Opened: "+filename)
+            label_file_explorer.configure(text="File Opened: "+imgName)
             print(imgName)
             imgPrueba = PhotoImage(file=imgName)
 
@@ -105,20 +74,19 @@ class App(customtkinter.CTk):
             testImg.image = imgPrueba
 
         
-        button_explore = tkinter.Button(self, 
+        button_explore = customtkinter.CTkButton(self, 
                                 text = "Browse Files",
                                 command = browseFiles) 
-        
-        
 
         label_file_explorer.grid(column = 4, row = 0)
         
         button_explore.grid(column = 4, row = 1)
 
-        testImg = tkinter.Label(self)
+        testImg = customtkinter.CTkLabel(self)
         
         testImg.grid(column = 4,row = 2)
-        #
+        ### End img mngmnt
+
 
         self.entry = customtkinter.CTkEntry(self, placeholder_text="CTkEntry")
         self.entry.grid(row=3, column=1, columnspan=2, padx=(20, 0), pady=(20, 20), sticky="nsew")
@@ -150,8 +118,8 @@ class App(customtkinter.CTk):
         print(path_to_dat)   
 
         #test = ImageTk.PhotoImage(Image.open("livai.png"))
-        #label1 = tkinter.Label(self.tabview.tab("CTkTabview"), image=test)
-        label1 = tkinter.Label(self.tabview.tab("CTkTabview"), image=imgg)
+        #label1 = tk.Label(self.tabview.tab("CTkTabview"), image=test)
+        label1 = tk.Label(self.tabview.tab("CTkTabview"), image=imgg)
         #label1.image = test
         label1.image = imgg
         label1.place(x=0, y=0)
@@ -171,7 +139,7 @@ class App(customtkinter.CTk):
         # create radiobutton frame
         self.radiobutton_frame = customtkinter.CTkFrame(self)
         self.radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
-        self.radio_var = tkinter.IntVar(value=0)
+        self.radio_var = tk.IntVar(value=0)
         self.label_radio_group = customtkinter.CTkLabel(master=self.radiobutton_frame, text="CTkRadioButton Group:")
         self.label_radio_group.grid(row=0, column=2, columnspan=1, padx=10, pady=10, sticky="")
         self.radio_button_1 = customtkinter.CTkRadioButton(master=self.radiobutton_frame, variable=self.radio_var, value=0)
@@ -198,16 +166,6 @@ class App(customtkinter.CTk):
         self.slider_2.grid(row=0, column=1, rowspan=5, padx=(10, 10), pady=(10, 10), sticky="ns")
         self.progressbar_3 = customtkinter.CTkProgressBar(self.slider_progressbar_frame, orientation="vertical")
         self.progressbar_3.grid(row=0, column=2, rowspan=5, padx=(10, 20), pady=(10, 10), sticky="ns")
-
-        # create scrollable frame
-        self.scrollable_frame = customtkinter.CTkScrollableFrame(self, label_text="CTkScrollableFrame")
-        self.scrollable_frame.grid(row=1, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
-        self.scrollable_frame.grid_columnconfigure(0, weight=1)
-        self.scrollable_frame_switches = []
-        for i in range(100):
-            switch = customtkinter.CTkSwitch(master=self.scrollable_frame, text=f"CTkSwitch {i}")
-            switch.grid(row=i, column=0, padx=10, pady=(0, 20))
-            self.scrollable_frame_switches.append(switch)
 
         # create checkbox and switch frame
         self.checkbox_slider_frame = customtkinter.CTkFrame(self)
@@ -237,6 +195,77 @@ class App(customtkinter.CTk):
         self.textbox.insert("0.0", "CTkTextbox\n\n" + "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.\n\n" * 20)
         self.seg_button_1.configure(values=["CTkSegmentedButton", "Value 2", "Value 3"])
         self.seg_button_1.set("Value 2")
+        """
+
+        #self.title("CustomTkinter complex_example.py")
+        self.geometry(f"{1100}x{580}")
+        # New init
+        # creating a container
+        self.container = customtkinter.CTkFrame(self)
+        self.container.pack(side = "top", fill = "both", expand = True)
+
+
+
+        # configure grid layout (4x4)
+        self.container.grid_columnconfigure(1, weight=1)
+        self.container.grid_columnconfigure(2, weight=0)
+        self.container.grid_rowconfigure((0, 1, 2), weight=1)
+
+        # create sidebar frame with widgets
+        self.sidebar_frame = customtkinter.CTkFrame(self.container, width=140, corner_radius=0)
+        self.sidebar_frame.grid(row=0, column=0, rowspan=3, sticky="nsew")
+        self.sidebar_frame.grid_rowconfigure(4, weight=1)
+        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="CustomTkinter", font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
+        self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event)
+        self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
+        self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event)
+        self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
+        self.sidebar_button_3 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event)
+        self.sidebar_button_3.grid(row=3, column=0, padx=20, pady=10)
+        self.appearance_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Appearance Mode:", anchor="w")
+        self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
+        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["Light", "Dark", "System"],
+                                                                       command=self.change_appearance_mode_event)
+        self.appearance_mode_optionemenu.grid(row=6, column=0, padx=20, pady=(10, 10))
+        self.scaling_label = customtkinter.CTkLabel(self.sidebar_frame, text="UI Scaling:", anchor="w")
+        self.scaling_label.grid(row=7, column=0, padx=20, pady=(10, 0))
+        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["80%", "90%", "100%", "110%", "120%"],
+                                                               command=self.change_scaling_event)
+        self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
+
+
+        self.scrollable_frame = customtkinter.CTkScrollableFrame(self.container)
+        self.scrollable_frame.grid(row = 0, column = 1, rowspan = 3, sticky ="nsew")
+        self.scrollable_frame.grid_columnconfigure(0, weight=1)
+
+        #self.container.grid_rowconfigure(0, weight = 1)
+        #self.container.grid_columnconfigure(0, weight = 1)
+
+        # initializing frames to an empty array
+        self.frames = {}
+
+        # iterating through a tuple consisting
+        # of the different page layouts
+        for F in (HomePage, AffinePage, Page2):
+
+            frame = F(self.scrollable_frame, self)
+
+            # initializing frame of that object from
+            # Homepage, page1, page2 respectively with
+            # for loop
+            self.frames[F] = frame
+
+            frame.grid(row = 0, column = 0, sticky ="nsew")
+
+        self.show_frame(HomePage)
+
+    # to display the current frame passed as
+    # parameter
+    def show_frame(self, cont):
+        frame = self.frames[cont]
+        frame.tkraise()
+
 
     def open_input_dialog_event(self):
         dialog = customtkinter.CTkInputDialog(text="Type in a number:", title="CTkInputDialog")
@@ -253,11 +282,149 @@ class App(customtkinter.CTk):
         print("sidebar_button click")
 
 
+# first window frame Homepage
+
+class HomePage(customtkinter.CTkFrame):
+    def __init__(self, parent, controller):
+        customtkinter.CTkFrame.__init__(self, parent)
+
+        # Bsic ciphers
+        label = customtkinter.CTkLabel(self, text ="Classical Stuff", font=customtkinter.CTkFont(size=20, weight="bold"))
+        label.grid(row = 0, column = 0, columnspan=3, padx = 10, pady = 10)
+
+        affineButton = customtkinter.CTkButton(self, 
+                                               text ="Affine",
+                                               command = lambda : controller.show_frame(AffinePage))
+        affineButton.grid(row = 1, column = 0, padx = 10, pady = 10)
+
+        hillButton = customtkinter.CTkButton(self, text ="Hill")
+        hillButton.grid(row = 1, column = 1, padx = 10, pady = 10)
+
+        multiplicativeButton = customtkinter.CTkButton(self, text ="Multiplicative")
+        multiplicativeButton.grid(row = 1, column = 3, padx = 10, pady = 10)
+        
+        permutationButton = customtkinter.CTkButton(self, text ="Permutation")
+        permutationButton.grid(row = 2, column = 0, padx = 10, pady = 10)
+
+        shiftButton = customtkinter.CTkButton(self, text ="Shift")
+        shiftButton.grid(row = 2, column = 1, padx = 10, pady = 10)
+        
+        transpositionButton = customtkinter.CTkButton(self, text ="Transposition")
+        transpositionButton.grid(row = 2, column = 3, padx = 10, pady = 10)
+
+        vigenereButton = customtkinter.CTkButton(self, text ="Vigenere")
+        vigenereButton.grid(row = 3, column = 0, padx = 10, pady = 10)
+
+
+        # Block ciphers
+        label = customtkinter.CTkLabel(self, text ="block Stuff", font=customtkinter.CTkFont(size=20, weight="bold"))
+        label.grid(row = 4, column = 0, columnspan=3, padx = 10, pady = 10)
+
+        button1 = customtkinter.CTkButton(self, text ="Affine",
+        command = lambda : controller.show_frame(AffinePage))
+        button1.grid(row = 5, column = 0, padx = 10, pady = 10)
+
+        button2 = customtkinter.CTkButton(self, text ="Page 2",
+        command = lambda : controller.show_frame(Page2))
+        button2.grid(row = 5, column = 1, padx = 10, pady = 10)
+
+        # Block ciphers
+        label = customtkinter.CTkLabel(self, 
+                                       text ="Digital signatures stuff", 
+                                       font=customtkinter.CTkFont(size=20, weight="bold"),
+                                       anchor="w", justify="left")
+        label.grid(row = 6, column = 0, columnspan=3, padx = 10, pady = 10)
+
+        button1 = customtkinter.CTkButton(self, text ="Affine",
+        command = lambda : controller.show_frame(AffinePage))
+        button1.grid(row = 7, column = 0, padx = 10, pady = 10)
+
+        button2 = customtkinter.CTkButton(self, text ="Page 2",
+        command = lambda : controller.show_frame(Page2))
+        button2.grid(row = 8, column = 0, padx = 10, pady = 10)
+
+
+    def change_appearance_mode_event(self, new_appearance_mode: str):
+        customtkinter.set_appearance_mode(new_appearance_mode)
+
+    def change_scaling_event(self, new_scaling: str):
+        new_scaling_float = int(new_scaling.replace("%", "")) / 100
+        customtkinter.set_widget_scaling(new_scaling_float)
+
+    def sidebar_button_event(self):
+        print("sidebar_button click")
+
+
+
+# AffinePage window frame
+class AffinePage(customtkinter.CTkFrame):
+
+    def __init__(self, parent, controller):
+
+        customtkinter.CTkFrame.__init__(self, parent)
+        label = customtkinter.CTkLabel(self, text ="Page 1", font = LARGEFONT)
+        label.grid(row = 0, column = 0, padx = 10, pady = 10)
+
+        # input
+        entry = customtkinter.CTkEntry(self, placeholder_text="CTkEntry")
+        entry.grid(row=1, column=0, columnspan=1, padx=(20, 0), pady=(20, 20), sticky="nsew")
+
+        # output
+        textbox = customtkinter.CTkTextbox(self, width=250)
+        textbox.grid(row=1, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
+        textbox.insert("0.0", "CTkTextbox\n\n" + "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.\n\n" * 20)
+
+        # button to show frame 2 with text
+        # layout2
+        button1 = customtkinter.CTkButton(self, text ="HomePage",
+                            command = lambda : controller.show_frame(HomePage))
+
+        # putting the button in its place
+        # by using grid
+        button1.grid(row = 1, column = 1, padx = 10, pady = 10)
+
+        # button to show frame 2 with text
+        # layout2
+        button2 = customtkinter.CTkButton(self, text ="Page 2",
+                            command = lambda : controller.show_frame(Page2))
+
+        # putting the button in its place by
+        # using grid
+        button2.grid(row = 3, column = 0, padx = 10, pady = 10)
+
+
+
+
+# third window frame page2
+class Page2(customtkinter.CTkFrame):
+    def __init__(self, parent, controller):
+        customtkinter.CTkFrame.__init__(self, parent)
+        label = customtkinter.CTkLabel(self, text ="Page 2", font = LARGEFONT)
+        label.grid(row = 0, column = 0, padx = 10, pady = 10)
+
+        # button to show frame 2 with text
+        # layout2
+        button1 = customtkinter.CTkButton(self, text ="Page 1",
+                            command = lambda : controller.show_frame(AffinePage))
+
+        # putting the button in its place by
+        # using grid
+        button1.grid(row = 1, column = 0, padx = 10, pady = 10)
+
+        # button to show frame 3 with text
+        # layout3
+        button2 = customtkinter.CTkButton(self, text ="Homepage",
+                            command = lambda : controller.show_frame(HomePage))
+
+        # putting the button in its place by
+        # using grid
+        button2.grid(row = 2, column = 0, padx = 10, pady = 10)
+
+
+
 if __name__ == "__main__":
     app = App()
     app.mainloop()
-
-
 
   
 
