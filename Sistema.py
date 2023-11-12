@@ -35,6 +35,9 @@ class Sistema():
     def getCipherString(self):
         cipherStr = ''.join([str(elem) for elem in self.cipherText])
         return cipherStr
+    
+    def getInputKey(self):
+        return self.key
 
     def depurateText(self):
         if self.codificacion == "0a25":

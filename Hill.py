@@ -17,23 +17,28 @@ class Hill(Sistema):
     coprimes26 = [1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25]
 
     def __init__(self, text=None, key = np.array([1]), mode='i'):
+        
+        #self.keyLen = 5
+        
+        self.mode = mode
+        self.keyLen = 5
+        self.text = text
+        self.codeKey = None
+        self.invKey = None
         if mode == 'i':
             super(Hill, self).__init__(text, key, "none")
         else:
             super(Hill, self).__init__(text, key, "0a25")
-
-        self.text = text
-        self.mode = mode
-        self.codeKey = None
-        self.invKey = None
-        self.setKey()
-        self.keyLen = 5
+    
+    def setKeyLen(self, n):
+        self.keyLen = n
 
     def setKey(self, key=None):
         if key != None:
             try:
                 self.codeKey = key
                 self.invKey = self.getInvKey()
+                self.keyLen = len(self.codeKey)
             except:
                 self.codeKey = self.getRandMat(self.keyLen)
                 self.invKey = self.getInvKey()
