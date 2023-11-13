@@ -10,9 +10,9 @@ class Sistema():
         self.cipherText = None
         self.codeKey = None
 
-        if text != None:
+        if type(text) != type(None):
             self.setText(text)
-        if key != None:
+        if type(key) != type(None):
             self.setKey(key)
 
     def setText(self, text):
@@ -53,7 +53,7 @@ class Sistema():
         elif self.codificacion == "noSpaces":
             self.cleanText = list(''.join(self.text.split()))
         else:
-            pass
+            self.cleanText = self.text
 
     def codifyText(self):
         if self.codificacion == "0a25":

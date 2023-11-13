@@ -21,7 +21,7 @@ class Hill(Sistema):
         #self.keyLen = 5
         
         self.mode = mode
-        self.keyLen = 5
+        self.keyLen = len(key)
         self.text = text
         self.codeKey = None
         self.invKey = None
@@ -78,7 +78,7 @@ class Hill(Sistema):
         layers = data.shape[-1]
 
         key = self.codeKey
-        chunk = len(key)
+        chunk = self.keyLen
         final = np.zeros(data.shape)
 
         if self.mode == 'i':
@@ -101,7 +101,7 @@ class Hill(Sistema):
         layers = data.shape[-1]
 
         key = self.invKey
-        chunk = len(key)
+        chunk = self.keyLen
         final = np.zeros(data.shape)
 
         if self.mode == 'i':
