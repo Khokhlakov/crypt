@@ -1,3 +1,4 @@
+from random import randint, shuffle
 from Sistema import Sistema
 
 class Permutacion(Sistema):
@@ -58,4 +59,10 @@ class Permutacion(Sistema):
         self.decodifyText()
         return self.getCipherString()
 
-
+    def generateKey(self):
+        n = 3
+        if type(self.cleanText) != type(None):
+            n = len(self.cleanText)
+        temp = list(range(randint(3, n)))
+        shuffle(temp)
+        return temp

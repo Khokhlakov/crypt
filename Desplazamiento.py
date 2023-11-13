@@ -1,4 +1,5 @@
 import re
+from random import randint
 from Sistema import Sistema
 
 class Desplazamiento(Sistema):
@@ -43,7 +44,7 @@ class Desplazamiento(Sistema):
 
     def decrypt(self, text=None):
         self.hasCipherOutput = False
-        
+
         if text != None:
             self.setText(text)
         self.cipherCodeText = map(lambda x: (x - self.codeKey) % 26, self.codeText)
@@ -68,3 +69,6 @@ class Desplazamiento(Sistema):
                         3: sorted({key:round(100*value/(n-2), 2) for (key,value) in tempDict[3].items()}.items(), key=lambda x: x[1], reverse=True),
                         4: sorted({key:round(100*value/(n-3), 2) for (key,value) in tempDict[4].items()}.items(), key=lambda x: x[1], reverse=True)}
             self.freqDict = freqDict
+    
+    def generateKey(self):
+        return randint(0,25)

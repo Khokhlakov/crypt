@@ -1,4 +1,5 @@
 import re
+from random import choice, randint
 from Sistema import Sistema
 
 class Afin(Sistema):
@@ -14,6 +15,7 @@ class Afin(Sistema):
                   21:5,
                   23:17,
                   25:25}
+    coprimes26 = [1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25]
 
     def __init__(self, text = None, key = [1,0]):
         super(Afin, self).__init__(text, key, "0a25")
@@ -86,7 +88,7 @@ class Afin(Sistema):
 
     def decrypt(self, text=None):
         self.hasCipherOutput = False
-        
+
         if text != None:
             self.setText(text)
         self.cipherCodeText = map(lambda x: ((x - self.codeKey[1]) * Afin.inverseKey[self.codeKey[0]]) % 26, self.codeText)
@@ -111,3 +113,6 @@ class Afin(Sistema):
                         3: sorted({key:round(100*value/(n-2), 2) for (key,value) in tempDict[3].items()}.items(), key=lambda x: x[1], reverse=True),
                         4: sorted({key:round(100*value/(n-3), 2) for (key,value) in tempDict[4].items()}.items(), key=lambda x: x[1], reverse=True)}
             self.freqDict = freqDict
+
+    def generateKey(self):
+        return [choice(Afin.coprimes26), randint(0,25)]

@@ -1,4 +1,5 @@
 import re
+from random  import randint
 from Sistema import Sistema
 
 class Vigenere(Sistema):
@@ -40,3 +41,9 @@ class Vigenere(Sistema):
 
         self.decodifyText()
         return self.getCipherString()
+
+    def generateKey(self):
+        n = 3
+        if type(self.cleanText) != type(None):
+            n = len(self.cleanText)
+        return [randint(0,25) for x in range(randint(3,n))]
