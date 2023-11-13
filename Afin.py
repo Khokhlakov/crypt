@@ -17,6 +17,9 @@ class Afin(Sistema):
 
     def __init__(self, text = None, key = [1,0]):
         super(Afin, self).__init__(text, key, "0a25")
+        self.hasCipherOutput = False
+        self.freqDict = {1:[], 2:[], 3:[], 4:[]}
+
 
     def setKey(self, key):
         self.codeKey = [1,0]
@@ -77,11 +80,34 @@ class Afin(Sistema):
             self.setText(text)
         self.cipherCodeText = map(lambda x: (x * self.codeKey[0] + self.codeKey[1]) % 26, self.codeText)
         self.decodifyText()
+
+        self.hasCipherOutput = True
         return self.getCipherString()
 
     def decrypt(self, text=None):
+        self.hasCipherOutput = False
+        
         if text != None:
             self.setText(text)
         self.cipherCodeText = map(lambda x: ((x - self.codeKey[1]) * Afin.inverseKey[self.codeKey[0]]) % 26, self.codeText)
         self.decodifyText()
         return self.getCipherString()
+    
+    def getFreq(self):
+        if self.hasCipherOutput:
+            tempDict = {1:{}, 2:{}, 3:{}, 4:{}}
+            n = len(self.outputText)
+
+            for k in range(1,5):
+                for i in range(n+1-k):
+                    word = self.outputText[i:i+k]
+                    if word in tempDict[k].keys():
+                        tempDict[k][word] += 1
+                    else:
+                        tempDict[k][word] = 1
+
+            freqDict = {1: sorted({key:round(100*value/n, 2) for (key,value) in tempDict[1].items()}.items(), key=lambda x: x[1], reverse=True),
+                        2: sorted({key:round(100*value/(n-1), 2) for (key,value) in tempDict[2].items()}.items(), key=lambda x: x[1], reverse=True),
+                        3: sorted({key:round(100*value/(n-2), 2) for (key,value) in tempDict[3].items()}.items(), key=lambda x: x[1], reverse=True),
+                        4: sorted({key:round(100*value/(n-3), 2) for (key,value) in tempDict[4].items()}.items(), key=lambda x: x[1], reverse=True)}
+            self.freqDict = freqDict

@@ -9,6 +9,7 @@ class Sistema():
         self.cipherCodeText = None
         self.cipherText = None
         self.codeKey = None
+        self.outputText = None
 
         if type(text) != type(None):
             self.setText(text)
@@ -34,6 +35,7 @@ class Sistema():
 
     def getCipherString(self):
         cipherStr = ''.join([str(elem) for elem in self.cipherText])
+        self.outputText = cipherStr
         return cipherStr
     
     def getInputKey(self):
