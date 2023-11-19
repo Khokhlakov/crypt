@@ -41,6 +41,7 @@ customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "gre
 LARGEFONT =("Verdana", 35)
 dice_image = customtkinter.CTkImage(Image.open("dice.png"), size=(18, 18))
 larrow_image = customtkinter.CTkImage(Image.open("larrow.png"), size=(18, 18))
+swords_image = customtkinter.CTkImage(Image.open("swords.png"), size=(18, 18))
 
 
 class App(customtkinter.CTk):
@@ -248,8 +249,11 @@ class AffinePage(customtkinter.CTkFrame):
 
         # input
         self.entry = customtkinter.CTkTextbox(self)
-        self.entry.grid(row=1, column=0, rowspan=4, padx=(20, 0), pady=(20, 10), sticky="nsew")
+        self.entry.grid(row=1, column=0, rowspan=3, padx=(20, 0), pady=(20, 0), sticky="nsew")
         self.entry.insert("0.0", "Attack at noon")
+        button1 = customtkinter.CTkButton(self, text ="Clear",
+                            command = self.clearInput)
+        button1.grid(row = 4, column = 0, padx = (20,0), pady = (0,10), sticky="ew")
 
         self.swapFrame = customtkinter.CTkFrame(self, width=30, height=30, fg_color=self.cget("fg_color")) #their units in pixels
         button3 = customtkinter.CTkButton(self.swapFrame, 
@@ -277,7 +281,7 @@ class AffinePage(customtkinter.CTkFrame):
                             command = self.copyToClipboard)
         button1.grid(row = 4, column = 2, padx = (0,20), pady = (0,10), sticky="ew")
 
-        # Key part
+        # Key part (generation)
         self.keyFrame = customtkinter.CTkFrame(self, fg_color=self.cget("fg_color"))
         self.keyFrame.columnconfigure(0, weight=0)
         self.keyFrame.columnconfigure(1, weight=1)
@@ -292,10 +296,29 @@ class AffinePage(customtkinter.CTkFrame):
         self.entryKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Enter key")
         self.entryKey.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
 
+        # Key display
+        self.currentKeyFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.currentKeyFrame.columnconfigure(0, weight=1)
+        self.currentKeyFrame.grid(row = 1, column = 0, padx = (0,5), pady = 5, sticky="ew")
+        self.currentKeyFrameLabel = customtkinter.CTkLabel(self.currentKeyFrame, 
+                                                     text="Current Key:",
+                                                     corner_radius=6, 
+                                                     fg_color=['#979DA2', 'gray29'], 
+                                                     text_color=['#DCE4EE', '#DCE4EE'])
+        self.currentKeyFrameLabel.grid(row=0, column=0, columnspan=1, padx=0, pady=0, sticky="ew")
+
+        self.currentKeyFrameNumber = customtkinter.CTkLabel(self.keyFrame, 
+                                                     text="1",
+                                                     anchor="w")
+        self.currentKeyFrameNumber.grid(row=1, column=1, columnspan=1, padx=(5, 0), pady=0, sticky="ew")
+
         # Analysis
-        button2 = customtkinter.CTkButton(self, text ="Analyze",
-                            command = lambda : controller.show_frame(Page2))
-        button2.grid(row = 6, column = 0, padx = 10, pady = 10)
+        button2 = customtkinter.CTkButton(self.keyFrame,
+                                          compound="right",
+                                          text ="Attack                   ",
+                                          image=swords_image,
+                                          command = lambda : controller.show_frame(Page2))
+        button2.grid(row = 2, column = 0, padx = (0,5), pady = 20)
     
     def encrypt(self):
         inputKey = self.entryKey.get()
@@ -332,6 +355,9 @@ class AffinePage(customtkinter.CTkFrame):
     def swap(self):
         self.entry.delete('0.0', tk.END)
         self.entry.insert("0.0", self.textbox.get("0.0", tk.END))
+    
+    def clearInput(self):
+        self.entry.delete('0.0', tk.END)
 
 
 # Hill window frame
