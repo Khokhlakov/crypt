@@ -939,7 +939,7 @@ class VigenerePage(customtkinter.CTkFrame):
                                           text ="Attack                   ",
                                           image=swords_image,
                                           command = self.attack)
-        button2.grid(row = 2, column = 0, padx = (0,5), pady = 20)
+        button2.grid(row = 2, column = 0, padx = (0,5), pady = 20, sticky="n")
 
         # Number of keys to be recommended
         self.keyNumFrame = customtkinter.CTkFrame(self.keyFrame)
@@ -947,7 +947,7 @@ class VigenerePage(customtkinter.CTkFrame):
         self.keyNumFrame.grid(row = 2, column = 1, padx =0, pady = 20, sticky="new")
 
         self.keyLenFrame = customtkinter.CTkFrame(self.keyNumFrame)
-        self.keyLenFrame.grid(row = 0, column = 0, padx=0, pady=0, sticky="new")
+        self.keyLenFrame.grid(row = 0, column = 0, padx=0, pady=0, sticky="ew")
         self.keyLenFrame.grid_columnconfigure(0, weight=1)
         self.keyLenFrame.grid_rowconfigure(0, weight=1)
         self.ds_frame_label = customtkinter.CTkLabel(self.keyLenFrame, 
@@ -955,14 +955,29 @@ class VigenerePage(customtkinter.CTkFrame):
                                                      corner_radius=6)
         self.ds_frame_label.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
 
-
         self.seg_button = customtkinter.CTkSegmentedButton(self.keyNumFrame)
-        self.seg_button.grid(row=0, column=1, padx=(0, 5), pady=0, sticky="new")
+        self.seg_button.grid(row=0, column=1, padx=0, pady=0, sticky="new")
         self.seg_button.configure(values=["1", "2", "3", "4", "5", "6", "7"])
         self.seg_button.set("1")
 
+        # language to be used
+        self.langTextFrame = customtkinter.CTkFrame(self.keyNumFrame)
+        self.langTextFrame.grid(row = 1, column = 0, padx=0, pady=(5,0), sticky="new")
+        self.langTextFrame.grid_columnconfigure(0, weight=1)
+        self.langTextFrame.grid_rowconfigure(0, weight=1)
+        self.langLabel = customtkinter.CTkLabel(self.langTextFrame, 
+                                                     text="Language",
+                                                     corner_radius=6)
+        self.langLabel.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
+
+        self.seg_lang = customtkinter.CTkSegmentedButton(self.keyNumFrame)
+        self.seg_lang.grid(row=1, column=1, padx=0, pady=(5,0), sticky="new")
+        self.seg_lang.configure(values=["English", "French", "German", "Italian", "Portuguese", "Spanish"])
+        self.seg_lang.set("English")
+
+        # Attack textbox
         self.keyTextbox = customtkinter.CTkTextbox(self.keyFrame, state="disabled")
-        self.keyTextbox.grid(row=3, column=0, columnspan=2, padx=0, pady=0, sticky="ew")
+        self.keyTextbox.grid(row=4, column=0, columnspan=2, padx=0, pady=0, sticky="ew")
         self.keyTextbox.insert("0.0", "")
     
     def encrypt(self):
@@ -1064,7 +1079,7 @@ class HillPage(customtkinter.CTkFrame):
         self.grid_rowconfigure(2, weight=0)
 
         label = customtkinter.CTkLabel(self,
-                                       text="Hill Cipher",
+                                       text="HILL CIPHER",
                                        font=customtkinter.CTkFont(size=20, weight="bold"))
         label.grid(row=0, column=0, columnspan=3, padx=20, pady=(10,0), sticky="w")
 
