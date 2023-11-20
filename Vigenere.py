@@ -107,15 +107,14 @@ class Vigenere(Sistema):
         return self.getCipherString()
 
     def generateKey(self):
-        n = 3
-        if type(self.cleanText) != type(None):
-            n = len(self.cleanText)
-        return [randint(0,25) for x in range(randint(3,n))]
+        return [randint(0,25) for x in range(randint(3,15))]
     
     def getFreqIndex(self, string):
         finDict = {}
-
-        for i in range(3, 16):
+        upperBound = 16
+        if len(string) < 16:
+            upperBound = len(string)
+        for i in range(3, upperBound):
             text = string[0::i]
             tempDict = {}
             n = len(text)
@@ -133,7 +132,7 @@ class Vigenere(Sistema):
             finDict[i] = sum/(n*(n-1))
         return sorted(finDict.items(), key=lambda x: abs(x[1]-Vigenere.kappa[self.lang]))
 
-    def getFreq(string):
+    def getFreq(self, string):
         tempDict = {}
         n = len(string)
 
