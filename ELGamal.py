@@ -7,6 +7,23 @@ import math
 import sys
 import base64
 import pickle
+import Crypto
+from Crypto.Util.number import *
+
+#PART OF DESCRIPTION AND IMPLEMENTATION FROM Ryan Riddle
+#
+#This python program implements the ElGamal cryptosystem.  The program is capable of both
+#encrypting and decrypting a message.  
+
+#After the user has provided the necessary information the program will generate a pair
+#of keys (K1, K2) used for encryption and decryption.  K1 is the public key and contains
+#three integers (p, g, h).
+#       p is an n bit prime.
+#       g is the square of a primitive root mod p
+#       h = g^x mod p; x is randomly chosen, 1 <= x < p
+#h is computed using fast modular exponentiation, implemented as modexp( base, exp, modulus )
+#K2 is the private key and contains three integers (p, g, x) that are described above.
+
 
 class PrivateKey(object):
 	def __init__(self, p=None, g=None, x=None, iNumBits=0):
@@ -23,6 +40,7 @@ class PublicKey(object):
 		self.iNumBits = iNumBits
 
 class ElGamalCryptosystem:
+
     def __init__(self):
         self.plain_text = ""
         self.encrypted_text_base64 = ""
@@ -31,8 +49,9 @@ class ElGamalCryptosystem:
         self.public_key = None
         self.private_key_base64 = ""
 
-    def generate_new_key(self):
-        keys = self.generate_keys()
+#FUNCIONES PARA INTERFAZ
+    def generate_new_key(self, bits = 1024):
+        keys = self.generate_keys(bits)
         self.private_key = keys['privateKey']
         self.public_key = keys['publicKey']
         self.private_key_base64 = self.convert_private_key_to_base64()
@@ -65,6 +84,7 @@ class ElGamalCryptosystem:
         
         return decrypted_message
     
+#FUNCIONES DEL CODIGO ORIGINAL Y ALGUNOS AJUSTES
             
     # computes the greatest common denominator of a and b.  assumes a > b
     def gcd(self, a, b ):
@@ -78,24 +98,6 @@ class ElGamalCryptosystem:
     #computes base^exp mod modulus
     def modexp(self, base, exp, modulus ):
             return pow(base, exp, modulus)
-
-    #solovay-strassen primality test.  tests if num is prime
-    def SS( self, num, iConfidence ):
-            #ensure confidence of t
-            for i in range(iConfidence):
-                    #choose random a between 1 and n-2
-                    a = random.randint( 1, num-1 )
-
-                    #if a is not relatively prime to n, n is composite
-                    if self.gcd( a, num ) > 1:
-                            return False
-
-                    #declares n prime if jacobi(a, n) is congruent to a^((n-1)/2) mod n
-                    if not self.jacobi( a, num ) % num == self.modexp ( a, (num-1)//2, num ):
-                            return False
-
-            #if there have been t iterations without failure, num is believed to be prime
-            return True
 
     #computes the jacobi symbol of a, n
     def jacobi(self, a, n ):
@@ -155,26 +157,9 @@ class ElGamalCryptosystem:
                                     return g
 
     #find n bit prime
-    def find_prime(self, iNumBits, iConfidence):
-            #keep testing until one is found
-            while(1):
-                    #generate potential prime randomly
-                    p = random.randint( 2**(iNumBits-2), 2**(iNumBits-1) )
-                    #make sure it is odd
-                    while( p % 2 == 0 ):
-                            p = random.randint(2**(iNumBits-2),2**(iNumBits-1))
-
-                    #keep doing this if the solovay-strassen test fails
-                    while( not self.SS(p, iConfidence) ):
-                            p = random.randint( 2**(iNumBits-2), 2**(iNumBits-1) )
-                            while( p % 2 == 0 ):
-                                    p = random.randint(2**(iNumBits-2), 2**(iNumBits-1))
-
-                    #if p is prime compute p = 2*p + 1
-                    #if p is prime, we have succeeded; else, start over
-                    p = p * 2 + 1
-                    if self.SS(p, iConfidence):
-                            return p
+    def find_prime(self, iNumBits):
+        p = Crypto.Util.number.getPrime(iNumBits, randfunc=Crypto.Random.get_random_bytes)
+        return p
 
     #encodes bytes to integers mod p.  reads bytes from file
     def encode(self, sPlaintext, iNumBits):
@@ -258,12 +243,12 @@ class ElGamalCryptosystem:
             return decodedText
 
     #generates public key K1 (p, g, h) and private key K2 (p, g, x)
-    def generate_keys(self, iNumBits=100, iConfidence=32):
+    def generate_keys(self, iNumBits=1024):
             #p is the prime
             #g is the primitve root
             #x is random in (0, p-1) inclusive
             #h = g ^ x mod p
-            p = self.find_prime(iNumBits, iConfidence)
+            p = self.find_prime(iNumBits)
             g = self.find_primitive_root(p)
             g = self.modexp( g, 2, p )
             x = random.randint( 1, (p - 1) // 2 )
@@ -339,18 +324,24 @@ def test():
 
         return message == plain
 
+
+
 def test_new_functions():
+    #defines un objeto
     elgamal = ElGamalCryptosystem()
 
-    # Generar claves aleatorias
+    # Generar claves aleatorias, acepta como parametro un entero opcional (bits del primo p): aconsejable 1024, 512. Defecto: 1024
     elgamal.generate_new_key()
-    private_key_base64 = elgamal.private_key_base64
+    private_key_base64 = elgamal.private_key_base64 #String base 64 representa objeto PrivateKey arriba explicado
 
     print("Clave privada generada:", private_key_base64)
 
     # Cifrar un mensaje dado
     message = "Este es un mensaje de prueba."
     print("Mensaje original:",message)
+        #Al encriptar si no hay claves en los atributos de la clase, aleatoriamente se generará una clave, se podrá mostrar al usuario la clave publica,
+        #sin embargo, NO permitimos la opcion de que el usuario provea una clave publica para cifrar, ya que en el proceso de cifrar siempre se generará
+        #una clave k privada aleatoria, obteniendo un mensaje cifrado distinto con una misma clave publica.
     elgamal.encryption(message)
     encrypted_text = elgamal.encrypted_text_base64
 
