@@ -4,13 +4,17 @@ import tkinter.messagebox
 import customtkinter
 import imageio.v3 as iio
 import numpy as np
+from random import randint
+import shutil
 
 # Imports sistemas criptograficos
 from Desplazamiento import Desplazamiento
 from Multiplicativo import Multiplicativo
 from Afin import Afin
 from Vigenere import Vigenere
+from Permutacion import Permutacion
 from Hill import Hill
+from Blocks import *
 
 from tkinter import PhotoImage
 
@@ -113,7 +117,16 @@ class App(customtkinter.CTk):
 
         # iterating through a tuple consisting
         # of the different page layouts
-        for F in (HomePage, AffinePage, HillPage, MultiplicativePage, ShiftPage, VigenerePage, Page2):
+        for F in (HomePage, 
+                  AffinePage, 
+                  HillPage, 
+                  MultiplicativePage, 
+                  ShiftPage, 
+                  VigenerePage, 
+                  PermutationPage, 
+                  AESPage, 
+                  SDESPage,
+                  Page2):
 
             frame = F(self.scrollable_frame, self)
 
@@ -187,7 +200,9 @@ class HomePage(customtkinter.CTkFrame):
                                                        command=lambda : controller.show_frame(MultiplicativePage))
         multiplicativeButton.grid(row = 1, column = 0, padx = 10, pady = 10)
         
-        permutationButton = customtkinter.CTkButton(self.tabview.tab("Classical ciphers"), text ="Permutation")
+        permutationButton = customtkinter.CTkButton(self.tabview.tab("Classical ciphers"), 
+                                                    text ="Permutation",
+                                                    command=lambda : controller.show_frame(PermutationPage))
         permutationButton.grid(row = 1, column = 1, padx = 10, pady = 10)
 
         shiftButton = customtkinter.CTkButton(self.tabview.tab("Classical ciphers"), 
@@ -204,14 +219,19 @@ class HomePage(customtkinter.CTkFrame):
         vigenereButton.grid(row = 3, column = 0, padx = 10, pady = 10)
         
         # Block ciphers
+        aesButton = customtkinter.CTkButton(self.tabview.tab("Block ciphers"), 
+                                             text ="AES",
+                                             command = lambda : controller.show_frame(AESPage))
+        aesButton.grid(row = 0, column = 0, padx = 10, pady = 10)
 
-        button1 = customtkinter.CTkButton(self.tabview.tab("Block ciphers"), text ="Affine",
-        command = lambda : controller.show_frame(AffinePage))
-        button1.grid(row = 0, column = 0, padx = 10, pady = 10)
+        sdesButton = customtkinter.CTkButton(self.tabview.tab("Block ciphers"), 
+                                             text ="S-DES",
+                                             command = lambda : controller.show_frame(SDESPage))
+        sdesButton.grid(row = 0, column = 1, padx = 10, pady = 10)
 
-        button2 = customtkinter.CTkButton(self.tabview.tab("Block ciphers"), text ="Page 2",
-        command = lambda : controller.show_frame(Page2))
-        button2.grid(row = 0, column = 1, padx = 10, pady = 10)
+        tdesButton = customtkinter.CTkButton(self.tabview.tab("Block ciphers"), 
+                                             text ="T-DES")
+        tdesButton.grid(row = 1, column = 0, padx = 10, pady = 10)
 
         # Digital signatures
         self.ds_frame = customtkinter.CTkFrame(self)
@@ -371,6 +391,22 @@ class AffinePage(customtkinter.CTkFrame):
         self.seg_button.configure(values=["1", "2", "3", "4", "5", "6", "7"])
         self.seg_button.set("1")
 
+        # language to be used
+        self.langTextFrame = customtkinter.CTkFrame(self.keyNumFrame)
+        self.langTextFrame.grid(row = 1, column = 0, padx=0, pady=(5,0), sticky="new")
+        self.langTextFrame.grid_columnconfigure(0, weight=1)
+        self.langTextFrame.grid_rowconfigure(0, weight=1)
+        self.langLabel = customtkinter.CTkLabel(self.langTextFrame, 
+                                                     text="Language",
+                                                     corner_radius=6)
+        self.langLabel.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
+
+        self.seg_lang = customtkinter.CTkSegmentedButton(self.keyNumFrame)
+        self.seg_lang.grid(row=1, column=1, padx=0, pady=(5,0), sticky="new")
+        self.seg_lang.configure(values=["English", "French", "German", "Italian", "Portuguese", "Spanish"])
+        self.seg_lang.set("English")
+
+        # attack textbox
         self.keyTextbox = customtkinter.CTkTextbox(self.keyFrame, state="disabled")
         self.keyTextbox.grid(row=3, column=0, columnspan=2, padx=0, pady=0, sticky="ew")
         self.keyTextbox.insert("0.0", "")
@@ -405,6 +441,8 @@ class AffinePage(customtkinter.CTkFrame):
         self.entry.delete('0.0', tk.END)
 
     def attack(self):
+        self.system.lang = self.seg_lang.get()
+
         inputText = self.entry.get("0.0", tk.END)
         self.system.setText(inputText)
         cleanString = self.system.getCleanString()
@@ -415,7 +453,7 @@ class AffinePage(customtkinter.CTkFrame):
             # Display recommended keys
 
             self.keyTextbox.configure(state="normal")
-            outputString = "Test the following keys:\n"
+            outputString = "Test the following keys for " + self.system.lang + ":\n"
 
             for i in range(numKeys):
                 key1 = keys1[i][0]
@@ -569,6 +607,22 @@ class MultiplicativePage(customtkinter.CTkFrame):
         self.seg_button.configure(values=["1", "2", "3", "4", "5", "6", "7"])
         self.seg_button.set("1")
 
+        # language to be used
+        self.langTextFrame = customtkinter.CTkFrame(self.keyNumFrame)
+        self.langTextFrame.grid(row = 1, column = 0, padx=0, pady=(5,0), sticky="new")
+        self.langTextFrame.grid_columnconfigure(0, weight=1)
+        self.langTextFrame.grid_rowconfigure(0, weight=1)
+        self.langLabel = customtkinter.CTkLabel(self.langTextFrame, 
+                                                     text="Language",
+                                                     corner_radius=6)
+        self.langLabel.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
+
+        self.seg_lang = customtkinter.CTkSegmentedButton(self.keyNumFrame)
+        self.seg_lang.grid(row=1, column=1, padx=0, pady=(5,0), sticky="new")
+        self.seg_lang.configure(values=["English", "French", "German", "Italian", "Portuguese", "Spanish"])
+        self.seg_lang.set("English")
+
+        # attack textbox
         self.keyTextbox = customtkinter.CTkTextbox(self.keyFrame, state="disabled")
         self.keyTextbox.grid(row=3, column=0, columnspan=2, padx=0, pady=0, sticky="ew")
         self.keyTextbox.insert("0.0", "")
@@ -603,6 +657,8 @@ class MultiplicativePage(customtkinter.CTkFrame):
         self.entry.delete('0.0', tk.END)
 
     def attack(self):
+        self.system.lang = self.seg_lang.get()
+
         inputText = self.entry.get("0.0", tk.END)
         self.system.setText(inputText)
         cleanString = self.system.getCleanString()
@@ -612,7 +668,7 @@ class MultiplicativePage(customtkinter.CTkFrame):
             
             # Display recommended keys
             self.keyTextbox.configure(state="normal")
-            outputString = "Test the following keys:\n"
+            outputString = "Test the following keys for " + self.system.lang + ":\n"
 
             for i in range(numKeys):
                 key1 = keys1[i][0]
@@ -765,6 +821,22 @@ class ShiftPage(customtkinter.CTkFrame):
         self.seg_button.configure(values=["1", "2", "3", "4", "5", "6", "7"])
         self.seg_button.set("1")
 
+        # language to be used
+        self.langTextFrame = customtkinter.CTkFrame(self.keyNumFrame)
+        self.langTextFrame.grid(row = 1, column = 0, padx=0, pady=(5,0), sticky="new")
+        self.langTextFrame.grid_columnconfigure(0, weight=1)
+        self.langTextFrame.grid_rowconfigure(0, weight=1)
+        self.langLabel = customtkinter.CTkLabel(self.langTextFrame, 
+                                                     text="Language",
+                                                     corner_radius=6)
+        self.langLabel.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
+
+        self.seg_lang = customtkinter.CTkSegmentedButton(self.keyNumFrame)
+        self.seg_lang.grid(row=1, column=1, padx=0, pady=(5,0), sticky="new")
+        self.seg_lang.configure(values=["English", "French", "German", "Italian", "Portuguese", "Spanish"])
+        self.seg_lang.set("English")
+
+        # Attack textbox
         self.keyTextbox = customtkinter.CTkTextbox(self.keyFrame, state="disabled")
         self.keyTextbox.grid(row=3, column=0, columnspan=2, padx=0, pady=0, sticky="ew")
         self.keyTextbox.insert("0.0", "")
@@ -799,6 +871,8 @@ class ShiftPage(customtkinter.CTkFrame):
         self.entry.delete('0.0', tk.END)
 
     def attack(self):
+        self.system.lang = self.seg_lang.get()
+
         inputText = self.entry.get("0.0", tk.END)
         self.system.setText(inputText)
         cleanString = self.system.getCleanString()
@@ -808,7 +882,7 @@ class ShiftPage(customtkinter.CTkFrame):
             
             # Display recommended keys
             self.keyTextbox.configure(state="normal")
-            outputString = "Test the following keys:\n"
+            outputString = "Test the following keys for " + self.system.lang + ":\n"
 
             for i in range(numKeys):
                 key1 = keys1[i][0]
@@ -1010,6 +1084,8 @@ class VigenerePage(customtkinter.CTkFrame):
         self.entry.delete('0.0', tk.END)
 
     def attack(self):
+        self.system.lang = self.seg_lang.get()
+
         inputText = self.entry.get("0.0", tk.END)
         self.system.setText(inputText)
         cleanString = self.system.getCleanString()
@@ -1019,7 +1095,7 @@ class VigenerePage(customtkinter.CTkFrame):
             
             # Display recommended keys
             self.keyTextbox.configure(state="normal")
-            outputString = "Test the following keys:\n"
+            outputString = "Test the following keys for " + self.system.lang + ":\n"
 
             for i in range(numKeys):
                 key1 = keys[i][0]
@@ -1062,6 +1138,212 @@ class VigenerePage(customtkinter.CTkFrame):
         self.currentKeyFrameNumber.configure(text=newKeyStr)
 
 
+# Permutacion window frame
+class PermutationPage(customtkinter.CTkFrame):
+    def __init__(self, parent, controller):
+        self.system = Permutacion(key=[0])
+        self.currentKey = "(0)"
+
+        customtkinter.CTkFrame.__init__(self, parent)
+
+        self.grid_columnconfigure((0,2), weight=1)
+        self.grid_columnconfigure(1, weight=0)
+
+        label = customtkinter.CTkLabel(self,
+                                       text="PERMUTATION CIPHER",
+                                       font=customtkinter.CTkFont(size=20, weight="bold"))
+        label.grid(row=0, column=0, columnspan=3, padx=20, pady=(10,0), sticky="w")
+
+        # input
+        self.entry = customtkinter.CTkTextbox(self)
+        self.entry.grid(row=1, column=0, rowspan=3, padx=(20, 0), pady=(20, 0), sticky="nsew")
+        self.entry.insert("0.0", "Attack at noon")
+        button1 = customtkinter.CTkButton(self, text ="Clear",
+                            command = self.clearInput)
+        button1.grid(row = 4, column = 0, padx = (20,0), pady = (0,10), sticky="ew")
+
+        self.swapFrame = customtkinter.CTkFrame(self, width=30, height=30, fg_color=self.cget("fg_color")) #their units in pixels
+        button3 = customtkinter.CTkButton(self.swapFrame, 
+                                          text ="",
+                                          image=larrow_image,
+                                          command=self.swap)
+        self.swapFrame.grid_propagate(False)
+        self.swapFrame.columnconfigure(0, weight=1)
+        self.swapFrame.rowconfigure(0,weight=1)
+        self.swapFrame.grid(row=1, column=1, sticky="n", pady=20)
+        button3.grid(sticky="wens")
+
+        button1 = customtkinter.CTkButton(self,
+                                          compound="right",
+                                          text ="Encrypt                ", 
+                                          image=lock1_image,
+                                          command=self.encrypt)
+        button1.grid(row = 2, column = 1, padx = 5, pady = 5, sticky="sew")
+
+        button2 = customtkinter.CTkButton(self, 
+                                          compound="right",
+                                          text ="Decrypt                ", 
+                                          image=lock2_image,
+                                          command=self.decrypt)
+        button2.grid(row = 3, column = 1, padx = 5, pady = 5, sticky="sew")
+
+        
+        # output
+        self.textbox = customtkinter.CTkTextbox(self, state="disabled")
+        self.textbox.grid(row=1, column=2, rowspan=3, padx=(0,20), pady=(20, 0), sticky="nsew")
+        self.textbox.insert("0.0", "")
+        button1 = customtkinter.CTkButton(self, text ="Copy",
+                            command = self.copyToClipboard)
+        button1.grid(row = 4, column = 2, padx = (0,20), pady = (0,10), sticky="ew")
+
+        # Key part (generation)
+        self.keyFrame = customtkinter.CTkFrame(self, fg_color=self.cget("fg_color"))
+        self.keyFrame.columnconfigure(0, weight=0)
+        self.keyFrame.columnconfigure(1, weight=1)
+        self.keyFrame.grid(row = 5, column = 0, columnspan=3, padx=20, pady=20, sticky="ew")
+        button1 = customtkinter.CTkButton(self.keyFrame, 
+                                          compound="right",
+                                          text ="Generate Key      ",
+                                          image=dice_image,
+                                          command = self.generateKey)
+        button1.grid(row = 0, column = 0, padx = (0,5), pady = 0)
+
+        self.entryKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input key and hit enter")
+        self.entryKey.bind("<Return>", command=lambda x: self.setKeyFromEntry())
+        self.entryKey.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
+
+        # Key display
+        self.currentKeyFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.currentKeyFrame.columnconfigure(0, weight=1)
+        self.currentKeyFrame.grid(row = 1, column = 0, padx = (0,5), pady = 5, sticky="ew")
+        self.currentKeyFrameLabel = customtkinter.CTkLabel(self.currentKeyFrame, 
+                                                     text="Current Key:",
+                                                     corner_radius=6, 
+                                                     fg_color=['#979DA2', 'gray29'], 
+                                                     text_color=['#DCE4EE', '#DCE4EE'])
+        self.currentKeyFrameLabel.grid(row=0, column=0, columnspan=1, padx=0, pady=0, sticky="ew")
+
+        self.currentKeyFrameNumber = customtkinter.CTkLabel(self.keyFrame, 
+                                                     text="(0)",
+                                                     anchor="w")
+        self.currentKeyFrameNumber.grid(row=1, column=1, columnspan=1, padx=(5, 0), pady=0, sticky="ew")
+
+        # Analysis
+        button2 = customtkinter.CTkButton(self.keyFrame,
+                                          compound="right",
+                                          text ="Attack                   ",
+                                          image=swords_image,
+                                          command = self.attack)
+        button2.grid(row = 2, column = 0, padx = (0,5), pady = 20)
+
+        # Number of keys to be recommended
+        self.keyNumFrame = customtkinter.CTkFrame(self.keyFrame)
+        self.keyNumFrame.columnconfigure(1, weight=1)
+        self.keyNumFrame.grid(row = 2, column = 1, padx =0, pady = 20, sticky="new")
+
+        self.keyLenFrame = customtkinter.CTkFrame(self.keyNumFrame)
+        self.keyLenFrame.grid(row = 0, column = 0, padx=0, pady=0, sticky="new")
+        self.keyLenFrame.grid_columnconfigure(0, weight=1)
+        self.keyLenFrame.grid_rowconfigure(0, weight=1)
+        self.ds_frame_label = customtkinter.CTkLabel(self.keyLenFrame, 
+                                                     text="Number of keys",
+                                                     corner_radius=6)
+        self.ds_frame_label.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
+
+
+        self.seg_button = customtkinter.CTkSegmentedButton(self.keyNumFrame)
+        self.seg_button.grid(row=0, column=1, padx=(0, 5), pady=0, sticky="new")
+        self.seg_button.configure(values=["10", "100", "1000", "46232"])
+        self.seg_button.set("10")
+        
+        # Attack textbox
+        self.keyTextbox = customtkinter.CTkTextbox(self.keyFrame, state="disabled")
+        self.keyTextbox.grid(row=3, column=0, columnspan=2, padx=0, pady=0, sticky="ew")
+        self.keyTextbox.insert("0.0", "")
+    
+    def encrypt(self):
+        inputText = self.entry.get("0.0", tk.END)
+
+        cipherText = self.system.encrypt(inputText)
+        self.textbox.configure(state="normal")
+        self.textbox.delete('1.0', tk.END)
+        self.textbox.insert("0.0", cipherText)
+        self.textbox.configure(state="disabled")
+        
+    def decrypt(self):
+        inputText = self.entry.get("0.0", tk.END)
+
+        cipherText = self.system.decrypt(inputText)
+        self.textbox.configure(state="normal")
+        self.textbox.delete('0.0', tk.END)
+        self.textbox.insert("0.0", cipherText)
+        self.textbox.configure(state="disabled")
+    
+    def copyToClipboard(self):
+        self.clipboard_clear()
+        self.clipboard_append(self.textbox.get("0.0", tk.END))
+
+    def swap(self):
+        self.entry.delete('0.0', tk.END)
+        self.entry.insert("0.0", self.textbox.get("0.0", tk.END))
+    
+    def clearInput(self):
+        self.entry.delete('0.0', tk.END)
+
+    def attack(self):
+
+        inputText = self.entry.get("0.0", tk.END)
+        self.system.setText(inputText)
+        cleanString = self.system.getCleanString()
+        if cleanString != "":
+            numKeys = int(self.seg_button.get())
+            keys = self.system.getBestKeys(cleanString, num=numKeys)
+            
+            # Display recommended keys
+            splitText = True
+            if len(cleanString) <= 100:
+                splitText = False
+            else:
+                rInt = randint(31, len(cleanString)-61)
+
+            self.keyTextbox.configure(state="normal")
+            outputString = "Here is a list of keys with the text that results from deciphering with those keys. It has been ordered assuming the language of the plaintext is english.\n\n"
+
+            for i in range(numKeys):
+                key = keys[i][0]
+                text = keys[i][1]
+                outputString += str(key) + "\n"
+                if splitText:
+                    outputString += text[:31]+"..." + text[rInt:rInt+31]+"..."+text[-30:] + "\n"
+                else:
+                    outputString += text + "\n"
+                outputString += "\n"
+
+            self.keyTextbox.delete('0.0', tk.END)
+            self.keyTextbox.insert("0.0", outputString)
+            self.keyTextbox.configure(state="disabled")
+        else:
+            self.keyTextbox.configure(state="normal")
+            self.keyTextbox.delete('0.0', tk.END)
+            self.keyTextbox.insert("0.0", "The input box is empty!")
+            self.keyTextbox.configure(state="disabled")
+    
+    def generateKey(self):
+        newKey = self.system.generateKey()
+        self.system.setKey(newKey)
+        newKeyStr = "("+str(newKey)[1:-1]+")"
+        self.currentKeyFrameNumber.configure(text=newKeyStr)
+        self.currentKey = newKeyStr
+    
+    def setKeyFromEntry(self):
+        inputKey = self.entryKey.get()
+
+        self.system.setKey(inputKey)
+        newKeyStr = "("+str(self.system.codeKey)[1:-1]+")"
+        self.currentKeyFrameNumber.configure(text=newKeyStr)
+        self.currentKey = newKeyStr
+
+
 # Hill window frame
 class HillPage(customtkinter.CTkFrame):
 
@@ -1071,21 +1353,28 @@ class HillPage(customtkinter.CTkFrame):
         self.dirty = False
         self.dirtyOutput = False
         
-
         customtkinter.CTkFrame.__init__(self, parent)
-        self.grid_columnconfigure((0,2), weight=1)
-        self.grid_columnconfigure((1,3), weight=0)
-        self.grid_rowconfigure(1, weight=1)
-        self.grid_rowconfigure(2, weight=0)
-
         label = customtkinter.CTkLabel(self,
                                        text="HILL CIPHER",
                                        font=customtkinter.CTkFont(size=20, weight="bold"))
-        label.grid(row=0, column=0, columnspan=3, padx=20, pady=(10,0), sticky="w")
+        label.grid(row=0, column=0, padx=20, pady=(10,0), sticky="w")
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+
+        self.tabs = customtkinter.CTkTabview(self)
+        self.tabs.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+        self.tabs.add("Image")
+        self.tabs.add("Text")
+        self.tabs.tab("Image").grid_columnconfigure((0,2), weight=1)
+        self.tabs.tab("Image").grid_columnconfigure((1,3), weight=0)
+        self.tabs.tab("Image").grid_rowconfigure(1, weight=1)
+        self.tabs.tab("Image").grid_rowconfigure(2, weight=0)
+        
 
         # input image dir: self.imgName
         ### Start img mngmnt
-        self.inputImgFrame = customtkinter.CTkFrame(self)
+        self.inputImgFrame = customtkinter.CTkFrame(self.tabs.tab("Image"))
         self.inputImgFrame.configure(width=300,height=300)
         self.inputImgFrame.grid_propagate(False)
         self.inputImgFrame.columnconfigure(0, weight=1)
@@ -1097,14 +1386,14 @@ class HillPage(customtkinter.CTkFrame):
                                                fg_color=['#979DA2', 'gray29'],
                                                text_color=['#DCE4EE', '#DCE4EE'])
         self.inputImg.grid(column = 0, row = 0, padx=0, pady=0, sticky="nsew")
-        self.button_explore = customtkinter.CTkButton(self, 
-                                text = "Input image",
-                                command = lambda: self.browseFiles()) 
+        self.button_explore = customtkinter.CTkButton(self.tabs.tab("Image"), 
+                                                    text = "Input image",
+                                                    command = lambda: self.browseFiles()) 
         self.button_explore.grid(column = 0, row = 4, padx = (20,0), pady = 0, sticky="new")
         ### End img mngmnt
 
         # middle buttons
-        self.swapFrame = customtkinter.CTkFrame(self, width=30, height=30, fg_color=self.cget("fg_color")) #their units in pixels
+        self.swapFrame = customtkinter.CTkFrame(self.tabs.tab("Image"), width=30, height=30, fg_color=self.cget("fg_color")) #their units in pixels
         button3 = customtkinter.CTkButton(self.swapFrame, 
                                           text ="",
                                           image=larrow_image,
@@ -1115,14 +1404,14 @@ class HillPage(customtkinter.CTkFrame):
         self.swapFrame.grid(row=1, column=1, sticky="n", pady=0)
         button3.grid(sticky="wens")
 
-        button1 = customtkinter.CTkButton(self,
+        button1 = customtkinter.CTkButton(self.tabs.tab("Image"),
                                           compound="right",
                                           text ="Encrypt                ", 
                                           image=lock1_image,
                                           command=self.encrypt)
         button1.grid(row = 2, column = 1, padx = 5, pady = 5, sticky="sew")
 
-        button2 = customtkinter.CTkButton(self,
+        button2 = customtkinter.CTkButton(self.tabs.tab("Image"),
                                           compound="right",
                                           text ="Decrypt                ", 
                                           image=lock2_image,
@@ -1130,7 +1419,7 @@ class HillPage(customtkinter.CTkFrame):
         button2.grid(row = 3, column = 1, padx = 5, pady = 5, sticky="sew")
 
         # output
-        self.outputImgFrame = customtkinter.CTkFrame(self)
+        self.outputImgFrame = customtkinter.CTkFrame(self.tabs.tab("Image"))
         self.outputImgFrame.grid_propagate(False)
         self.outputImgFrame.columnconfigure(0, weight=1)
         self.outputImgFrame.rowconfigure(0, weight=1)
@@ -1143,13 +1432,13 @@ class HillPage(customtkinter.CTkFrame):
                                                text_color=['#DCE4EE', '#DCE4EE'])
         self.outputImg.grid(column = 0, row = 0, padx=0, pady=0, sticky="nsew")
 
-        self.buttonSave = customtkinter.CTkButton(self, 
+        self.buttonSave = customtkinter.CTkButton(self.tabs.tab("Image"), 
                                                   text = "Save",
                                                   command = self.saveFile) 
         self.buttonSave.grid(column = 2, row = 4, padx = (0,20), pady = (0,10), sticky="new")
 
         # Key Part
-        self.keyFrame = customtkinter.CTkFrame(self, fg_color=self.cget("fg_color"))
+        self.keyFrame = customtkinter.CTkFrame(self.tabs.tab("Image"), fg_color=self.cget("fg_color"))
         self.keyFrame.columnconfigure(2, weight=1)
         self.keyFrame.grid(row = 5, column = 0, columnspan=3, padx=20, pady=20, sticky="new")
         button1 = customtkinter.CTkButton(self.keyFrame, 
@@ -1324,10 +1613,7 @@ class HillPage(customtkinter.CTkFrame):
             newOverallShape = list(self.img.shape)
             newShape[0] = n-residue
             newOverallShape[0] += n-residue
-            if len(self.img.shape) < 3:
-                self.img = np.append(self.img, np.random.randint(0, 255, size=newShape, dtype=int) , axis=0)
-            else:
-                self.img = np.append(self.img, np.random.randint(0, 1, size=newShape, dtype=int) , axis=0)
+            self.img = np.append(self.img, np.random.randint(0, 255, size=newShape, dtype=int) , axis=0)
             self.original_shape = newOverallShape
     
     def swap(self):
@@ -1349,6 +1635,633 @@ class HillPage(customtkinter.CTkFrame):
 
             self.inputImg.configure(image=imgObject)
             self.inputImg.image = imgObject
+
+
+# AES window frame
+class AESPage(customtkinter.CTkFrame):
+
+    def __init__(self, parent, controller):
+        self.dirty = False
+        self.dirtyOutput = False
+
+        self.keyAES, self.ivAES = getRandAES(16)
+
+        customtkinter.CTkFrame.__init__(self, parent)
+        self.grid_columnconfigure((0,2), weight=1)
+        self.grid_columnconfigure((1,3), weight=0)
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=0)
+
+        label = customtkinter.CTkLabel(self,
+                                       text="AES",
+                                       font=customtkinter.CTkFont(size=20, weight="bold"))
+        label.grid(row=0, column=0, columnspan=3, padx=20, pady=(10,0), sticky="w")
+
+        # input image dir: self.imgName
+        ### Start img mngmnt
+        self.inputImgFrame = customtkinter.CTkFrame(self)
+        self.inputImgFrame.configure(width=300,height=300)
+        self.inputImgFrame.grid_propagate(False)
+        self.inputImgFrame.columnconfigure(0, weight=1)
+        self.inputImgFrame.rowconfigure(0, weight=1)
+        self.inputImgFrame.grid(column = 0, row = 1, rowspan=3, padx=(20, 0), pady=0, sticky="nsew")
+        self.inputImg = customtkinter.CTkLabel(self.inputImgFrame, 
+                                               text="",
+                                               corner_radius=6,
+                                               fg_color=['#979DA2', 'gray29'],
+                                               text_color=['#DCE4EE', '#DCE4EE'])
+        self.inputImg.grid(column = 0, row = 0, padx=0, pady=0, sticky="nsew")
+        self.button_explore = customtkinter.CTkButton(self, 
+                                text = "Input image",
+                                command = lambda: self.browseFiles()) 
+        self.button_explore.grid(column = 0, row = 4, padx = (20,0), pady = 0, sticky="new")
+        ### End img mngmnt
+
+        # middle buttons
+        self.swapFrame = customtkinter.CTkFrame(self, width=30, height=30, fg_color=self.cget("fg_color")) #their units in pixels
+        button3 = customtkinter.CTkButton(self.swapFrame, 
+                                          text ="",
+                                          image=larrow_image,
+                                          command=self.swap)
+        self.swapFrame.grid_propagate(False)
+        self.swapFrame.columnconfigure(0, weight=1)
+        self.swapFrame.rowconfigure(0,weight=1)
+        self.swapFrame.grid(row=1, column=1, sticky="n", pady=0)
+        button3.grid(sticky="wens")
+
+        button1 = customtkinter.CTkButton(self,
+                                          compound="right",
+                                          text ="Encrypt                ", 
+                                          image=lock1_image,
+                                          command=self.encrypt)
+        button1.grid(row = 2, column = 1, padx = 5, pady = 5, sticky="sew")
+
+        button2 = customtkinter.CTkButton(self,
+                                          compound="right",
+                                          text ="Decrypt                ", 
+                                          image=lock2_image,
+                                          command=self.decrypt)
+        button2.grid(row = 3, column = 1, padx = 5, pady = 5, sticky="sew")
+
+        # output
+        self.outputImgFrame = customtkinter.CTkFrame(self)
+        self.outputImgFrame.grid_propagate(False)
+        self.outputImgFrame.columnconfigure(0, weight=1)
+        self.outputImgFrame.rowconfigure(0, weight=1)
+        self.outputImgFrame.configure(width=300,height=300)
+        self.outputImgFrame.grid(column = 2, row = 1, rowspan=3, padx=(0, 20), pady=0, sticky="nsew")
+        self.outputImg = customtkinter.CTkLabel(self.outputImgFrame, 
+                                               text="",
+                                               corner_radius=6,
+                                               fg_color=['#979DA2', 'gray29'],
+                                               text_color=['#DCE4EE', '#DCE4EE'])
+        self.outputImg.grid(column = 0, row = 0, padx=0, pady=0, sticky="nsew")
+
+        self.buttonSave = customtkinter.CTkButton(self, 
+                                                  text = "Save",
+                                                  command = self.saveFile) 
+        self.buttonSave.grid(column = 2, row = 4, padx = (0,20), pady = (0,10), sticky="new")
+
+        # Key Part
+        self.keyFrame = customtkinter.CTkFrame(self, fg_color=self.cget("fg_color"))
+        self.keyFrame.columnconfigure(2, weight=1)
+        self.keyFrame.grid(row = 5, column = 0, columnspan=3, padx=20, pady=20, sticky="new")
+
+        # key input
+        self.entryKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input key and hit enter")
+        self.entryKey.bind("<Return>", command=lambda x: self.setKeyFromEntry())
+        self.entryKey.grid(row=0, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="new")
+
+
+        self.genButton = customtkinter.CTkButton(self.keyFrame, 
+                                          compound="right",
+                                          text ="Generate Key      ",
+                                          image=dice_image,
+                                          command = lambda : self.changeKey())
+        self.genButton.grid(row = 1, column = 3, padx = (0,5), pady = 0, sticky="new")
+
+
+        self.keyLenFrame = customtkinter.CTkFrame(self.keyFrame)
+        self.keyLenFrame.grid(row = 1, column = 1, padx=0, pady=0, sticky="new")
+        self.keyLenFrame.grid_columnconfigure(0, weight=1)
+        self.keyLenFrame.grid_rowconfigure((0,1), weight=1)
+        self.ds_frame_label = customtkinter.CTkLabel(self.keyLenFrame, 
+                                                     text="Key size",
+                                                     corner_radius=6)
+        self.ds_frame_label.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
+
+
+        self.seg_button = customtkinter.CTkSegmentedButton(self.keyFrame)
+        self.seg_button.grid(row=1, column=2, padx=(0, 5), pady=0, sticky="new")
+        self.seg_button.configure(values=["16", "24", "32"])
+        self.seg_button.set("16")
+
+        # block mode
+        self.keyModeFrame = customtkinter.CTkFrame(self.keyFrame)
+        self.keyModeFrame.grid(row = 2, column = 1, padx=0, pady=0, sticky="new")
+        self.keyModeFrame.grid_columnconfigure(0, weight=1)
+        self.keyModeFrame.grid_rowconfigure(0, weight=1)
+        self.mode_frame_label = customtkinter.CTkLabel(self.keyModeFrame, 
+                                                     text="Mode",
+                                                     corner_radius=6)
+        self.mode_frame_label.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
+
+
+        self.mode_seg_button = customtkinter.CTkSegmentedButton(self.keyFrame)
+        self.mode_seg_button.grid(row=2, column=2, padx=(0, 5), pady=0, sticky="new")
+        self.mode_seg_button.configure(values=["ECB", "CBC", "OFB", "CTR"])
+        self.mode_seg_button.set("CBC")
+
+        # Key display
+        self.currentKeyFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"), height=150)
+        self.currentKeyFrame.grid_propagate(False)
+        self.currentKeyFrame.grid(row = 0, column = 0, rowspan=3, padx=(0,5), pady=0, sticky="new")
+        self.currentKeyFrameLabel = customtkinter.CTkLabel(self.currentKeyFrame, 
+                                                     text="Current Key",
+                                                     corner_radius=6, 
+                                                     fg_color=['#979DA2', 'gray29'], 
+                                                     text_color=['#DCE4EE', '#DCE4EE'])
+        self.currentKeyFrameLabel.grid(row=0, column=0, columnspan=1, padx=0, pady=0, sticky="ew")
+
+        self.textbox = customtkinter.CTkTextbox(self.currentKeyFrame, state="disabled")
+        self.textbox.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")
+        self.textbox.insert("0.0", "")
+
+        
+        # Display key
+        self.textbox.configure(state="normal")
+        self.textbox.delete('0.0', tk.END)
+        self.textbox.insert("0.0", self.byteToHex(self.keyAES))
+        self.textbox.configure(state="disabled")
+
+    def browseFiles(self):
+        self.dirty = True
+
+        # image dir
+        self.dirty = True
+        self.imgName = filedialog.askopenfilename(initialdir = "/",
+                                                    title = "Select a File",
+                                                    filetypes = (("Picture files",
+                                                                "*.png;*.jpg;*.ppm;*.bmp"),
+                                                                ('All files', '*.*')))
+        
+        # file to be encrypted
+        # original: self.img (array)
+        self.img = np.array(iio.imread(self.imgName))
+
+        # Save file to "plain_image.png"
+        imgToEncrypt = self.img.astype('uint8')
+        iio.imwrite("plain_image.png", imgToEncrypt)
+        self.inputImageName = "plain_image.png"
+
+        # file to be displayed
+        imgList = self.imgName.split(".")
+        self.anyFormatImage = Image.open(self.imgName)
+        self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
+        self.originalFormat = imgList[1]
+        self.resizedImgName = imgList[0]+".ppm"
+        self.anyFormatImage.save(self.resizedImgName)
+
+        # Change label contents
+        imgObject = PhotoImage(file = self.resizedImgName)
+
+        self.inputImg.configure(image=imgObject)
+        self.inputImg.image = imgObject
+    
+    def encrypt(self):
+        if self.dirty:
+            self.dirtyOutput = True
+
+            # Creates output named: 'aes_output.png'
+            encrypt_image_AES(self.inputImageName, 
+                              self.mode_seg_button.get(), 
+                              self.keyAES, 
+                              self.ivAES)
+
+            # Save save-able copy
+            shutil.copy("aes_output.png","output_image_for_saving.png")
+            self.imageOnOutputName = "aes_output.png"
+
+            # file to be displayed
+            self.anyFormatOutputImage = Image.open("aes_output.png")
+            self.anyFormatOutputImage.thumbnail((500,500), Image.LANCZOS)
+            self.resizedOutputImgName = "aes_output.ppm"
+            self.anyFormatOutputImage.save(self.resizedOutputImgName)
+
+            # Change label contents
+            imgObject = PhotoImage(file = self.resizedOutputImgName)
+
+            self.outputImg.configure(image=imgObject)
+
+
+    def decrypt(self):
+        if self.dirty:
+            self.dirtyOutput = True
+
+            # Creates output named: 'aes_output.png'
+            decrypt_image_AES(self.inputImageName, 
+                              self.mode_seg_button.get(), 
+                              self.keyAES, 
+                              self.ivAES)
+
+            # Save save-able copy
+            shutil.copy("aes_output.png", "output_image_for_saving.png")
+            self.imageOnOutputName = "aes_output.png"
+
+            # file to be displayed
+            self.anyFormatOutputImage = Image.open("aes_output.png")
+            self.anyFormatOutputImage.thumbnail((500,500), Image.LANCZOS)
+            self.resizedOutputImgName = "aes_output.ppm"
+            self.anyFormatOutputImage.save(self.resizedOutputImgName)
+
+            # Change label contents
+            imgObject = PhotoImage(file = self.resizedOutputImgName)
+
+            self.outputImg.configure(image=imgObject)
+
+
+    def changeKey(self):
+        self.keyAES, self.ivAES = getRandAES(int(self.seg_button.get()))
+
+        # Display key
+        self.textbox.configure(state="normal")
+        self.textbox.delete('0.0', tk.END)
+        self.textbox.insert("0.0", self.byteToHex(self.keyAES))
+        self.textbox.configure(state="disabled")
+    
+    def setKeyFromEntry(self):
+        inputKey = self.entryKey.get()
+        try:
+            inputKeyList = inputKey.split(" ")
+            print(inputKeyList)
+            self.keyAES = self.hexToByte(inputKeyList)
+            print(self.hexToByte(inputKeyList))
+        except:
+            pass
+
+        # Display key
+        self.textbox.configure(state="normal")
+        self.textbox.delete('0.0', tk.END)
+        self.textbox.insert("0.0", self.byteToHex(self.keyAES))
+        self.textbox.configure(state="disabled")
+
+    def saveFile(self):
+        if self.dirtyOutput:
+            myImage = Image.open("output_image_for_saving.png")
+            file = filedialog.asksaveasfile(mode='wb', 
+                                            filetypes = (("png","*.png"),
+                                                        ('All files', '*.*')),
+                                            defaultextension=".png")
+            if file:
+                myImage.save(file) # saves the image to the input file name. 
+    
+    def swap(self):
+        if self.dirtyOutput:
+            self.imgName = self.imageOnOutputName
+            self.img = np.array(iio.imread(self.imgName))
+            self.original_shape = self.img.shape
+
+            # Save file to "plain_image.png"
+            imgToEncrypt = self.img.astype('uint8')
+            iio.imwrite("plain_image.png", imgToEncrypt)
+
+            # file to be displayed
+            imgList = self.imgName.split(".")
+            self.anyFormatImage = Image.open(self.imgName)
+            self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
+            self.originalFormat = imgList[1]
+            self.resizedImgName = imgList[0]+".ppm"
+            self.anyFormatImage.save(self.resizedImgName)
+
+            # Change label contents
+            imgObject = PhotoImage(file = self.resizedImgName)
+
+            self.inputImg.configure(image=imgObject)
+            self.inputImg.image = imgObject
+    
+    def byteToHex(self, bytes):
+        listBytes = list(bytes)
+        return [hex(x).split('x')[-1] for x in listBytes]
+    
+    def hexToByte(self, hexList):
+        return bytes([int(x,16) for x in hexList])
+    
+
+
+# S-DES window frame
+class SDESPage(customtkinter.CTkFrame):
+
+    def __init__(self, parent, controller):
+        self.dirty = False
+        self.dirtyOutput = False
+
+        self.keyAES, self.ivAES = getRandAES(16)
+
+        customtkinter.CTkFrame.__init__(self, parent)
+        self.grid_columnconfigure((0,2), weight=1)
+        self.grid_columnconfigure((1,3), weight=0)
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=0)
+
+        label = customtkinter.CTkLabel(self,
+                                       text="SDES",
+                                       font=customtkinter.CTkFont(size=20, weight="bold"))
+        label.grid(row=0, column=0, columnspan=3, padx=20, pady=(10,0), sticky="w")
+
+        # input image dir: self.imgName
+        ### Start img mngmnt
+        self.inputImgFrame = customtkinter.CTkFrame(self)
+        self.inputImgFrame.configure(width=300,height=300)
+        self.inputImgFrame.grid_propagate(False)
+        self.inputImgFrame.columnconfigure(0, weight=1)
+        self.inputImgFrame.rowconfigure(0, weight=1)
+        self.inputImgFrame.grid(column = 0, row = 1, rowspan=3, padx=(20, 0), pady=0, sticky="nsew")
+        self.inputImg = customtkinter.CTkLabel(self.inputImgFrame, 
+                                               text="",
+                                               corner_radius=6,
+                                               fg_color=['#979DA2', 'gray29'],
+                                               text_color=['#DCE4EE', '#DCE4EE'])
+        self.inputImg.grid(column = 0, row = 0, padx=0, pady=0, sticky="nsew")
+        self.button_explore = customtkinter.CTkButton(self, 
+                                text = "Input image",
+                                command = lambda: self.browseFiles()) 
+        self.button_explore.grid(column = 0, row = 4, padx = (20,0), pady = 0, sticky="new")
+        ### End img mngmnt
+
+        # middle buttons
+        self.swapFrame = customtkinter.CTkFrame(self, width=30, height=30, fg_color=self.cget("fg_color")) #their units in pixels
+        button3 = customtkinter.CTkButton(self.swapFrame, 
+                                          text ="",
+                                          image=larrow_image,
+                                          command=self.swap)
+        self.swapFrame.grid_propagate(False)
+        self.swapFrame.columnconfigure(0, weight=1)
+        self.swapFrame.rowconfigure(0,weight=1)
+        self.swapFrame.grid(row=1, column=1, sticky="n", pady=0)
+        button3.grid(sticky="wens")
+
+        button1 = customtkinter.CTkButton(self,
+                                          compound="right",
+                                          text ="Encrypt                ", 
+                                          image=lock1_image,
+                                          command=self.encrypt)
+        button1.grid(row = 2, column = 1, padx = 5, pady = 5, sticky="sew")
+
+        button2 = customtkinter.CTkButton(self,
+                                          compound="right",
+                                          text ="Decrypt                ", 
+                                          image=lock2_image,
+                                          command=self.decrypt)
+        button2.grid(row = 3, column = 1, padx = 5, pady = 5, sticky="sew")
+
+        # output
+        self.outputImgFrame = customtkinter.CTkFrame(self)
+        self.outputImgFrame.grid_propagate(False)
+        self.outputImgFrame.columnconfigure(0, weight=1)
+        self.outputImgFrame.rowconfigure(0, weight=1)
+        self.outputImgFrame.configure(width=300,height=300)
+        self.outputImgFrame.grid(column = 2, row = 1, rowspan=3, padx=(0, 20), pady=0, sticky="nsew")
+        self.outputImg = customtkinter.CTkLabel(self.outputImgFrame, 
+                                               text="",
+                                               corner_radius=6,
+                                               fg_color=['#979DA2', 'gray29'],
+                                               text_color=['#DCE4EE', '#DCE4EE'])
+        self.outputImg.grid(column = 0, row = 0, padx=0, pady=0, sticky="nsew")
+
+        self.buttonSave = customtkinter.CTkButton(self, 
+                                                  text = "Save",
+                                                  command = self.saveFile) 
+        self.buttonSave.grid(column = 2, row = 4, padx = (0,20), pady = (0,10), sticky="new")
+
+        # Key Part
+        self.keyFrame = customtkinter.CTkFrame(self, fg_color=self.cget("fg_color"))
+        self.keyFrame.columnconfigure(2, weight=1)
+        self.keyFrame.grid(row = 5, column = 0, columnspan=3, padx=20, pady=20, sticky="new")
+
+        # key input
+        self.entryKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input key and hit enter")
+        self.entryKey.bind("<Return>", command=lambda x: self.setKeyFromEntry())
+        self.entryKey.grid(row=0, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="new")
+
+
+        self.genButton = customtkinter.CTkButton(self.keyFrame, 
+                                          compound="right",
+                                          text ="Generate Key      ",
+                                          image=dice_image,
+                                          command = lambda : self.changeKey())
+        self.genButton.grid(row = 1, column = 3, padx = (0,5), pady = 0, sticky="new")
+
+
+        self.keyLenFrame = customtkinter.CTkFrame(self.keyFrame)
+        self.keyLenFrame.grid(row = 1, column = 1, padx=0, pady=0, sticky="new")
+        self.keyLenFrame.grid_columnconfigure(0, weight=1)
+        self.keyLenFrame.grid_rowconfigure((0,1), weight=1)
+        self.ds_frame_label = customtkinter.CTkLabel(self.keyLenFrame, 
+                                                     text="Key size",
+                                                     corner_radius=6)
+        self.ds_frame_label.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
+
+
+        self.seg_button = customtkinter.CTkSegmentedButton(self.keyFrame)
+        self.seg_button.grid(row=1, column=2, padx=(0, 5), pady=0, sticky="new")
+        self.seg_button.configure(values=["16", "24", "32"])
+        self.seg_button.set("16")
+
+        # block mode
+        self.keyModeFrame = customtkinter.CTkFrame(self.keyFrame)
+        self.keyModeFrame.grid(row = 2, column = 1, padx=0, pady=0, sticky="new")
+        self.keyModeFrame.grid_columnconfigure(0, weight=1)
+        self.keyModeFrame.grid_rowconfigure(0, weight=1)
+        self.mode_frame_label = customtkinter.CTkLabel(self.keyModeFrame, 
+                                                     text="Mode",
+                                                     corner_radius=6)
+        self.mode_frame_label.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
+
+
+        self.mode_seg_button = customtkinter.CTkSegmentedButton(self.keyFrame)
+        self.mode_seg_button.grid(row=2, column=2, padx=(0, 5), pady=0, sticky="new")
+        self.mode_seg_button.configure(values=["ECB", "CBC", "OFB", "CTR"])
+        self.mode_seg_button.set("CBC")
+
+        # Key display
+        self.currentKeyFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"), height=150)
+        self.currentKeyFrame.grid_propagate(False)
+        self.currentKeyFrame.grid(row = 0, column = 0, rowspan=3, padx=(0,5), pady=0, sticky="new")
+        self.currentKeyFrameLabel = customtkinter.CTkLabel(self.currentKeyFrame, 
+                                                     text="Current Key",
+                                                     corner_radius=6, 
+                                                     fg_color=['#979DA2', 'gray29'], 
+                                                     text_color=['#DCE4EE', '#DCE4EE'])
+        self.currentKeyFrameLabel.grid(row=0, column=0, columnspan=1, padx=0, pady=0, sticky="ew")
+
+        self.textbox = customtkinter.CTkTextbox(self.currentKeyFrame, state="disabled")
+        self.textbox.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")
+        self.textbox.insert("0.0", "")
+
+        
+        # Display key
+        self.textbox.configure(state="normal")
+        self.textbox.delete('0.0', tk.END)
+        self.textbox.insert("0.0", self.byteToHex(self.keyAES))
+        self.textbox.configure(state="disabled")
+
+    def browseFiles(self):
+        self.dirty = True
+
+        # image dir
+        self.dirty = True
+        self.imgName = filedialog.askopenfilename(initialdir = "/",
+                                                    title = "Select a File",
+                                                    filetypes = (("Picture files",
+                                                                "*.png;*.jpg;*.ppm;*.bmp"),
+                                                                ('All files', '*.*')))
+        
+        # file to be encrypted
+        # original: self.img (array)
+        self.img = np.array(iio.imread(self.imgName))
+
+        # Save file to "plain_image.png"
+        imgToEncrypt = self.img.astype('uint8')
+        iio.imwrite("plain_image.png", imgToEncrypt)
+        self.inputImageName = "plain_image.png"
+
+        # file to be displayed
+        imgList = self.imgName.split(".")
+        self.anyFormatImage = Image.open(self.imgName)
+        self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
+        self.originalFormat = imgList[1]
+        self.resizedImgName = imgList[0]+".ppm"
+        self.anyFormatImage.save(self.resizedImgName)
+
+        # Change label contents
+        imgObject = PhotoImage(file = self.resizedImgName)
+
+        self.inputImg.configure(image=imgObject)
+        self.inputImg.image = imgObject
+    
+    def encrypt(self):
+        block = Blocks("S-DES", "CTR", 10)
+        block.encrypt()
+        block.decrypt()
+        if self.dirty:
+            self.dirtyOutput = True
+
+            # Creates output named: 'aes_output.png'
+            encrypt_image_AES(self.inputImageName, 
+                              self.mode_seg_button.get(), 
+                              self.keyAES, 
+                              self.ivAES)
+
+            # Save save-able copy
+            shutil.copy("aes_output.png","output_image_for_saving.png")
+            self.imageOnOutputName = "aes_output.png"
+
+            # file to be displayed
+            self.anyFormatOutputImage = Image.open("aes_output.png")
+            self.anyFormatOutputImage.thumbnail((500,500), Image.LANCZOS)
+            self.resizedOutputImgName = "aes_output.ppm"
+            self.anyFormatOutputImage.save(self.resizedOutputImgName)
+
+            # Change label contents
+            imgObject = PhotoImage(file = self.resizedOutputImgName)
+
+            self.outputImg.configure(image=imgObject)
+
+
+    def decrypt(self):
+        if self.dirty:
+            self.dirtyOutput = True
+
+            # Creates output named: 'aes_output.png'
+            decrypt_image_AES(self.inputImageName, 
+                              self.mode_seg_button.get(), 
+                              self.keyAES, 
+                              self.ivAES)
+
+            # Save save-able copy
+            shutil.copy("aes_output.png", "output_image_for_saving.png")
+            self.imageOnOutputName = "aes_output.png"
+
+            # file to be displayed
+            self.anyFormatOutputImage = Image.open("aes_output.png")
+            self.anyFormatOutputImage.thumbnail((500,500), Image.LANCZOS)
+            self.resizedOutputImgName = "aes_output.ppm"
+            self.anyFormatOutputImage.save(self.resizedOutputImgName)
+
+            # Change label contents
+            imgObject = PhotoImage(file = self.resizedOutputImgName)
+
+            self.outputImg.configure(image=imgObject)
+
+
+    def changeKey(self):
+        self.keyAES, self.ivAES = getRandAES(int(self.seg_button.get()))
+
+        # Display key
+        self.textbox.configure(state="normal")
+        self.textbox.delete('0.0', tk.END)
+        self.textbox.insert("0.0", self.byteToHex(self.keyAES))
+        self.textbox.configure(state="disabled")
+    
+    def setKeyFromEntry(self):
+        inputKey = self.entryKey.get()
+        try:
+            inputKeyList = inputKey.split(" ")
+            print(inputKeyList)
+            self.keyAES = self.hexToByte(inputKeyList)
+            print(self.hexToByte(inputKeyList))
+        except:
+            pass
+
+        # Display key
+        self.textbox.configure(state="normal")
+        self.textbox.delete('0.0', tk.END)
+        self.textbox.insert("0.0", self.byteToHex(self.keyAES))
+        self.textbox.configure(state="disabled")
+
+    def saveFile(self):
+        if self.dirtyOutput:
+            myImage = Image.open("output_image_for_saving.png")
+            file = filedialog.asksaveasfile(mode='wb', 
+                                            filetypes = (("png","*.png"),
+                                                        ('All files', '*.*')),
+                                            defaultextension=".png")
+            if file:
+                myImage.save(file) # saves the image to the input file name. 
+    
+    def swap(self):
+        if self.dirtyOutput:
+            self.imgName = self.imageOnOutputName
+            self.img = np.array(iio.imread(self.imgName))
+            self.original_shape = self.img.shape
+
+            # Save file to "plain_image.png"
+            imgToEncrypt = self.img.astype('uint8')
+            iio.imwrite("plain_image.png", imgToEncrypt)
+
+            # file to be displayed
+            imgList = self.imgName.split(".")
+            self.anyFormatImage = Image.open(self.imgName)
+            self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
+            self.originalFormat = imgList[1]
+            self.resizedImgName = imgList[0]+".ppm"
+            self.anyFormatImage.save(self.resizedImgName)
+
+            # Change label contents
+            imgObject = PhotoImage(file = self.resizedImgName)
+
+            self.inputImg.configure(image=imgObject)
+            self.inputImg.image = imgObject
+    
+    def byteToHex(self, bytes):
+        listBytes = list(bytes)
+        return [hex(x).split('x')[-1] for x in listBytes]
+    
+    def hexToByte(self, hexList):
+        return bytes([int(x,16) for x in hexList])
+
+
+
 
 # third window frame page2
 class Page2(customtkinter.CTkFrame):
