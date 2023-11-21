@@ -172,71 +172,88 @@ class HomePage(customtkinter.CTkFrame):
     def __init__(self, parent, controller):
         customtkinter.CTkFrame.__init__(self, parent)
 
-        self.columnconfigure(0,weight=0)
-        self.columnconfigure(1,weight=1)
+        self.columnconfigure((0,1),weight=1)
 
         # create tabview
         self.tabview = customtkinter.CTkTabview(self, width=250)
         self.tabview.grid(row=0, column=0, padx=(20, 0), pady=(20, 0), rowspan=10, sticky="nsew")
         self.tabview.add("Classical ciphers")
         self.tabview.add("Block ciphers")
-        self.tabview.tab("Classical ciphers").grid_columnconfigure(0, weight=1)  # configure grid of individual tabs
+        self.tabview.add("Public key")
+        self.tabview.tab("Classical ciphers").grid_columnconfigure((0,1), weight=1)  # configure grid of individual tabs
         
-        self.tabview.tab("Block ciphers").grid_columnconfigure(0, weight=1)
+        self.tabview.tab("Block ciphers").grid_columnconfigure((0,1), weight=1)
+
+        self.tabview.tab("Public key").grid_columnconfigure((0,1), weight=1)
 
         # Basic ciphers
         affineButton = customtkinter.CTkButton(self.tabview.tab("Classical ciphers"), 
                                                text ="Affine",
                                                command = lambda : controller.show_frame(AffinePage))
-        affineButton.grid(row = 0, column = 0, padx = 10, pady = 10)
+        affineButton.grid(row = 0, column = 0, padx = 10, pady = 10, sticky="ew")
 
         hillButton = customtkinter.CTkButton(self.tabview.tab("Classical ciphers"), 
                                              text ="Hill",
                                              command = lambda : controller.show_frame(HillPage))
-        hillButton.grid(row = 0, column = 1, padx = 10, pady = 10)
+        hillButton.grid(row = 0, column = 1, padx = 10, pady = 10, sticky="ew")
 
         multiplicativeButton = customtkinter.CTkButton(self.tabview.tab("Classical ciphers"), 
                                                        text ="Multiplicative",
                                                        command=lambda : controller.show_frame(MultiplicativePage))
-        multiplicativeButton.grid(row = 1, column = 0, padx = 10, pady = 10)
+        multiplicativeButton.grid(row = 1, column = 0, padx = 10, pady = 10, sticky="ew")
         
         permutationButton = customtkinter.CTkButton(self.tabview.tab("Classical ciphers"), 
                                                     text ="Permutation",
                                                     command=lambda : controller.show_frame(PermutationPage))
-        permutationButton.grid(row = 1, column = 1, padx = 10, pady = 10)
+        permutationButton.grid(row = 1, column = 1, padx = 10, pady = 10, sticky="ew")
 
         shiftButton = customtkinter.CTkButton(self.tabview.tab("Classical ciphers"), 
                                               text ="Shift",
                                               command=lambda : controller.show_frame(ShiftPage))
-        shiftButton.grid(row = 2, column = 0, padx = 10, pady = 10)
+        shiftButton.grid(row = 2, column = 0, padx = 10, pady = 10, sticky="ew")
         
         transpositionButton = customtkinter.CTkButton(self.tabview.tab("Classical ciphers"), text ="Transposition")
-        transpositionButton.grid(row = 2, column = 1, padx = 10, pady = 10)
+        transpositionButton.grid(row = 2, column = 1, padx = 10, pady = 10, sticky="ew")
 
         vigenereButton = customtkinter.CTkButton(self.tabview.tab("Classical ciphers"), 
                                                  text ="Vigenere",
                                                  command=lambda : controller.show_frame(VigenerePage))
-        vigenereButton.grid(row = 3, column = 0, padx = 10, pady = 10)
+        vigenereButton.grid(row = 3, column = 0, padx = 10, pady = 10, sticky="ew")
         
         # Block ciphers
         aesButton = customtkinter.CTkButton(self.tabview.tab("Block ciphers"), 
                                              text ="AES",
                                              command = lambda : controller.show_frame(AESPage))
-        aesButton.grid(row = 0, column = 0, padx = 10, pady = 10)
+        aesButton.grid(row = 0, column = 0, padx = 10, pady = 10, sticky="ew")
 
         sdesButton = customtkinter.CTkButton(self.tabview.tab("Block ciphers"), 
                                              text ="S-DES",
                                              command = lambda : controller.show_frame(SDESPage))
-        sdesButton.grid(row = 0, column = 1, padx = 10, pady = 10)
+        sdesButton.grid(row = 0, column = 1, padx = 10, pady = 10, sticky="ew")
 
         tdesButton = customtkinter.CTkButton(self.tabview.tab("Block ciphers"), 
                                              text ="T-DES")
-        tdesButton.grid(row = 1, column = 0, padx = 10, pady = 10)
+        tdesButton.grid(row = 1, column = 0, padx = 10, pady = 10, sticky="ew")
+
+        # Public Key
+        aesButton = customtkinter.CTkButton(self.tabview.tab("Public key"), 
+                                             text ="RSA",
+                                             command = lambda : controller.show_frame(AESPage))
+        aesButton.grid(row = 0, column = 0, padx = 10, pady = 10, sticky="ew")
+
+        sdesButton = customtkinter.CTkButton(self.tabview.tab("Public key"), 
+                                             text ="ElGamal",
+                                             command = lambda : controller.show_frame(SDESPage))
+        sdesButton.grid(row = 0, column = 1, padx = 10, pady = 10, sticky="ew")
+
+        tdesButton = customtkinter.CTkButton(self.tabview.tab("Public key"), 
+                                             text ="Rabin")
+        tdesButton.grid(row = 1, column = 0, padx = 10, pady = 10, sticky="ew")
 
         # Digital signatures
         self.ds_frame = customtkinter.CTkFrame(self)
         self.ds_frame.grid(row = 0, column = 1, rowspan=5, padx=(20, 20), pady=(20, 0), sticky="ew")
-        self.ds_frame.grid_columnconfigure(0, weight=1)
+        self.ds_frame.grid_columnconfigure((0,1), weight=1)
         self.ds_frame_label = customtkinter.CTkLabel(self.ds_frame, 
                                                      text="Generate a digital signature",
                                                      corner_radius=6, 
@@ -247,11 +264,11 @@ class HomePage(customtkinter.CTkFrame):
         
         button1 = customtkinter.CTkButton(self.ds_frame, text ="Affine",
         command = lambda : controller.show_frame(AffinePage))
-        button1.grid(row = 1, column = 0, padx = 10, pady = 10)
+        button1.grid(row = 1, column = 0, padx = 10, pady = 10, sticky="ew")
 
         button2 = customtkinter.CTkButton(self.ds_frame, text ="Page 2",
         command = lambda : controller.show_frame(Page2))
-        button2.grid(row = 1, column = 1, padx = 10, pady = 10)
+        button2.grid(row = 1, column = 1, padx = 10, pady = 10, sticky="ew")
 
         
 
