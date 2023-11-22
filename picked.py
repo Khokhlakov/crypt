@@ -65,7 +65,7 @@ class App(customtkinter.CTk):
         
         #self.title("CustomTkinter complex_example.py")
         self.geometry(f"{1100}x{580}")
-        self.title("Picked")
+        self.title("PiCKED")
         self.after(250, lambda: self.iconbitmap("icono.ico"))
         # New init
         # creating a container
