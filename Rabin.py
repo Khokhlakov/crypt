@@ -12,6 +12,13 @@ def encryption(plaintext, n):
     if plaintext >= n: print("ERROR: too long plain text")
     return plaintext ** 2 % n
 
+def simpleEncryption(msg, n):
+    plaintext =  bytes_to_long(msg.encode('utf-8'))
+    # c = m^2 mod n
+    plaintext = padding(plaintext)
+    if plaintext >= n: print("ERROR: too long plain text")
+    return plaintext ** 2 % n
+
 
 def padding(plaintext):
     binary_str = bin(plaintext)     # convert to a bit string

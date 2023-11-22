@@ -116,6 +116,7 @@ def componentes_clave():
     # Acceder a los valores específicos de la clave pública y privada
     public_key = rsa_obj.public_key.public_numbers()
     private_key = rsa_obj.private_key.private_numbers()
+    
 
     # Obtener los componentes principales
     modulus_n = public_key.n  # Módulo (n) de la clave pública
@@ -134,4 +135,4 @@ def componentes_clave():
 
 # Ejecutar el test
 #test_rsa_encryption()
-
+#componentes_clave()

@@ -66,52 +66,84 @@ class Desplazamiento(Sistema):
                                       'Z':0.098
                                     }}
 
-    def __init__(self, text = None, key = 0):
-        super(Desplazamiento, self).__init__(text, key, "0a25")
+    def __init__(self, text = None, key = 0, codi="0a25"):
+        super(Desplazamiento, self).__init__(text, key, codi)
         self.hasCipherOutput = False
         self.freqDict = {1:[], 2:[], 3:[], 4:[]}
         self.lang = 'English'
 
     def setKey(self, key):
-        self.key = key
-        
-        if type(key) == int:
-            self.codeKey = key % 26
-        else:
-            key = re.sub(r'\W+', '', key)
-            try:
-                self.codeKey = int(key) % 26
-            except ValueError:
-                # key contiene characteres no numericos o vacio
-                if len(key) > 0:
-                    ordKey = ord(key[0].upper())
-                    if ordKey < 65:
-                        key = re.match(r'\d+', key).group()
-                        self.codeKey = int(key) % 26
-                    elif ordKey <= 90:
-                        self.codeKey = ordKey - 65
+        if self.codificacion == "0a25":
+            self.key = key
+            
+            if type(key) == int:
+                self.codeKey = key % 26
+            else:
+                key = re.sub(r'\W+', '', key)
+                try:
+                    self.codeKey = int(key) % 26
+                except ValueError:
+                    # key contiene characteres no numericos o vacio
+                    if len(key) > 0:
+                        ordKey = ord(key[0].upper())
+                        if ordKey < 65:
+                            key = re.match(r'\d+', key).group()
+                            self.codeKey = int(key) % 26
+                        elif ordKey <= 90:
+                            self.codeKey = ordKey - 65
+                        else:
+                            print("Clave invalida; reajustada a: 0")
+                            self.codeKey = 0
                     else:
                         print("Clave invalida; reajustada a: 0")
                         self.codeKey = 0
-                else:
-                    print("Clave invalida; reajustada a: 0")
-                    self.codeKey = 0
+        else:
+            self.key = key
+            
+            if type(key) == int:
+                self.codeKey = key % 95
+            else:
+                key = re.sub(r'\W+', '', key)
+                try:
+                    self.codeKey = int(key) % 95
+                except ValueError:
+                    # key contiene characteres no numericos o vacio
+                    if len(key) > 0:
+                        ordKey = ord(key[0])
+                        if ordKey < 58 and 47 < ordKey:
+                            key = re.match(r'\d+', key).group()
+                            self.codeKey = int(key) % 95
+                        elif ordKey < 127 and 31 < ordKey:
+                            self.codeKey = ordKey - 32
+                        else:
+                            print("Clave invalida; reajustada a: 0")
+                            self.codeKey = 0
+                    else:
+                        print("Clave invalida; reajustada a: 0")
+                        self.codeKey = 0
 
     def encrypt(self, text=None):
         if text != None:
             self.setText(text)
-        self.cipherCodeText = map(lambda x: (x + self.codeKey) % 26, self.codeText)
+        if self.codificacion == "0a25":
+            self.cipherCodeText = map(lambda x: (x + self.codeKey) % 26, self.codeText)
+        else:
+            self.cipherCodeText = map(lambda x: (x + self.codeKey) % 95, self.codeText)
         self.decodifyText()
 
         self.hasCipherOutput = True
         return self.getCipherString()
+
 
     def decrypt(self, text=None):
         self.hasCipherOutput = False
 
         if text != None:
             self.setText(text)
-        self.cipherCodeText = map(lambda x: (x - self.codeKey) % 26, self.codeText)
+        if self.codificacion == "0a25":
+            self.cipherCodeText = map(lambda x: (x - self.codeKey) % 26, self.codeText)
+        else:
+            self.cipherCodeText = map(lambda x: (x - self.codeKey) % 95, self.codeText)
         self.decodifyText()
         return self.getCipherString()
 
@@ -135,7 +167,9 @@ class Desplazamiento(Sistema):
             self.freqDict = freqDict
     
     def generateKey(self):
-        return randint(0,25)
+        if self.codificacion == "0a25":
+            return randint(0,25)
+        return randint(0,94)
 
     ### Analisis
     def getFreqOfStr(self, string):
@@ -170,3 +204,46 @@ class Desplazamiento(Sistema):
             num = len(option1)
 
         return (option1[:num], option2[:num])
+
+    ### Analisis
+    def getFreq2(self, string):
+        tempDict = {}
+        n = len(string)
+
+        for i in range(n):
+            word = string[i]
+            if word in tempDict.keys():
+                tempDict[word] += 1
+            else:
+                tempDict[word] = 1
+        
+        # normalized frequencies
+        freqDict = {key:value/n for (key,value) in tempDict.items()}
+        return freqDict
+
+    def getBestKeys2(self, string):
+        system = Desplazamiento(text=string)
+
+        bestChoice = []
+        regex = re.compile('[^A-Z]')
+
+        for i in range(95):
+            system.setKey(i)
+            outputString = system.decrypt()
+
+            outputString = regex.sub('', outputString.upper())
+
+            freqDict = self.getFreq2(outputString)
+    
+            # Assign score to decryption
+            sum = 0
+            for char in freqDict.keys():
+                sum += Desplazamiento.characterFrequency[self.lang][char]*freqDict[char]
+            
+            # (key, deciphered text, score)
+            bestChoice.append((i, outputString, sum/100))
+
+        option = sorted(bestChoice, key=lambda x: x[2], reverse=True)
+        
+        return option
+    

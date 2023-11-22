@@ -48,6 +48,7 @@ class ElGamalCryptosystem:
         self.private_key = None
         self.public_key = None
         self.private_key_base64 = ""
+        self.public_key_base64 = ""
 
 #FUNCIONES PARA INTERFAZ
     def generate_new_key(self, bits = 1024):
@@ -55,10 +56,15 @@ class ElGamalCryptosystem:
         self.private_key = keys['privateKey']
         self.public_key = keys['publicKey']
         self.private_key_base64 = self.convert_private_key_to_base64()
+        self.public_key_base64 = self.convert_public_key_to_base64()
 
     def convert_private_key_to_base64(self):
         serialized_private_key = pickle.dumps(self.private_key)
         return base64.b64encode(serialized_private_key).decode('utf-8')
+    
+    def convert_public_key_to_base64(self):
+        serialized_public_key = pickle.dumps(self.public_key)
+        return base64.b64encode(serialized_public_key).decode('utf-8')
 
     def encryption(self, message):
         self.plain_text = message
@@ -67,6 +73,15 @@ class ElGamalCryptosystem:
 
         cipher = self.encrypt(self.public_key, message)
         self.encrypted_text_base64 = base64.b64encode(cipher.encode()).decode('utf-8')
+
+    def encryption2(self, message, public_key_base64):
+        self.plain_text = message
+        
+        decoded_public_key = base64.b64decode(public_key_base64)
+        self.public_key = pickle.loads(decoded_public_key)
+
+        cipher = self.encrypt(self.public_key, message)
+        self.encrypted_text_base64 = base64.b64encode(cipher.encode()).decode('utf-8')    
 
     
     def decryption(self, private_key_base64=None, encrypted_text_base64=None):
@@ -321,6 +336,7 @@ def test():
         message = "My name is Ryan.  Here is some french text:  Maître Corbeau, sur un arbre perché.  Now some Chinese: 鋈 晛桼桾 枲柊氠 藶藽 歾炂盵 犈犆犅 壾, 軹軦軵 寁崏庲 摮 蟼襛 蝩覤 蜭蜸覟 駽髾髽 忷扴汥 "
         cipher = elgamal.encrypt(pub, message)
         plain = elgamal.decrypt(priv, cipher)
+        print(priv, pub)
 
         return message == plain
 
@@ -353,3 +369,4 @@ def test_new_functions():
     print("Texto descifrado:", decrypted_text)
 
 #test_new_functions()
+#test()

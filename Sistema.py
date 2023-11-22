@@ -54,13 +54,23 @@ class Sistema():
 
         elif self.codificacion == "noSpaces":
             self.cleanText = list(''.join(self.text.split()))
+        elif self.codificacion == "0a95":
+            upperText = self.text
+
+            textList = []
+            for i in upperText:
+                if ord(i) <= 126 and ord(i) >= 32:
+                    textList.append(i)
+
+            self.cleanText = textList
         else:
             self.cleanText = self.text
 
     def codifyText(self):
         if self.codificacion == "0a25":
             self.codeText = [ord(x)-65 for x in self.cleanText]
-
+        elif self.codificacion == "0a95":
+            self.codeText = [ord(x)-32 for x in self.cleanText]
         elif self.codificacion == "noSpaces":
             self.codeText = self.cleanText
         else:
@@ -69,7 +79,8 @@ class Sistema():
     def decodifyText(self):
         if self.codificacion == "0a25":
             self.cipherText = [chr(x+65) for x in self.cipherCodeText]
-
+        elif self.codificacion == "0a95":
+            self.cipherText = [chr(x+32) for x in self.cipherCodeText]
         elif self.codificacion == "noSpaces":
             self.cipherText = self.cipherCodeText
         else:

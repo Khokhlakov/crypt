@@ -119,7 +119,7 @@ class Permutacion(Sistema):
         return freqDict
 
     # num: number of keys
-    def getBestKeys(self, string, num=2):
+    def getBestKeys(self, string):
         system = Permutacion(text=string)
         perms = [list(permutations(range(i))) for i in range(2,9)]
 
@@ -146,4 +146,4 @@ class Permutacion(Sistema):
 
         option = sorted(bestChoice, key=lambda x: x[2], reverse=True)
         
-        return option[:num]
+        return option
