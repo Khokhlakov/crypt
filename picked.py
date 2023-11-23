@@ -18,6 +18,7 @@ from Hill import Hill
 from RSA import RSAEncryption
 from ELGamal import ElGamalCryptosystem
 import Rabin
+from SDES import SimplerDES
 from Blocks import *
 
 from tkinter import PhotoImage
@@ -2768,7 +2769,11 @@ class SDESPage(customtkinter.CTkFrame):
         self.dirty = False
         self.dirtyOutput = False
 
-        self.keyAES = getRandAES(16)
+        self.system = SimplerDES()
+        self.system.setRandomIV()
+        self.system.setRandomKey()
+        self.keySDES = ''.join(str(x) for x in self.system.key)
+        self.ivSDES = str(self.system.iv)
 
         customtkinter.CTkFrame.__init__(self, parent)
         self.grid_columnconfigure((0,2), weight=1)
@@ -2855,6 +2860,10 @@ class SDESPage(customtkinter.CTkFrame):
         self.entryKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input key and hit enter")
         self.entryKey.bind("<Return>", command=lambda x: self.setKeyFromEntry())
         self.entryKey.grid(row=0, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="new")
+        # entry private key
+        self.entryIV = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input iv (integer in range [0,255]) and hit enter")
+        self.entryIV.bind("<Return>", command=lambda x: self.setIVFromEntry())
+        self.entryIV.grid(row=1, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="ew")
 
 
         self.genButton = customtkinter.CTkButton(self.keyFrame, 
@@ -2862,23 +2871,8 @@ class SDESPage(customtkinter.CTkFrame):
                                           text ="Generate Key      ",
                                           image=dice_image,
                                           command = lambda : self.changeKey())
-        self.genButton.grid(row = 1, column = 3, padx = (0,5), pady = 0, sticky="new")
+        self.genButton.grid(row = 2, column = 3, padx = (0,5), pady = 0, sticky="new")
 
-
-        self.keyLenFrame = customtkinter.CTkFrame(self.keyFrame)
-        self.keyLenFrame.grid(row = 1, column = 1, padx=0, pady=0, sticky="new")
-        self.keyLenFrame.grid_columnconfigure(0, weight=1)
-        self.keyLenFrame.grid_rowconfigure((0,1), weight=1)
-        self.ds_frame_label = customtkinter.CTkLabel(self.keyLenFrame, 
-                                                     text="Key size",
-                                                     corner_radius=6)
-        self.ds_frame_label.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
-
-
-        self.seg_button = customtkinter.CTkSegmentedButton(self.keyFrame)
-        self.seg_button.grid(row=1, column=2, padx=(0, 5), pady=0, sticky="new")
-        self.seg_button.configure(values=["16", "24", "32"])
-        self.seg_button.set("16")
 
         # block mode
         self.keyModeFrame = customtkinter.CTkFrame(self.keyFrame)
@@ -2915,7 +2909,7 @@ class SDESPage(customtkinter.CTkFrame):
         # Display key
         self.textbox.configure(state="normal")
         self.textbox.delete('0.0', tk.END)
-        self.textbox.insert("0.0", self.byteToHex(self.keyAES))
+        self.textbox.insert("0.0", "Key:\n" + self.keySDES + "\n\nIV:\n" +self.ivSDES)
         self.textbox.configure(state="disabled")
 
     def browseFiles(self):
@@ -2933,10 +2927,10 @@ class SDESPage(customtkinter.CTkFrame):
         # original: self.img (array)
         self.img = np.array(iio.imread(self.imgName))
 
-        # Save file to "plain_image.png"
+        # Save file to "plain_image_sdes.png"
         imgToEncrypt = self.img.astype('uint8')
-        iio.imwrite("plain_image.png", imgToEncrypt)
-        self.inputImageName = "plain_image.png"
+        iio.imwrite("plain_image_sdes.png", imgToEncrypt)
+        self.inputImageName = "plain_image_sdes.png"
 
         # file to be displayed
         imgList = self.imgName.split(".")
@@ -2953,25 +2947,28 @@ class SDESPage(customtkinter.CTkFrame):
         self.inputImg.image = imgObject
     
     def encrypt(self):
-        block = Blocks("S-DES", "CTR", 10)
-        block.encrypt()
-        block.decrypt()
         if self.dirty:
             self.dirtyOutput = True
 
-            # Creates output named: 'aes_output.png'
-            encrypt_image_AES(self.inputImageName, 
-                              self.mode_seg_button.get(), 
-                              self.keyAES)
+            # Creates output named: 'sdes_output.png'
+            if self.mode_seg_button.get() == "ECB":
+                self.system.encryptECB(self.inputImageName)
+            elif self.mode_seg_button.get() == "CBC":
+                self.system.encryptCBC(self.inputImageName)
+            elif self.mode_seg_button.get() == "OFB":
+                self.system.encryptOFB(self.inputImageName)
+            elif self.mode_seg_button.get() == "CTR":
+                self.system.encryptCTR(self.inputImageName)
+
 
             # Save save-able copy
-            shutil.copy("aes_output.png","output_image_for_saving.png")
-            self.imageOnOutputName = "aes_output.png"
+            shutil.copy("sdes_output.png","output_image_for_saving_sdes.png")
+            self.imageOnOutputName = "sdes_output.png"
 
             # file to be displayed
-            self.anyFormatOutputImage = Image.open("aes_output.png")
+            self.anyFormatOutputImage = Image.open("sdes_output.png")
             self.anyFormatOutputImage.thumbnail((500,500), Image.LANCZOS)
-            self.resizedOutputImgName = "aes_output.ppm"
+            self.resizedOutputImgName = "sdes_output.ppm"
             self.anyFormatOutputImage.save(self.resizedOutputImgName)
 
             # Change label contents
@@ -2984,19 +2981,24 @@ class SDESPage(customtkinter.CTkFrame):
         if self.dirty:
             self.dirtyOutput = True
 
-            # Creates output named: 'aes_output.png'
-            decrypt_image_AES(self.inputImageName, 
-                              self.mode_seg_button.get(), 
-                              self.keyAES)
+            # Creates output named: 'sdes_output.png'
+            if self.mode_seg_button.get() == "ECB":
+                self.system.decryptECB(self.inputImageName)
+            elif self.mode_seg_button.get() == "CBC":
+                self.system.decryptCBC(self.inputImageName)
+            elif self.mode_seg_button.get() == "OFB":
+                self.system.decryptOFB(self.inputImageName)
+            elif self.mode_seg_button.get() == "CTR":
+                self.system.decryptCTR(self.inputImageName)
 
             # Save save-able copy
-            shutil.copy("aes_output.png", "output_image_for_saving.png")
-            self.imageOnOutputName = "aes_output.png"
+            shutil.copy("sdes_output.png", "output_image_for_saving_sdes.png")
+            self.imageOnOutputName = "sdes_output.png"
 
             # file to be displayed
-            self.anyFormatOutputImage = Image.open("aes_output.png")
+            self.anyFormatOutputImage = Image.open("sdes_output.png")
             self.anyFormatOutputImage.thumbnail((500,500), Image.LANCZOS)
-            self.resizedOutputImgName = "aes_output.ppm"
+            self.resizedOutputImgName = "sdes_output.ppm"
             self.anyFormatOutputImage.save(self.resizedOutputImgName)
 
             # Change label contents
@@ -3006,31 +3008,56 @@ class SDESPage(customtkinter.CTkFrame):
 
 
     def changeKey(self):
-        self.keyAES = getRandAES(int(self.seg_button.get()))
+        self.system.setRandomKey()
+        self.system.setRandomIV()
+        self.keySDES = ''.join(str(x) for x in self.system.key)
+        self.ivSDES = str(self.system.iv)
 
         # Display key
         self.textbox.configure(state="normal")
         self.textbox.delete('0.0', tk.END)
-        self.textbox.insert("0.0", self.byteToHex(self.keyAES))
+        self.textbox.insert("0.0", "Key:\n" + self.keySDES + "\n\nIV:\n" +self.ivSDES)
         self.textbox.configure(state="disabled")
     
     def setKeyFromEntry(self):
         inputKey = self.entryKey.get()
         try:
-            inputKeyList = inputKey.split(" ")
-            self.keyAES = self.hexToByte(inputKeyList)
+            inputKeyList = list(inputKey.strip())
+            outputList = [0]*10
+            for i in range(len(inputKeyList)):
+                if int(inputKeyList[i]) == 1 and i<10:
+                    outputList[i] = 1
+
+            self.system.setKey(outputList)
+            self.keySDES = ''.join(str(x) for x in self.system.key)
         except:
             pass
 
         # Display key
         self.textbox.configure(state="normal")
         self.textbox.delete('0.0', tk.END)
-        self.textbox.insert("0.0", self.byteToHex(self.keyAES))
+        self.textbox.insert("0.0", "Key:\n" + self.keySDES + "\n\nIV:\n" +self.ivSDES)
+        self.textbox.configure(state="disabled")
+    
+    def setIVFromEntry(self):
+        inputKey = self.entryIV.get()
+        try:
+            inputInt = int(inputKey.strip())%256
+            
+            self.system.setIV(inputInt)
+            self.ivSDES = str(self.system.iv)
+        except:
+            pass
+
+        # Display key
+        self.textbox.configure(state="normal")
+        self.textbox.delete('0.0', tk.END)
+        self.textbox.insert("0.0", "Key:\n" + self.keySDES + "\n\nIV:\n" +self.ivSDES)
         self.textbox.configure(state="disabled")
 
     def saveFile(self):
         if self.dirtyOutput:
-            myImage = Image.open("output_image_for_saving.png")
+            myImage = Image.open("output_image_for_saving_sdes.png")
             file = filedialog.asksaveasfile(mode='wb', 
                                             filetypes = (("png","*.png"),
                                                         ('All files', '*.*')),
@@ -3044,9 +3071,9 @@ class SDESPage(customtkinter.CTkFrame):
             self.img = np.array(iio.imread(self.imgName))
             self.original_shape = self.img.shape
 
-            # Save file to "plain_image.png"
+            # Save file to "plain_image_sdes.png"
             imgToEncrypt = self.img.astype('uint8')
-            iio.imwrite("plain_image.png", imgToEncrypt)
+            iio.imwrite("plain_image_sdes.png", imgToEncrypt)
 
             # file to be displayed
             imgList = self.imgName.split(".")
