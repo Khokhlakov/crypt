@@ -129,13 +129,13 @@ def obtener_resultados(texto):
     return resultados
 
 # Ejemplo de uso
-#   texto_entrada = input("Introduce un texto: ")
+texto_entrada = "cotyyhogapmf adrps rota xe mregh"
 
 # Obtener todos los resultados
-#   resultados = obtener_resultados(texto_entrada)
+resultados = obtener_resultados(texto_entrada)
 
 # Imprimir todos los resultados
-#   for nombre, valor in resultados.items():
-#       print(f"{nombre}: {valor}")
+for nombre, valor in resultados.items():
+    print(f"{nombre}: {valor}\n\n")
 
 

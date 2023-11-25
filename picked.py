@@ -32,6 +32,7 @@ from tkinter import filedialog
 
 import sys
 import os
+
 #To use with pyinstaller
 # determine if application is a script file or frozen exe
 if getattr(sys, 'frozen', False):
@@ -40,6 +41,7 @@ elif __file__:
     application_path = os.path.dirname(__file__)
 
 bundle_dir = os.path.abspath(os.path.dirname(__file__))
+# vvvvv
 path_to_dat = os.path.join(bundle_dir, 'livai.ppm')
 
 config_path = os.path.join(application_path, "livai.ppm")
@@ -50,16 +52,28 @@ customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "gre
 
 
 LARGEFONT =("Verdana", 35)
-dice_image = customtkinter.CTkImage(Image.open("dice.png"), size=(18, 18))
-larrow_image = customtkinter.CTkImage(Image.open("larrow.png"), size=(18, 18))
-swords_image = customtkinter.CTkImage(Image.open("swords.png"), size=(18, 18))
-lock1_image = customtkinter.CTkImage(Image.open("lock1.png"), size=(18, 18))
-lock2_image = customtkinter.CTkImage(Image.open("lock2.png"), size=(18, 18))
-home_image = customtkinter.CTkImage(Image.open("home.png"), size=(18, 18))
-save_image = customtkinter.CTkImage(Image.open("save.png"), size=(18, 18))
 
-name_image = customtkinter.CTkImage(Image.open("name.png"), size=(400/3, 100/3))
-nameLight_image = customtkinter.CTkImage(Image.open("nameLight.png"), size=(400/3, 100/3))
+path_to_dice = os.path.join(bundle_dir, "dice.png")
+path_to_larrow = os.path.join(bundle_dir, "larrow.png")
+path_to_swords = os.path.join(bundle_dir, "swords.png")
+path_to_lock1 = os.path.join(bundle_dir, "lock1.png")
+path_to_lock2 = os.path.join(bundle_dir, "lock2.png")
+path_to_home = os.path.join(bundle_dir, "home.png")
+path_to_save = os.path.join(bundle_dir, "save.png")
+path_to_name = os.path.join(bundle_dir, "name.png")
+path_to_nameL = os.path.join(bundle_dir, "nameLight.png")
+
+
+dice_image = customtkinter.CTkImage(Image.open(path_to_dice), size=(18, 18))
+larrow_image = customtkinter.CTkImage(Image.open(path_to_larrow), size=(18, 18))
+swords_image = customtkinter.CTkImage(Image.open(path_to_swords), size=(18, 18))
+lock1_image = customtkinter.CTkImage(Image.open(path_to_lock1), size=(18, 18))
+lock2_image = customtkinter.CTkImage(Image.open(path_to_lock2), size=(18, 18))
+home_image = customtkinter.CTkImage(Image.open(path_to_home), size=(18, 18))
+save_image = customtkinter.CTkImage(Image.open(path_to_save), size=(18, 18))
+
+name_image = customtkinter.CTkImage(Image.open(path_to_name), size=(400/3, 100/3))
+nameLight_image = customtkinter.CTkImage(Image.open(path_to_nameL), size=(400/3, 100/3))
 
 
 class App(customtkinter.CTk):
