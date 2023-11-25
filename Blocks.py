@@ -158,7 +158,6 @@ def encrypt_image_AES(image_path, mode, key):
         pad = 16 - (row % 16)  # Number of rows to pad
         img = np.pad(img, ((0, pad), (0, 0), (0, 0)))  # Pad rows at the bottom
         img[-1, -1, 0] = pad  # Store the pad value in the last element
-        print("preasd", pad)
     # Otherwise store pad value of 0
     else:
         img[-1, -1, 0] = 0
@@ -222,7 +221,6 @@ def encrypt_image_TDES(image_path, mode, key):
         pad = 16 - (row % 16)  # Number of rows to pad
         img = np.pad(img, ((0, pad), (0, 0), (0, 0)))  # Pad rows at the bottom
         img[-1, -1, 0] = pad  # Store the pad value in the last element
-        print("preasd", pad)
     # Otherwise store pad value of 0
     else:
         img[-1, -1, 0] = 0

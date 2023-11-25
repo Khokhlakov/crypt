@@ -1,6 +1,7 @@
 import numpy as np
 from sympy import Matrix
 from Sistema import Sistema
+from random import randint
 
 
 class Hill(Sistema):
@@ -15,20 +16,21 @@ class Hill(Sistema):
                    215, 217, 219, 221, 223, 225, 227, 229, 231, 233, 235, 237,
                    239, 241, 243, 245, 247, 249, 251, 253, 255]
     coprimes26 = [1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25]
+    coprimes96 = [1, 5, 7, 11, 13, 17, 19, 23, 25, 29, 31, 35, 37, 41, 43, 47, 49, 
+                  53, 55, 59, 61, 65, 67, 71, 73, 77, 79, 83, 85, 89, 91, 95]
 
     def __init__(self, text=None, key = np.array([1]), mode='i'):
         
         #self.keyLen = 5
         
         self.mode = mode
-        self.keyLen = len(key)
+        self.keyLen = 5
+        self.iv = np.array([randint(0,256) for x in range(5)]).astype(int)
         self.text = text
         self.codeKey = None
         self.invKey = None
-        if mode == 'i':
-            super(Hill, self).__init__(text, key, "none")
-        else:
-            super(Hill, self).__init__(text, key, "0a25")
+        self.codeMode = "Modified"
+        super(Hill, self).__init__(text, key, "none")
     
     def setKeyLen(self, n):
         self.keyLen = n
@@ -52,10 +54,10 @@ class Hill(Sistema):
             coprimesList = Hill.coprimes256
             mod = 256
         else:
-            coprimesList = Hill.coprimes26
-            mod = 26
+            coprimesList = Hill.coprimes96
+            mod = 96
 
-        mat = np.diag(np.random.choice(coprimesList, size=n))
+        mat = np.diag(np.random.choice(coprimesList, size=n)).astype(int)
 
         for i in range(n-1):
             for j in range(i+1,n):
@@ -69,8 +71,8 @@ class Hill(Sistema):
 
     def getInvKey(self):
         if self.mode == 'i':
-            return np.array(Matrix(self.codeKey).inv_mod(256))
-        return np.array(Matrix(self.codeKey).inv_mod(26))
+            return np.array(Matrix(self.codeKey).inv_mod(256)).astype(int)
+        return np.array(Matrix(self.codeKey).inv_mod(96)).astype(int)
 
     def encode(self, data):
         """ Encode function """
@@ -79,20 +81,31 @@ class Hill(Sistema):
 
         key = self.codeKey
         chunk = self.keyLen
-        final = np.zeros(data.shape)
+        final = np.zeros(data.shape).astype(int)
 
         if self.mode == 'i':
-            if len(data.shape) < 3:
-                for i in range(0, data.shape[0], chunk):
-                    for j in range(layers):
-                        final[i:i + chunk,:,j] = np.mod(np.matmul(key, data[i:i + chunk,:,j]), 2)
+            if self.codeMode == "Vanilla":
+                if len(data.shape) < 3:
+                    for i in range(0, data.shape[0], chunk):
+                        for j in range(layers):
+                            final[i:i + chunk,:,j] = np.mod(np.matmul(key, data[i:i + chunk,:,j]), 2)
+                else:
+                    for i in range(0, data.shape[0], chunk):
+                        for j in range(layers):
+                            final[i:i + chunk,:,j] = np.mod(np.matmul(key, data[i:i + chunk,:,j]), 256)
             else:
+                p = 2863387
+                count = 13
+                prev2 = self.iv
                 for i in range(0, data.shape[0], chunk):
-                    for j in range(layers):
-                        final[i:i + chunk,:,j] = np.mod(np.matmul(key, data[i:i + chunk,:,j]), 256)
+                    for k in range(0, data.shape[1]):
+                        for j in range(layers):
+                            final[i:i+chunk,k,j] = np.mod(np.matmul(key, data[i:i+chunk,k,j]^prev2), 256).astype(int)
+                            
+                            prev2 = np.mod(final[i:i+chunk,k,j]+count, 256)
+                            count = (count*13)%p
         else:
-            for i in range(0, data.shape[0], chunk):
-                final[i:i + chunk,:] = np.mod(np.matmul(key, data[i:i + chunk,:]), 26)
+            pass
         return final
 
 
@@ -102,18 +115,66 @@ class Hill(Sistema):
 
         key = self.invKey
         chunk = self.keyLen
-        final = np.zeros(data.shape)
+        final = np.zeros(data.shape).astype(int)
 
         if self.mode == 'i':
-            if len(data.shape) < 3:
-                for i in range(0, data.shape[0], chunk):
-                    for j in range(layers):
-                        final[i:i + chunk,:,j] = np.mod(np.matmul(key, data[i:i + chunk,:,j]), 2)
+            if self.codeMode == "Vanilla":
+                if len(data.shape) < 3:
+                    for i in range(0, data.shape[0], chunk):
+                        for j in range(layers):
+                            final[i:i + chunk,:,j] = np.mod(np.matmul(key, data[i:i + chunk,:,j]), 2)
+                else:
+                    for i in range(0, data.shape[0], chunk):
+                        for j in range(layers):
+                            final[i:i + chunk,:,j] = np.mod(np.matmul(key, data[i:i + chunk,:,j]), 256)
             else:
+                p = 2863387
+                count = 13
+                prev2 = self.iv
                 for i in range(0, data.shape[0], chunk):
-                    for j in range(layers):
-                        final[i:i + chunk,:,j] = np.mod(np.matmul(key, data[i:i + chunk,:,j]), 256)
+                    for k in range(0, data.shape[1]):
+                        for j in range(layers):
+                            final[i:i+chunk,k,j] = np.mod(np.matmul(key, data[i:i+chunk,k,j]), 256).astype(int)^prev2.astype(int)
+                            
+                            prev2 = np.mod(data[i:i+chunk,k,j]+count, 256)
+                            count = (count*13)%p
         else:
-            for i in range(0, data.shape[0], chunk):
-                final[i:i + chunk,:] = np.mod(np.matmul(key, data[i:i + chunk,:]), 26)
+            pass
         return final
+
+
+
+    # convert string to matrix of hex values with key size rows
+    # This method adds padding
+    def codestr(self, myStr):
+        n = len(self.codeKey)
+        textBytes = np.array([(ord(i)-32)%96 for i in myStr])
+        residue = len(textBytes) % n
+        if residue > 0:
+            pad = n-residue
+            newBytes = np.zeros(len(textBytes)+pad).astype(int)
+            newBytes[:len(textBytes)] = textBytes[:len(textBytes)]
+            newBytes[-1] = pad
+        else:
+            newBytes = np.zeros(len(textBytes)+n).astype(int)
+            newBytes[:len(textBytes)] = textBytes[:len(textBytes)]
+        return newBytes.reshape(int(len(newBytes)/n), n).T
+    
+    def codestrNoPadding(self, myStr):
+        n = len(self.codeKey)
+        newBytes = np.array([(ord(i)-32)%96 for i in myStr])
+        return newBytes.reshape(int(len(newBytes)/n), n).T
+
+    def encodeStr(self, myStr):
+        myList = self.codestr(myStr)
+        outputList = np.mod(np.matmul(self.codeKey, myList), 96)
+        return ''.join(chr(i+32) for i in outputList.T.flatten())
+    
+    def decodeStr(self, myStr):
+        myList = self.codestrNoPadding(myStr)
+        outputList = np.mod(np.matmul(self.invKey, myList), 96).T.flatten()
+        pad = outputList[-1]
+        l = len(outputList)
+        if pad < l:
+            return ''.join(chr(i+32) for i in outputList[:l-pad])
+        return ''.join(chr(i+32) for i in outputList[:l-len(self.codeKey)])

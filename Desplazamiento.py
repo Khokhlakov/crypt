@@ -101,18 +101,18 @@ class Desplazamiento(Sistema):
             self.key = key
             
             if type(key) == int:
-                self.codeKey = key % 95
+                self.codeKey = key % 96
             else:
                 key = re.sub(r'\W+', '', key)
                 try:
-                    self.codeKey = int(key) % 95
+                    self.codeKey = int(key) % 96
                 except ValueError:
                     # key contiene characteres no numericos o vacio
                     if len(key) > 0:
                         ordKey = ord(key[0])
                         if ordKey < 58 and 47 < ordKey:
                             key = re.match(r'\d+', key).group()
-                            self.codeKey = int(key) % 95
+                            self.codeKey = int(key) % 96
                         elif ordKey < 127 and 31 < ordKey:
                             self.codeKey = ordKey - 32
                         else:
@@ -128,7 +128,7 @@ class Desplazamiento(Sistema):
         if self.codificacion == "0a25":
             self.cipherCodeText = map(lambda x: (x + self.codeKey) % 26, self.codeText)
         else:
-            self.cipherCodeText = map(lambda x: (x + self.codeKey) % 95, self.codeText)
+            self.cipherCodeText = map(lambda x: (x + self.codeKey) % 96, self.codeText)
         self.decodifyText()
 
         self.hasCipherOutput = True
@@ -143,7 +143,7 @@ class Desplazamiento(Sistema):
         if self.codificacion == "0a25":
             self.cipherCodeText = map(lambda x: (x - self.codeKey) % 26, self.codeText)
         else:
-            self.cipherCodeText = map(lambda x: (x - self.codeKey) % 95, self.codeText)
+            self.cipherCodeText = map(lambda x: (x - self.codeKey) % 96, self.codeText)
         self.decodifyText()
         return self.getCipherString()
 
@@ -227,7 +227,7 @@ class Desplazamiento(Sistema):
         bestChoice = []
         regex = re.compile('[^A-Z]')
 
-        for i in range(95):
+        for i in range(96):
             system.setKey(i)
             outputString = system.decrypt()
 
