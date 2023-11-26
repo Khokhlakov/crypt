@@ -297,11 +297,30 @@ class HomePage(customtkinter.CTkFrame):
         self.ds_frame_label.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="")
 
         
-        button1 = customtkinter.CTkButton(self.ds_frame, 
+        dsabutton = customtkinter.CTkButton(self.ds_frame, 
                                           text ="DSA", 
                                           command = lambda : controller.show_frame(DSAPage))
-        button1.grid(row = 1, column = 0, columnspan=2, padx = 10, pady = 10, sticky="ew")
+        dsabutton.grid(row = 1, column = 0, columnspan=2, padx = 10, pady = 10, sticky="ew")
 
+
+        # Brauering
+        self.br_frame = customtkinter.CTkFrame(self)
+        self.br_frame.grid(row = 5, column = 1, rowspan=5, padx=(20, 20), pady=(20, 0), sticky="ew")
+        self.br_frame.grid_columnconfigure((0,1), weight=1)
+        self.br_frame_label = customtkinter.CTkLabel(self.br_frame, 
+                                                     text="Build a Brauer configuration algebra",
+                                                     corner_radius=6, 
+                                                     fg_color=['#979DA2', 'gray29'], 
+                                                     text_color=['#DCE4EE', '#DCE4EE'])
+        self.br_frame_label.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="")
+
+        self.entryKey = customtkinter.CTkEntry(self.br_frame, placeholder_text="Input message")
+        self.entryKey.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
+
+        brbutton = customtkinter.CTkButton(self.br_frame, 
+                                          text ="Build", 
+                                          command = self.popUp)
+        brbutton.grid(row = 2, column = 0, columnspan=2, padx = 10, pady = 10, sticky="ew")
 
         
 
@@ -320,6 +339,97 @@ class HomePage(customtkinter.CTkFrame):
 
     def sidebar_button_event(self):
         print("sidebar_button click")
+    
+    def popUp(self):
+        # get key length
+        self.message = self.entryKey.get().lower().strip()
+        if len(self.message) == 0:
+            self.entryKey.delete(0, tk.END)
+            self.br_frame_label.focus()
+        else:
+            self.popUp2()
+
+    def popUp2(self):
+        # create popUp window (more like pop back)
+        top = customtkinter.CTkToplevel()
+        top.geometry("750x500")
+        top.title("PiCKED")
+        top.after(250, lambda: top.iconbitmap(path_to_icon))
+        top.grid_columnconfigure(0, weight=1)
+        top.grid_rowconfigure(0, weight=1)
+        
+        
+        scrollable_frame = customtkinter.CTkScrollableFrame(top, label_text="")
+        scrollable_frame.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
+        scrollable_frame.grid_columnconfigure(1, weight=1)
+
+        customtkinter.CTkLabel(scrollable_frame, 
+                            text= "BRAUER QUIVER", 
+                            font=customtkinter.CTkFont(size=20, weight="bold")).grid(column=0,row=0)
+
+        # image frame
+        imgFrame = customtkinter.CTkFrame(scrollable_frame)
+        imgFrame.configure(width=400,height=400)
+        imgFrame.grid_propagate(False)
+        imgFrame.columnconfigure(0, weight=1)
+        imgFrame.rowconfigure(0, weight=1)
+        imgFrame.grid(column = 0, row = 1, rowspan=1, padx=(20,5), pady=(10,0), sticky="nsew")
+        imageLabel = customtkinter.CTkLabel(imgFrame, 
+                                                text="",
+                                                corner_radius=6,
+                                                fg_color=['#979DA2', 'gray29'],
+                                                text_color=['#DCE4EE', '#DCE4EE'])
+        imageLabel.grid(column = 0, row = 0, padx=0, pady=0, sticky="nsew")
+
+        # Calcular algebra stuff
+        self.resultados = obtener_resultados(self.message)
+        the_image_path = crear_grafo(self.resultados["Ciclos"])
+        the_image = Image.open(the_image_path)
+        the_image.thumbnail((600,600), Image.LANCZOS)
+        the_image.save("Brauervisualization.ppm")
+
+        # output
+
+        outStr = "Original message:\n\t" + self.message + "\n\nPolygons:\n"
+        counter = 1
+        for polygon in self.resultados["R1"]:
+            outStr += "\tW" + str(counter) + ": " + polygon + "\n"
+            counter += 1
+        outStr += "\nVertices:\n\t{ " 
+        lsVert = list(self.resultados["R0"])
+        for i in range(len(lsVert)):
+            if i < len(lsVert)-1:
+                outStr += lsVert[i] + " , "
+            else:
+                outStr += lsVert[i] + " }\n\n"
+        outStr += "Number of loops:\n\t" + str(sum(self.resultados["NLoops"].values())) + "\n\n"
+        outStr += "Dimension of the Brauer Configuration Algebra:\n\t" + str(self.resultados["D"]) + "\n\n"
+        outStr += "Dimension of the center:\n\t" + str(self.resultados["DZ"]) + "\n\n"
+        
+        textbox = customtkinter.CTkTextbox(scrollable_frame, state="normal")
+        textbox.grid(row=1, column=1, rowspan=2, padx=(5,20), pady=(10, 0), sticky="nsew")
+        textbox.insert("0.0", outStr)
+        textbox.configure(state="disabled")
+
+        # Change label contents
+        imgObject = PhotoImage(file = "Brauervisualization.ppm")
+        
+        imageLabel.configure(image=imgObject)
+
+
+        # save button
+        buttonSave = customtkinter.CTkButton(scrollable_frame, 
+                                                    text = "Save",
+                                                    command = lambda : self.saveQuiver(self.resultados)) 
+        buttonSave.grid(column = 0, row = 2, padx = (20,5), pady = (0,10), sticky="new")
+    
+    def saveQuiver(self, resultados):
+        file = filedialog.asksaveasfile(mode='wb', 
+                                        filetypes = (("png","*.png"),
+                                                    ('All files', '*.*')),
+                                        defaultextension=".png")
+        if file:
+            crear_grafo(resultados["Ciclos"], file.name)
 
 
 # AffinePage window frame
@@ -1532,7 +1642,7 @@ class VigenerePage(customtkinter.CTkFrame):
         # output
         ICInfo = self.system.getFreqIndexForKeyLen(self.originalBrauerMsg, int(self.seg_buttonBrauer.get()))
 
-        outStr = "Vigenere ciphertext:\n\t" + self.originalBrauerMsg + "\n\n"
+        outStr = "Vigenere ciphertext:\n\t" + self.originalBrauerMsg.lower() + "\n\n"
         outStr += "Presumed key length:\n\t" + self.seg_buttonBrauer.get() + "\n\nPolygons (cosets):\n"
         counter = 1
         for polygon in self.resultados["R1"]:
