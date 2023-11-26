@@ -75,8 +75,9 @@ lock2_image = customtkinter.CTkImage(Image.open(path_to_lock2), size=(18, 18))
 home_image = customtkinter.CTkImage(Image.open(path_to_home), size=(18, 18))
 save_image = customtkinter.CTkImage(Image.open(path_to_save), size=(18, 18))
 
-name_image = customtkinter.CTkImage(Image.open(path_to_name), size=(400/3, 100/3))
-nameLight_image = customtkinter.CTkImage(Image.open(path_to_nameL), size=(400/3, 100/3))
+name_image = customtkinter.CTkImage(dark_image=Image.open(path_to_name), 
+                                    light_image=Image.open(path_to_nameL), 
+                                    size=(400/3, 100/3))
 
 
 
@@ -133,6 +134,7 @@ class App(customtkinter.CTk):
         self.scrollable_frame = customtkinter.CTkScrollableFrame(self.container)
         self.scrollable_frame.grid(row = 0, column = 1, rowspan = 3, sticky ="nsew")
         self.scrollable_frame.grid_columnconfigure(0, weight=1)
+        self.scrollable_frame.propagate(False)
 
         #self.container.grid_rowconfigure(0, weight = 1)
         #self.container.grid_columnconfigure(0, weight = 1)
@@ -183,10 +185,6 @@ class App(customtkinter.CTk):
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
-        if new_appearance_mode == 'Light':
-            self.logo_label.configure(image=nameLight_image)
-        else:
-            self.logo_label.configure(image=name_image)
 
     def change_scaling_event(self, new_scaling: str):
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
@@ -1157,7 +1155,7 @@ class ShiftPage(customtkinter.CTkFrame):
             if cleanString != "":
                 numKeysStr = self.seg_button.get()
 
-                self.bestKeys = self.system2.getBestKeys2(cleanString)
+                self.bestKeys, self.bestKeys2 = self.system2.getBestKeys2(cleanString)
 
                 if numKeysStr == "All":
                     numKeys = len(self.bestKeys)
@@ -1194,7 +1192,8 @@ class ShiftPage(customtkinter.CTkFrame):
 
                     for i in range(numKeys):
                         key = self.bestKeys[i][0]
-                        outputString += str(key) + "\n"
+                        key2 = self.bestKeys2[i][0]
+                        outputString += str(key) + "\n" + str(key2) + "\n"
 
                 self.keyTextbox.delete('0.0', tk.END)
                 self.keyTextbox.insert("0.0", outputString)
@@ -1659,7 +1658,7 @@ class VigenerePage(customtkinter.CTkFrame):
         outStr += "Dimension of the Brauer Configuration Algebra:\n\t" + str(self.resultados["D"]) + "\n\n"
         outStr += "Dimension of the center:\n\t" + str(self.resultados["DZ"]) + "\n\n"
         if ICInfo != None:
-            outStr += "Average index of coincidence:\n\t" + str(ICInfo[1]) + "\n\nIndices of coincidence of each coset:\n"
+            outStr += "Average index of coincidence por cosets of length at least 2:\n\t" + str(ICInfo[1]) + "\n\nIndices of coincidence of each coset of length at least 2:\n"
             for coset in ICInfo[0]:
                 outStr += "\t"+ coset + ":\n\t\t" + str(ICInfo[0][coset]) + "\n\n"
         else:
@@ -2139,13 +2138,11 @@ class HillPage(customtkinter.CTkFrame):
     def __init__(self, parent, controller):
         self.system = Hill()
         self.tsystem = Hill(mode="t")
-        self.keyLen = 5
-        self.tkeyLen = 5
+        self.keyLen = 4
+        self.tkeyLen = 4
         self.iv = self.system.getIVStr()
         self.dirty = False
         self.dirtyOutput = False
-        self.tdirty = False
-        self.tdirtyOutput = False
         
         customtkinter.CTkFrame.__init__(self, parent)
         label = customtkinter.CTkLabel(self,
@@ -2333,16 +2330,21 @@ class HillPage(customtkinter.CTkFrame):
         self.tkeyFrame = customtkinter.CTkFrame(self.tabs.tab("Text"), fg_color=self.cget("fg_color"))
         self.tkeyFrame.columnconfigure(2, weight=1)
         self.tkeyFrame.grid(row = 5, column = 0, columnspan=3, padx=20, pady=20, sticky="new")
+
+        # key input
+        self.tentryKey = customtkinter.CTkEntry(self.tkeyFrame, placeholder_text="Input key in hexadecimal and hit enter")
+        self.tentryKey.bind("<Return>", command=lambda x: self.tsetKeyFromEntry())
+        self.tentryKey.grid(row=0, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="new")
+
         tbutton12 = customtkinter.CTkButton(self.tkeyFrame, 
                                           compound="right",
                                           text ="Generate Key      ",
                                           image=dice_image,
                                           command = lambda : self.tchangeKey(int(self.tseg_button.get())))
-        tbutton12.grid(row = 0, column = 3, padx = (0,5), pady = 0, sticky="new")
-
+        tbutton12.grid(row = 1, column = 3, padx = (0,5), pady = 0, sticky="new")
 
         self.tkeyLenFrame = customtkinter.CTkFrame(self.tkeyFrame)
-        self.tkeyLenFrame.grid(row = 0, column = 1, padx=0, pady=0, sticky="new")
+        self.tkeyLenFrame.grid(row = 1, column = 1, padx=0, pady=0, sticky="new")
         self.tkeyLenFrame.grid_columnconfigure(0, weight=1)
         self.tkeyLenFrame.grid_rowconfigure(0, weight=1)
         self.tds_frame_label = customtkinter.CTkLabel(self.tkeyLenFrame, 
@@ -2352,14 +2354,14 @@ class HillPage(customtkinter.CTkFrame):
 
 
         self.tseg_button = customtkinter.CTkSegmentedButton(self.tkeyFrame)
-        self.tseg_button.grid(row=0, column=2, padx=(0, 5), pady=0, sticky="new")
+        self.tseg_button.grid(row=1, column=2, padx=(0, 5), pady=0, sticky="new")
         self.tseg_button.configure(values=["1", "2", "3", "4", "5", "6", "7"])
         self.tseg_button.set("5")
 
         # Key display
         self.tcurrentKeyFrame = customtkinter.CTkFrame(self.tkeyFrame, fg_color=self.cget("fg_color"))
         self.tcurrentKeyFrame.grid_propagate(False)
-        self.tcurrentKeyFrame.grid(row = 0, column = 0, padx=(0,10), pady=0, sticky="new")
+        self.tcurrentKeyFrame.grid(row = 0, column = 0, rowspan=2, padx=(0,10), pady=0, sticky="new")
         self.tcurrentKeyFrameLabel = customtkinter.CTkLabel(self.tcurrentKeyFrame, 
                                                      text="Current Key",
                                                      corner_radius=6, 
@@ -2376,7 +2378,6 @@ class HillPage(customtkinter.CTkFrame):
 
     def browseFiles(self):
         # image dir
-        self.dirty = True
         self.imgName = filedialog.askopenfilename(initialdir = "/",
                                                     title = "Select a File",
                                                     filetypes = (("Picture files",
@@ -2525,10 +2526,10 @@ class HillPage(customtkinter.CTkFrame):
 
 
     def changeKey(self, keySize):
-        if keySize != self.keyLen and self.dirty:
+        if keySize != self.keyLen:
             self.keyLen = keySize
-        self.system.setKeyLen(keySize)
-        self.system.setIV()
+            self.system.setKeyLen(keySize)
+            self.system.setIV()
         self.system.setKey()
 
         # Display key
@@ -2537,18 +2538,58 @@ class HillPage(customtkinter.CTkFrame):
         self.textbox.insert("0.0", "Key:\n"+self.system.getKeyStr()+"\n\nInitial vector:\n" + self.system.getIVStr())
         self.textbox.configure(state="disabled")
     
+    def changeOnlyKey(self, keySize):
+        if keySize != self.keyLen:
+            self.keyLen = keySize
+            self.system.setKeyLen(keySize)
+        self.system.setKey()
+    
     def setKeyFromEntry(self):
         inStr = self.entryKey.get()
+        if int(self.seg_button.get()) != self.keyLen:
+            self.keyLen = int(self.seg_button.get())
+            self.system.setKeyLen(self.keyLen)
+        self.system.setIVManual(self.system.getIVStr())
         try:
             self.system.setKeyManual(inStr)
+                # Display key
+            self.textbox.configure(state="normal")
+            self.textbox.delete('0.0', tk.END)
+            self.textbox.insert("0.0", "Key:\n"+self.system.getKeyStr()+"\n\nInitial vector:\n" + self.system.getIVStr())
+            self.textbox.configure(state="disabled")
         except:
-            pass
+            self.changeOnlyKey(int(self.seg_button.get()))
+            # Display key
+            self.textbox.configure(state="normal")
+            self.textbox.delete('0.0', tk.END)
+            self.textbox.insert("0.0", "Matrix must be invertible module 256, resetting to:\n" + self.system.getKeyStr()+"\n\nInitial vector:\n" + self.system.getIVStr())
+            self.textbox.configure(state="disabled")
 
-        # Display key
-        self.textbox.configure(state="normal")
-        self.textbox.delete('0.0', tk.END)
-        self.textbox.insert("0.0", "Key:\n"+self.system.getKeyStr()+"\n\nInitial vector:\n" + self.system.getIVStr())
-        self.textbox.configure(state="disabled")
+        
+    
+    def tsetKeyFromEntry(self):
+        inStr = self.tentryKey.get()
+        if int(self.tseg_button.get()) != self.tkeyLen:
+            self.tkeyLen = int(self.tseg_button.get())
+            self.tsystem.setKeyLen(self.tkeyLen)
+        
+        try:
+            self.tsystem.setKeyManual(inStr)
+            # Display key
+            self.ttextbox.configure(state="normal")
+            self.ttextbox.delete('0.0', tk.END)
+            self.ttextbox.insert("0.0", self.tsystem.getKeyStr())
+            self.ttextbox.configure(state="disabled")
+        except:
+            self.tchangeKey(int(self.tseg_button.get()))
+            # Display key
+            self.ttextbox.configure(state="normal")
+            self.ttextbox.delete('0.0', tk.END)
+            self.ttextbox.insert("0.0", "Matrix must be invertible module 256, resetting to:\n" + self.tsystem.getKeyStr())
+            self.ttextbox.configure(state="disabled")
+                            
+
+        
 
     def setIVFromEntry(self):
         inStr = self.entryIV.get()
@@ -2564,15 +2605,15 @@ class HillPage(customtkinter.CTkFrame):
         self.textbox.configure(state="disabled")
 
     def tchangeKey(self, keySize):
-        if keySize != self.keyLen and self.dirty:
-            self.keyLen = keySize
-        self.tsystem.setKeyLen(keySize)
+        if keySize != self.tkeyLen:
+            self.tkeyLen = keySize
+            self.tsystem.setKeyLen(keySize)
         self.tsystem.setKey()
 
         # Display key
         self.ttextbox.configure(state="normal")
         self.ttextbox.delete('0.0', tk.END)
-        self.ttextbox.insert("0.0", self.tsystem.codeKey)
+        self.ttextbox.insert("0.0", self.tsystem.getKeyStr())
         self.ttextbox.configure(state="disabled")
 
     def saveFile(self):
@@ -4333,7 +4374,7 @@ class RabinPage(customtkinter.CTkFrame):
         self.textbox3.configure(state="disabled")
     
     def setPublicKeyFromEntry(self):
-        inputKey = self.entryPublicKey.get()
+        inputKey = self.entryPublicKey.get().strip()
         try:
             self.n = int(inputKey)
         except:
@@ -4346,7 +4387,7 @@ class RabinPage(customtkinter.CTkFrame):
         self.textbox1.configure(state="disabled")
     
     def setPrivateKeyFromEntry1(self):
-        inputKey = self.entryPrivateKey1.get()
+        inputKey = self.entryPrivateKey1.get().strip()
         try:
             self.p = int(inputKey)
         except:
@@ -4359,7 +4400,7 @@ class RabinPage(customtkinter.CTkFrame):
         self.textbox2.configure(state="disabled")
     
     def setPrivateKeyFromEntry2(self):
-        inputKey = self.entryPrivateKey2.get()
+        inputKey = self.entryPrivateKey2.get().strip()
         try:
             self.q = int(inputKey)
         except:
@@ -4552,7 +4593,7 @@ class DSAPage(customtkinter.CTkFrame):
             if correct:
                 self.textboxVerify.insert("0.0", "Currently selected file:\n\t" + self.verifyName + "\nCurrently selected signature:\n\t" + self.signatureName + "\n\nThe signed file is authentic.")
             else:
-                self.textboxVerify.insert("0.0", "Currently selected file:\n\t" + self.verifyName + "\nCurrently selected signature:\n\t" + self.signatureName + "\n\nThe signed file is not authentic.")
+                self.textboxVerify.insert("0.0", "Currently selected file:\n\t" + self.verifyName + "\nCurrently selected signature:\n\t" + self.signatureName + "\n\nThe signature is invalid for the given file and public key. The file may have been tampered with.")
             self.textboxVerify.configure(state="disabled")
         elif self.dirtyVerify:
             self.textboxVerify.configure(state="normal")
@@ -4620,6 +4661,8 @@ class DSAPage(customtkinter.CTkFrame):
 
     def saveSignature(self):
         file = filedialog.asksaveasfile(mode='wb', 
+                                        filetypes = (("sig","*.sig"),
+                                                    ('All files', '*.*')),
                                         defaultextension=".sig")
         if file:
             out_file = open(file.name, "wb")

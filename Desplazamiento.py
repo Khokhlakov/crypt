@@ -212,26 +212,32 @@ class Desplazamiento(Sistema):
 
         for i in range(n):
             word = string[i]
-            if word in tempDict.keys():
-                tempDict[word] += 1
-            else:
-                tempDict[word] = 1
+            if word in Desplazamiento.characterFrequency[self.lang].keys():
+                if word in tempDict.keys():
+                    tempDict[word] += 1
+                else:
+                    tempDict[word] = 1
         
         # normalized frequencies
         freqDict = {key:value/n for (key,value) in tempDict.items()}
         return freqDict
 
     def getBestKeys2(self, string):
-        system = Desplazamiento(text=string)
+        system = Desplazamiento(text=string, codi="0a95")
 
         bestChoice = []
-        regex = re.compile('[^A-Z]')
+       
 
         for i in range(96):
+            regex = re.compile('[.,;:?! ]')
             system.setKey(i)
-            outputString = system.decrypt()
+            outputString1 = system.decrypt()
 
-            outputString = regex.sub('', outputString.upper())
+            outputString = regex.sub('', outputString1.upper())
+            rate = len(outputString)/len(outputString1)
+            print(outputString1, outputString, rate)
+            #regex = re.compile('[^A-Z]')
+            #outputString = regex.sub('', outputString1.upper())
 
             freqDict = self.getFreq2(outputString)
     
@@ -239,11 +245,16 @@ class Desplazamiento(Sistema):
             sum = 0
             for char in freqDict.keys():
                 sum += Desplazamiento.characterFrequency[self.lang][char]*freqDict[char]
+            print(outputString1, outputString, rate, sum/100, abs((sum/100)-Desplazamiento.squaredFrequencySum[self.lang]))
+            print("")
             
             # (key, deciphered text, score)
-            bestChoice.append((i, outputString, sum/100))
-
+            if rate > 0.85:
+                bestChoice.append((i, outputString, sum/100))
+            else:
+                bestChoice.append((i, outputString, sum/100))
         option = sorted(bestChoice, key=lambda x: x[2], reverse=True)
+        option2 = sorted(bestChoice, key=lambda x: abs(x[2]-Desplazamiento.squaredFrequencySum[self.lang]))
         
-        return option
+        return (option, option2)
     

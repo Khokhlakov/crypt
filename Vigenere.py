@@ -116,6 +116,7 @@ class Vigenere(Sistema):
             upperBound = len(string)
         for i in range(2, upperBound):
             CIsum = 0
+            cosetcount = 0
             for j in range(i):
                 text = string[j::i]
                 tempDict = {}
@@ -131,9 +132,11 @@ class Vigenere(Sistema):
                 for item in tempDict.items():
                     sum += item[1]*(item[1]-1)
                 
-                CIsum += sum/(n*(n-1))
+                if n-1 != 0:
+                    cosetcount += 1
+                    CIsum += sum/(n*(n-1))
 
-            finDict[i] = CIsum/i
+            finDict[i] = CIsum/cosetcount
         return sorted(finDict.items(), key=lambda x: abs(x[1]-Vigenere.kappa[self.lang]))
 
     def getFreqIndexForKeyLen(self, string, keyLen):
@@ -141,6 +144,7 @@ class Vigenere(Sistema):
         if len(string) > keyLen:
             i = keyLen
             CIsum = 0
+            cosetCount = 0
             for j in range(i):
                 text = string[j::i]
                 tempDict = {}
@@ -157,8 +161,10 @@ class Vigenere(Sistema):
                     sum += item[1]*(item[1]-1)
                 
                 daKey = text.lower()
-                cosetsNCI[daKey] = sum/(n*(n-1))
-                CIsum += cosetsNCI[daKey]
+                if n-1 != 0:
+                    cosetcount += 1
+                    cosetsNCI[daKey] = sum/(n*(n-1))
+                    CIsum += cosetsNCI[daKey]
 
             averageCI = CIsum/i
             return (cosetsNCI, averageCI)
