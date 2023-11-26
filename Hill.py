@@ -25,7 +25,7 @@ class Hill(Sistema):
         
         self.mode = mode
         self.keyLen = 5
-        self.iv = np.array([randint(0,256) for x in range(5)]).astype(int)
+        self.iv = np.array([randint(0,256) for x in range(self.keyLen)]).astype(int)
         self.text = text
         self.codeKey = None
         self.invKey = None
@@ -47,6 +47,43 @@ class Hill(Sistema):
         else:
             self.codeKey = self.getRandMat(self.keyLen)
             self.invKey = self.getInvKey()
+
+    def setIV(self):
+        self.iv = np.array([randint(0,256) for x in range(self.keyLen)]).astype(int)
+    
+    def getIVStr(self):
+        return "".join(hex(x).split('x')[-1]+" " for x in self.iv)[:-1]
+
+    def getKeyStr(self):
+        myStr = ""
+        for i in range(self.keyLen):
+            for j in range(self.keyLen):
+                myStr += f"{hex(self.codeKey[i,j]).split('x')[-1]:0>2} "
+            myStr += "\n" 
+        return myStr
+    
+    def setIVManual(self, myStr):
+        out = [0]*self.keyLen
+        inputList = myStr.strip().split()
+        upperbound = min(len(inputList), self.keyLen)
+        for i in range(upperbound):
+            out[i] = int(inputList[i],16)%256
+
+        self.iv = np.array(out)
+    
+    def setKeyManual(self, myStr):
+        out = [0]*(self.keyLen**2)
+        inputList = myStr.strip().split()
+        upperbound = min(len(inputList), self.keyLen**2)
+        for i in range(upperbound):
+            out[i] = int(inputList[i],16)%256
+
+        outArr = np.array(out).reshape((self.keyLen,self.keyLen))
+        #try:
+        self.invKey = self.getInvKey2(outArr)
+        self.codeKey = outArr
+        #except:
+        #    pass
 
 
     def getRandMat(self, n):
@@ -72,6 +109,11 @@ class Hill(Sistema):
     def getInvKey(self):
         if self.mode == 'i':
             return np.array(Matrix(self.codeKey).inv_mod(256)).astype(int)
+        return np.array(Matrix(self.codeKey).inv_mod(96)).astype(int)
+
+    def getInvKey2(self, arr):
+        if self.mode == 'i':
+            return np.array(Matrix(arr).inv_mod(256)).astype(int)
         return np.array(Matrix(self.codeKey).inv_mod(96)).astype(int)
 
     def encode(self, data):

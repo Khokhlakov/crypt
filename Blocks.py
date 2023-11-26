@@ -147,8 +147,11 @@ def getRandAES(keyLen):
     key = get_random_bytes(keyLen)
     return key
 
+def getRandAESIV():
+    iv = get_random_bytes(16)
+    return iv
 
-def encrypt_image_AES(image_path, mode, key):
+def encrypt_image_AES(image_path, mode, key, iv):
     # Read image to NumPy array
     img = np.array(iio.imread(image_path))
 
@@ -165,7 +168,6 @@ def encrypt_image_AES(image_path, mode, key):
     img_bytes = img.tobytes()  # Convert NumPy array to sequence of bytes 
 
     # Encrypt the array of bytes.
-    iv = b'0000000000000000'
     if mode == "ECB":
         enc_img_bytes = AES.new(key, AES.MODE_ECB).encrypt(img_bytes)
     elif mode == "CBC":
@@ -183,10 +185,10 @@ def encrypt_image_AES(image_path, mode, key):
     iio.imwrite('aes_output.png', enc_img)
 
 
-def decrypt_image_AES(image_path, mode, key):
+def decrypt_image_AES(image_path, mode, key, iv):
     enc_img = iio.imread(image_path)
 
-    iv = b'0000000000000000'
+    
     if mode == "ECB":
         dec_img_bytes = AES.new(key, AES.MODE_ECB).decrypt(enc_img.tobytes())
     elif mode == "CBC":
@@ -194,7 +196,8 @@ def decrypt_image_AES(image_path, mode, key):
     elif mode == "OFB":
         dec_img_bytes = AES.new(key, AES.MODE_OFB, iv).decrypt(enc_img.tobytes())
     elif mode == "CTR":
-        dec_img_bytes = AES.new(key, AES.MODE_CTR, nonce = iv[:8]).decrypt(enc_img.tobytes()) 
+        half = int(len(iv)/2)
+        dec_img_bytes = AES.new(key, AES.MODE_CTR, nonce = iv[:half]).decrypt(enc_img.tobytes()) 
 
     dec_img = np.frombuffer(dec_img_bytes, np.uint8).reshape(enc_img.shape)  # The shape of the encrypted and decrypted image is the same
 
@@ -210,8 +213,12 @@ def getRandTDES(keyLen):
     key = get_random_bytes(keyLen)
     return key
 
+def getRandTDESIV():
+    iv = get_random_bytes(16)
+    return iv
 
-def encrypt_image_TDES(image_path, mode, key):
+
+def encrypt_image_TDES(image_path, mode, key, iv):
     # Read image to NumPy array
     img = np.array(iio.imread(image_path))
 
@@ -228,15 +235,17 @@ def encrypt_image_TDES(image_path, mode, key):
     img_bytes = img.tobytes()  # Convert NumPy array to sequence of bytes 
 
     # Encrypt the array of bytes.
-    iv = b'0000000000000000'
     if mode == "ECB":
         enc_img_bytes = DES3.new(key, DES3.MODE_ECB).encrypt(img_bytes)
     elif mode == "CBC":
-        enc_img_bytes = DES3.new(key, DES3.MODE_CBC, iv[:8]).encrypt(img_bytes) 
+        half = int(len(iv)/2)
+        enc_img_bytes = DES3.new(key, DES3.MODE_CBC, iv[:half]).encrypt(img_bytes) 
     elif mode == "OFB":
-        enc_img_bytes = DES3.new(key, DES3.MODE_OFB, iv[:8]).encrypt(img_bytes) 
+        half = int(len(iv)/2)
+        enc_img_bytes = DES3.new(key, DES3.MODE_OFB, iv[:half]).encrypt(img_bytes) 
     elif mode == "CTR":
-        enc_img_bytes = DES3.new(key, DES3.MODE_CTR, nonce = iv[:4]).encrypt(img_bytes) 
+        quarter = int(len(iv)/4)
+        enc_img_bytes = DES3.new(key, DES3.MODE_CTR, nonce = iv[:quarter]).encrypt(img_bytes) 
      
 
     # Convert the encrypted buffer to NumPy array and reshape to the shape of the padded image 
@@ -246,10 +255,10 @@ def encrypt_image_TDES(image_path, mode, key):
     iio.imwrite('TDES_output.png', enc_img)
 
 
-def decrypt_image_TDES(image_path, mode, key):
+def decrypt_image_TDES(image_path, mode, key, iv):
     enc_img = iio.imread(image_path)
 
-    iv = b'0000000000000000'
+    
     if mode == "ECB":
         dec_img_bytes = DES3.new(key, DES3.MODE_ECB).decrypt(enc_img.tobytes())
     elif mode == "CBC":
