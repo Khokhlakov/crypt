@@ -22,6 +22,8 @@ from SDES import SimplerDES
 from DSA import DSA_Signature
 from Blocks import *
 
+from AlgBrauer import *
+
 from tkinter import PhotoImage
 
 # Change image format (tkinter only receives .ppm)
@@ -62,6 +64,7 @@ path_to_home = os.path.join(bundle_dir, "home.png")
 path_to_save = os.path.join(bundle_dir, "save.png")
 path_to_name = os.path.join(bundle_dir, "name.png")
 path_to_nameL = os.path.join(bundle_dir, "nameLight.png")
+path_to_icon = os.path.join(bundle_dir, "icono.ico")
 
 
 dice_image = customtkinter.CTkImage(Image.open(path_to_dice), size=(18, 18))
@@ -76,6 +79,7 @@ name_image = customtkinter.CTkImage(Image.open(path_to_name), size=(400/3, 100/3
 nameLight_image = customtkinter.CTkImage(Image.open(path_to_nameL), size=(400/3, 100/3))
 
 
+
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
@@ -83,7 +87,7 @@ class App(customtkinter.CTk):
         #self.title("CustomTkinter complex_example.py")
         self.geometry(f"{1100}x{580}")
         self.title("PiCKED")
-        self.after(250, lambda: self.iconbitmap("icono.ico"))
+        self.after(250, lambda: self.iconbitmap(path_to_icon))
         # New init
         # creating a container
         self.container = customtkinter.CTkFrame(self)
@@ -152,8 +156,7 @@ class App(customtkinter.CTk):
                   RSAPage,
                   ElGamalPage,
                   RabinPage,
-                  DSAPage,
-                  Page2):
+                  DSAPage):
 
             frame = F(self.scrollable_frame, self)
 
@@ -164,6 +167,7 @@ class App(customtkinter.CTk):
 
             frame.grid(row = 0, column = 0, sticky ="nsew")
 
+        
         self.show_frame(HomePage)
 
     # to display the current frame passed as
@@ -192,9 +196,7 @@ class App(customtkinter.CTk):
         print("sidebar_button click")
 
 
-
 # first window frame Homepage
-
 class HomePage(customtkinter.CTkFrame):
     def __init__(self, parent, controller):
         customtkinter.CTkFrame.__init__(self, parent)
@@ -318,7 +320,6 @@ class HomePage(customtkinter.CTkFrame):
 
     def sidebar_button_event(self):
         print("sidebar_button click")
-
 
 
 # AffinePage window frame
@@ -1215,6 +1216,7 @@ class VigenerePage(customtkinter.CTkFrame):
     def __init__(self, parent, controller):
         self.system = Vigenere(key=[0])
         self.currentKey = "A = (0)"
+        self.brauerString = ""
 
         customtkinter.CTkFrame.__init__(self, parent)
 
@@ -1306,7 +1308,7 @@ class VigenerePage(customtkinter.CTkFrame):
                                           text ="Attack                   ",
                                           image=swords_image,
                                           command = self.attack)
-        button2.grid(row = 2, column = 0, padx = (0,5), pady = 20, sticky="new")
+        button2.grid(row = 2, column = 0, padx = (0,5), pady = (25,0), sticky="new")
 
         # Number of keys to be recommended
         self.keyNumFrame = customtkinter.CTkFrame(self.keyFrame)
@@ -1314,7 +1316,7 @@ class VigenerePage(customtkinter.CTkFrame):
         self.keyNumFrame.grid(row = 2, column = 1, padx =0, pady = 20, sticky="new")
 
         self.keyLenFrame = customtkinter.CTkFrame(self.keyNumFrame)
-        self.keyLenFrame.grid(row = 0, column = 0, padx=0, pady=0, sticky="ew")
+        self.keyLenFrame.grid(row = 0, column = 0, padx=(5,0), pady=(5,0), sticky="ew")
         self.keyLenFrame.grid_columnconfigure(0, weight=1)
         self.keyLenFrame.grid_rowconfigure(0, weight=1)
         self.ds_frame_label = customtkinter.CTkLabel(self.keyLenFrame, 
@@ -1323,13 +1325,13 @@ class VigenerePage(customtkinter.CTkFrame):
         self.ds_frame_label.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
 
         self.seg_button = customtkinter.CTkSegmentedButton(self.keyNumFrame)
-        self.seg_button.grid(row=0, column=1, padx=0, pady=0, sticky="new")
+        self.seg_button.grid(row=0, column=1, padx=(0,5), pady=(5,0), sticky="new")
         self.seg_button.configure(values=["1", "2", "3", "4", "5", "6", "7"])
         self.seg_button.set("1")
 
         # language to be used
         self.langTextFrame = customtkinter.CTkFrame(self.keyNumFrame)
-        self.langTextFrame.grid(row = 1, column = 0, padx=0, pady=(5,0), sticky="new")
+        self.langTextFrame.grid(row = 1, column = 0, padx=(5,0), pady=5, sticky="new")
         self.langTextFrame.grid_columnconfigure(0, weight=1)
         self.langTextFrame.grid_rowconfigure(0, weight=1)
         self.langLabel = customtkinter.CTkLabel(self.langTextFrame, 
@@ -1338,9 +1340,34 @@ class VigenerePage(customtkinter.CTkFrame):
         self.langLabel.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
 
         self.seg_lang = customtkinter.CTkSegmentedButton(self.keyNumFrame)
-        self.seg_lang.grid(row=1, column=1, padx=0, pady=(5,0), sticky="new")
+        self.seg_lang.grid(row=1, column=1, padx=(0,5), pady=5, sticky="new")
         self.seg_lang.configure(values=["English", "French", "German", "Italian", "Portuguese", "Spanish"])
         self.seg_lang.set("English")
+
+        # Brauer stuff
+        buttonBrauer = customtkinter.CTkButton(self.keyFrame,
+                                          text ="Analysis (Brauer)",
+                                          command = self.popUP)
+        buttonBrauer.grid(row = 3, column = 0, padx = (0,5), pady = (10,5), sticky="new")
+
+        # Number of keys to be recommended
+        self.brauerFrame = customtkinter.CTkFrame(self.keyFrame)
+        self.brauerFrame.columnconfigure(1, weight=1)
+        self.brauerFrame.grid(row = 3, column = 1, padx =0, pady = 5, sticky="new")
+
+        self.brauerSegFrame = customtkinter.CTkFrame(self.brauerFrame)
+        self.brauerSegFrame.grid(row = 0, column = 0, padx=(5,0), pady=5, sticky="ew")
+        self.brauerSegFrame.grid_columnconfigure(0, weight=1)
+        self.brauerSegFrame.grid_rowconfigure(0, weight=1)
+        self.ds_frame_labelBrauer = customtkinter.CTkLabel(self.brauerSegFrame, 
+                                                     text="Key length",
+                                                     corner_radius=6)
+        self.ds_frame_labelBrauer.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
+
+        self.seg_buttonBrauer = customtkinter.CTkSegmentedButton(self.brauerFrame)
+        self.seg_buttonBrauer.grid(row=0, column=1, padx=(0,5), pady=5, sticky="new")
+        self.seg_buttonBrauer.configure(values=["2", "3", "4", "5", "6", "7", "8"])
+        self.seg_buttonBrauer.set("5")
 
         # Attack textbox
         self.keyTextbox = customtkinter.CTkTextbox(self.keyFrame, state="disabled")
@@ -1384,20 +1411,25 @@ class VigenerePage(customtkinter.CTkFrame):
         cleanString = self.system.getCleanString()
         if cleanString != "":
             numKeys = int(self.seg_button.get())
+            afterMessage = ""
             keys = self.system.getBestKeys(cleanString, num=numKeys)
+            if len(keys) < numKeys:
+                numKeys = len(keys)
+                afterMessage = "\n\nThe largest key length possible for the given ciphertext is {}. Anything longer will result in a one-time pad".format(len(keys)+1)
             
             # Display recommended keys
             self.keyTextbox.configure(state="normal")
-            outputString = "Test the following keys for " + self.system.lang + ":\n"
+            outputString = "Test the following keys for " + self.system.lang + ". The keys have been ordered according to the coincidence index of their length. Additionally, 3 key candidates are given per key length, these candidates are computed with 3 different criteria:\n1) Maximum sum of products\n2) Minimum difference with sum of squared probabilities of the language\n3) Most persistent letter\n\n"
 
             for i in range(numKeys):
+                outputString += "For a key of length {}:\n".format(len(keys[i][0]))
                 key1 = keys[i][0]
                 key2 = keys[i][1]
-                outputString += str(key1) + "\n"
-                if key1 != key2:
-                    outputString += str(key2) + "\n"
-                outputString += "\n"
-
+                key3 = keys[i][2]
+                outputString += "\t1){}\n".format(key1)
+                outputString += "\t2){}\n".format(key2)
+                outputString += "\t3){}\n\n".format(key3)
+            outputString += afterMessage
             self.keyTextbox.delete('0.0', tk.END)
             self.keyTextbox.insert("0.0", outputString)
             self.keyTextbox.configure(state="disabled")
@@ -1429,6 +1461,124 @@ class VigenerePage(customtkinter.CTkFrame):
 
         newKeyStr += " = ("+str(self.system.codeKey)[1:-1]+")"
         self.currentKeyFrameNumber.configure(text=newKeyStr)
+    
+    def popUP(self):
+        # get key length
+        keyLen = int(self.seg_buttonBrauer.get())
+
+        # get input string
+        inputText = self.entry.get("1.0", "end-1c")
+        self.system.setText(inputText)
+        cleanString = self.system.getCleanString()
+        self.originalBrauerMsg = cleanString
+        if len(cleanString) > 0:
+            upperBound = min(keyLen, len(cleanString))
+            newStr = ""
+            polygonsString = "\tW1: "
+            for i in range(upperBound):
+                for j in range(i, len(cleanString), keyLen):
+                    newStr += cleanString[j]
+                    polygonsString += cleanString[j]
+
+                newStr += " "
+                if i < upperBound-1:
+                    polygonsString += "\n\tW" + str(i+2) + ": "
+
+            self.polygonString = polygonsString
+            self.brauerString = newStr[:-1].lower()
+            print(self.brauerString)
+
+            self.popUp2() # xD
+    
+    def popUp2(self):
+        # create popUp window (more like pop back)
+        top = customtkinter.CTkToplevel()
+        top.geometry("750x500")
+        top.title("PiCKED")
+        top.after(250, lambda: top.iconbitmap(path_to_icon))
+        top.grid_columnconfigure(0, weight=1)
+        top.grid_rowconfigure(0, weight=1)
+        
+        
+        scrollable_frame = customtkinter.CTkScrollableFrame(top, label_text="")
+        scrollable_frame.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
+        scrollable_frame.grid_columnconfigure(1, weight=1)
+
+        customtkinter.CTkLabel(scrollable_frame, 
+                            text= "BRAUER QUIVER", 
+                            font=customtkinter.CTkFont(size=20, weight="bold")).grid(column=0,row=0)
+
+        # image frame
+        imgFrame = customtkinter.CTkFrame(scrollable_frame)
+        imgFrame.configure(width=400,height=400)
+        imgFrame.grid_propagate(False)
+        imgFrame.columnconfigure(0, weight=1)
+        imgFrame.rowconfigure(0, weight=1)
+        imgFrame.grid(column = 0, row = 1, rowspan=1, padx=(20,5), pady=(10,0), sticky="nsew")
+        imageLabel = customtkinter.CTkLabel(imgFrame, 
+                                                text="",
+                                                corner_radius=6,
+                                                fg_color=['#979DA2', 'gray29'],
+                                                text_color=['#DCE4EE', '#DCE4EE'])
+        imageLabel.grid(column = 0, row = 0, padx=0, pady=0, sticky="nsew")
+
+        # Calcular algebra stuff
+        self.resultados = obtener_resultados(self.brauerString)
+        the_image_path = crear_grafo(self.resultados["Ciclos"])
+        the_image = Image.open(the_image_path)
+        the_image.thumbnail((600,600), Image.LANCZOS)
+        the_image.save("Brauervisualization.ppm")
+
+        # output
+        ICInfo = self.system.getFreqIndexForKeyLen(self.originalBrauerMsg, int(self.seg_buttonBrauer.get()))
+
+        outStr = "Vigenere ciphertext:\n\t" + self.originalBrauerMsg + "\n\n"
+        outStr += "Presumed key length:\n\t" + self.seg_buttonBrauer.get() + "\n\nPolygons (cosets):\n"
+        counter = 1
+        for polygon in self.resultados["R1"]:
+            outStr += "\tW" + str(counter) + ": " + polygon + "\n"
+            counter += 1
+        outStr += "\nVertices:\n\t{ " 
+        lsVert = list(self.resultados["R0"])
+        for i in range(len(lsVert)):
+            if i < len(lsVert)-1:
+                outStr += lsVert[i] + " , "
+            else:
+                outStr += lsVert[i] + " }\n\n"
+        outStr += "Number of loops:\n\t" + str(sum(self.resultados["NLoops"].values())) + "\n\n"
+        outStr += "Dimension of the Brauer Configuration Algebra:\n\t" + str(self.resultados["D"]) + "\n\n"
+        outStr += "Dimension of the center:\n\t" + str(self.resultados["DZ"]) + "\n\n"
+        if ICInfo != None:
+            outStr += "Average index of coincidence:\n\t" + str(ICInfo[1]) + "\n\nIndices of coincidence of each coset:\n"
+            for coset in ICInfo[0]:
+                outStr += "\t"+ coset + ":\n\t\t" + str(ICInfo[0][coset]) + "\n\n"
+        else:
+            outStr += "Since the key is at least as long as the ciphertext, no information can be extracted."
+        
+        textbox = customtkinter.CTkTextbox(scrollable_frame, state="normal")
+        textbox.grid(row=1, column=1, rowspan=2, padx=(5,20), pady=(10, 0), sticky="nsew")
+        textbox.insert("0.0", outStr)
+        textbox.configure(state="disabled")
+
+        # Change label contents
+        imgObject = PhotoImage(file = "Brauervisualization.ppm")
+        
+        imageLabel.configure(image=imgObject)
+
+
+        # save button
+        buttonSave = customtkinter.CTkButton(scrollable_frame, 
+                                                    text = "Save",
+                                                    command = lambda : self.saveQuiver(self.resultados)) 
+        buttonSave.grid(column = 0, row = 2, padx = (20,5), pady = (0,10), sticky="new")
+    
+    def saveQuiver(self, resultados):
+        file = filedialog.asksaveasfile(mode='wb', 
+                                        filetypes = (("png","*.png"),
+                                                    ('All files', '*.*')),
+                                        defaultextension=".png")
+        if file:
+            crear_grafo(resultados["Ciclos"], file.name)
 
 
 # Permutacion window frame
@@ -3471,7 +3621,6 @@ class RSAPage(customtkinter.CTkFrame):
         self.textbox2.configure(state="disabled")
 
 
-
 # ElGammal window frame
 class ElGamalPage(customtkinter.CTkFrame):
     def __init__(self, parent, controller):
@@ -4264,160 +4413,12 @@ class DSAPage(customtkinter.CTkFrame):
         self.textbox2.configure(state="disabled")
 
 
-# third window frame page2
-class Page2(customtkinter.CTkFrame):
-    def __init__(self, parent, controller):
-        customtkinter.CTkFrame.__init__(self, parent)
-        # configure grid layout (4x4)
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_columnconfigure((2, 3), weight=0)
-        self.grid_rowconfigure((0, 1, 2), weight=1)
-
-        # create sidebar frame with widgets
-        self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
-        self.sidebar_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
-        self.sidebar_frame.grid_rowconfigure(4, weight=1)
-        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="CustomTkinter", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
-        self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event)
-        self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
-        self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event)
-        self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
-        self.sidebar_button_3 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event)
-        self.sidebar_button_3.grid(row=3, column=0, padx=20, pady=10)
-        self.appearance_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Appearance Mode:", anchor="w")
-        self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
-        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["Light", "Dark", "System"],
-                                                                       command=self.change_appearance_mode_event)
-        self.appearance_mode_optionemenu.grid(row=6, column=0, padx=20, pady=(10, 10))
-        self.scaling_label = customtkinter.CTkLabel(self.sidebar_frame, text="UI Scaling:", anchor="w")
-        self.scaling_label.grid(row=7, column=0, padx=20, pady=(10, 0))
-        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["80%", "90%", "100%", "110%", "120%"],
-                                                               command=self.change_scaling_event)
-        self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
-
-        # create main entry and button
-        self.entry = customtkinter.CTkEntry(self, placeholder_text="CTkEntry")
-        self.entry.grid(row=3, column=1, columnspan=2, padx=(20, 0), pady=(20, 20), sticky="nsew")
-
-        self.main_button_1 = customtkinter.CTkButton(master=self, fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"))
-        self.main_button_1.grid(row=3, column=3, padx=(20, 20), pady=(20, 20), sticky="nsew")
-
-        # create textbox
-        self.textbox = customtkinter.CTkTextbox(self, width=250)
-        self.textbox.grid(row=0, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
-
-        # create tabview
-        self.tabview = customtkinter.CTkTabview(self, width=250)
-        self.tabview.grid(row=0, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
-        self.tabview.add("CTkTabview")
-        self.tabview.add("Tab 2")
-        self.tabview.add("Tab 3")
-        self.tabview.tab("CTkTabview").grid_columnconfigure(0, weight=1)  # configure grid of individual tabs
-        self.tabview.tab("Tab 2").grid_columnconfigure(0, weight=1)
-
-        self.optionmenu_1 = customtkinter.CTkOptionMenu(self.tabview.tab("CTkTabview"), dynamic_resizing=False,
-                                                        values=["Value 1", "Value 2", "Value Long Long Long"])
-        self.optionmenu_1.grid(row=0, column=0, padx=20, pady=(20, 10))
-        self.combobox_1 = customtkinter.CTkComboBox(self.tabview.tab("CTkTabview"),
-                                                    values=["Value 1", "Value 2", "Value Long....."])
-        self.combobox_1.grid(row=1, column=0, padx=20, pady=(10, 10))
-        self.string_input_button = customtkinter.CTkButton(self.tabview.tab("CTkTabview"), text="Open CTkInputDialog",
-                                                           command=self.open_input_dialog_event)
-        self.string_input_button.grid(row=2, column=0, padx=20, pady=(10, 10))
-        self.label_tab_2 = customtkinter.CTkLabel(self.tabview.tab("Tab 2"), text="CTkLabel on Tab 2")
-        self.label_tab_2.grid(row=0, column=0, padx=20, pady=20)
-
-        # create radiobutton frame
-        self.radiobutton_frame = customtkinter.CTkFrame(self)
-        self.radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
-        self.radio_var = tkinter.IntVar(value=0)
-        self.label_radio_group = customtkinter.CTkLabel(master=self.radiobutton_frame, text="CTkRadioButton Group:")
-        self.label_radio_group.grid(row=0, column=2, columnspan=1, padx=10, pady=10, sticky="")
-        self.radio_button_1 = customtkinter.CTkRadioButton(master=self.radiobutton_frame, variable=self.radio_var, value=0)
-        self.radio_button_1.grid(row=1, column=2, pady=10, padx=20, sticky="n")
-        self.radio_button_2 = customtkinter.CTkRadioButton(master=self.radiobutton_frame, variable=self.radio_var, value=1)
-        self.radio_button_2.grid(row=2, column=2, pady=10, padx=20, sticky="n")
-        self.radio_button_3 = customtkinter.CTkRadioButton(master=self.radiobutton_frame, variable=self.radio_var, value=2)
-        self.radio_button_3.grid(row=3, column=2, pady=10, padx=20, sticky="n")
-
-        # create slider and progressbar frame
-        self.slider_progressbar_frame = customtkinter.CTkFrame(self, fg_color="transparent")
-        self.slider_progressbar_frame.grid(row=1, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
-        self.slider_progressbar_frame.grid_columnconfigure(0, weight=1)
-        self.slider_progressbar_frame.grid_rowconfigure(4, weight=1)
-        self.seg_button_1 = customtkinter.CTkSegmentedButton(self.slider_progressbar_frame)
-        self.seg_button_1.grid(row=0, column=0, padx=(20, 10), pady=(10, 10), sticky="ew")
-        self.progressbar_1 = customtkinter.CTkProgressBar(self.slider_progressbar_frame)
-        self.progressbar_1.grid(row=1, column=0, padx=(20, 10), pady=(10, 10), sticky="ew")
-        self.progressbar_2 = customtkinter.CTkProgressBar(self.slider_progressbar_frame)
-        self.progressbar_2.grid(row=2, column=0, padx=(20, 10), pady=(10, 10), sticky="ew")
-        self.slider_1 = customtkinter.CTkSlider(self.slider_progressbar_frame, from_=0, to=1, number_of_steps=4)
-        self.slider_1.grid(row=3, column=0, padx=(20, 10), pady=(10, 10), sticky="ew")
-        self.slider_2 = customtkinter.CTkSlider(self.slider_progressbar_frame, orientation="vertical")
-        self.slider_2.grid(row=0, column=1, rowspan=5, padx=(10, 10), pady=(10, 10), sticky="ns")
-        self.progressbar_3 = customtkinter.CTkProgressBar(self.slider_progressbar_frame, orientation="vertical")
-        self.progressbar_3.grid(row=0, column=2, rowspan=5, padx=(10, 20), pady=(10, 10), sticky="ns")
-
-        # create scrollable frame
-        self.scrollable_frame = customtkinter.CTkScrollableFrame(self, label_text="CTkScrollableFrame")
-        self.scrollable_frame.grid(row=1, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
-        self.scrollable_frame.grid_columnconfigure(0, weight=1)
-        self.scrollable_frame_switches = []
-        for i in range(100):
-            switch = customtkinter.CTkSwitch(master=self.scrollable_frame, text=f"CTkSwitch {i}")
-            switch.grid(row=i, column=0, padx=10, pady=(0, 20))
-            self.scrollable_frame_switches.append(switch)
-
-        # create checkbox and switch frame
-        self.checkbox_slider_frame = customtkinter.CTkFrame(self)
-        self.checkbox_slider_frame.grid(row=1, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
-        self.checkbox_1 = customtkinter.CTkCheckBox(master=self.checkbox_slider_frame)
-        self.checkbox_1.grid(row=1, column=0, pady=(20, 0), padx=20, sticky="n")
-        self.checkbox_2 = customtkinter.CTkCheckBox(master=self.checkbox_slider_frame)
-        self.checkbox_2.grid(row=2, column=0, pady=(20, 0), padx=20, sticky="n")
-        self.checkbox_3 = customtkinter.CTkCheckBox(master=self.checkbox_slider_frame)
-        self.checkbox_3.grid(row=3, column=0, pady=20, padx=20, sticky="n")
-
-        # set default values
-        self.sidebar_button_3.configure(state="disabled", text="Disabled CTkButton")
-        self.checkbox_3.configure(state="disabled")
-        self.checkbox_1.select()
-        self.scrollable_frame_switches[0].select()
-        self.scrollable_frame_switches[4].select()
-        self.radio_button_3.configure(state="disabled")
-        self.appearance_mode_optionemenu.set("Dark")
-        self.scaling_optionemenu.set("100%")
-        self.optionmenu_1.set("CTkOptionmenu")
-        self.combobox_1.set("CTkComboBox")
-        self.slider_1.configure(command=self.progressbar_2.set)
-        self.slider_2.configure(command=self.progressbar_3.set)
-        self.progressbar_1.configure(mode="indeterminnate")
-        self.progressbar_1.start()
-        self.textbox.insert("0.0", "CTkTextbox\n\n" + "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.\n\n" * 20)
-        self.seg_button_1.configure(values=["CTkSegmentedButton", "Value 2", "Value 3"])
-        self.seg_button_1.set("Value 2")
-
-    def open_input_dialog_event(self):
-        dialog = customtkinter.CTkInputDialog(text="Type in a number:", title="CTkInputDialog")
-        print("CTkInputDialog:", dialog.get_input())
-
-    def change_appearance_mode_event(self, new_appearance_mode: str):
-        customtkinter.set_appearance_mode(new_appearance_mode)
-
-    def change_scaling_event(self, new_scaling: str):
-        new_scaling_float = int(new_scaling.replace("%", "")) / 100
-        customtkinter.set_widget_scaling(new_scaling_float)
-
-    def sidebar_button_event(self):
-        print("sidebar_button click")
-
-
-
 if __name__ == "__main__":
+    
+ 
+    # Adjust size
     app = App()
     app.mainloop()
 
-  
 
                                                                                                   

@@ -1,7 +1,13 @@
 # pip install graphviz
 # pip install ipython
-import graphviz
 from IPython.display import Image
+import pydot
+
+
+colours = ["aqua","brown1","aquamarine4","blueviolet","coral","chartreuse4","crimson",
+           "darkblue","cyan3","darkorchid1","darkorange1","darkgreen","darkslateblue",
+           "goldenrod4","gold3","darkviolet","deeppink4","deepskyblue1","firebrick4",
+           "darksalmon","cornflowerblue","darkolivegreen","indianred1","hotpink4"]
 
 def procesar_texto(texto):
     palabras = texto.split()
@@ -19,7 +25,8 @@ def mapear_posiciones(strings, simbolos):
     for cadena_index, cadena in enumerate(strings):
         for simbolo in simbolos:
             apariciones = cadena.count(simbolo)
-            posiciones_repetidas = [cadena_index] * apariciones
+            posiciones_repetidas = ["W" + str(cadena_index+1)] * apariciones
+
             posiciones_mapeadas[simbolo].extend(posiciones_repetidas)
     
     for simbolo in simbolos:
@@ -51,7 +58,7 @@ def contar_ocurrencias_consecutivas(posiciones_mapeadas):
 
 def generar_tuplas(lista, etiqueta):
     # Utilizar una comprensión de lista para generar las tuplas con la etiqueta
-    tuplas = [(lista[i], lista[i+1], etiqueta) for i in range(len(lista)-1)]
+    tuplas = [(lista[i], lista[i+1], etiqueta+str(i+1)) for i in range(len(lista)-1)]
     return tuplas
 
 def calcular_dim_k_N(r1, val_y_multi):
@@ -66,31 +73,39 @@ def calcular_dim_Z_k_N(r1, r0, val_y_multi, loops):
     dim_Z_k_N = 1 + sum(multi for val, [val, multi] in val_y_multi.items()) + len(r1) + sum(loops.values()) - tamanio_r0 - num_simbolos_val_1
     return dim_Z_k_N
 
-def crear_grafo(mapeo_posiciones):
+def crear_grafo(mapeo_posiciones, target_path = "algBr42h399rh23ru8934.png"):
     # Crear un grafo dirigido con Graphviz
-    dot = graphviz.Digraph()
+    dot = pydot.Dot(graph_type = "digraph")
 
     # Añadir nodos y arcos con etiquetas
+    contadorColores = 0
     for key, lista_posiciones in mapeo_posiciones.items():
         # Generar tuplas con la etiqueta correspondiente a la clave
         tuplas = generar_tuplas(lista_posiciones, key)
 
         # Añadir nodos y arcos con etiquetas al grafo
         for tupla in tuplas:
-            dot.node(str(tupla[0]))
-            dot.node(str(tupla[1]))
-            dot.edge(str(tupla[0]), str(tupla[1]), label=f'{tupla[2]}')
+            node = pydot.Node(str(tupla[0]))
+            dot.add_node(node)
+            node = pydot.Node(str(tupla[1]))
+            dot.add_node(node)
+            edge = pydot.Edge(str(tupla[0]), str(tupla[1]), label=f'{tupla[2]}', color = colours[contadorColores%24])
+            dot.add_edge(edge)
+        contadorColores += 1
 
     # Especificar el formato de salida
     output_format = 'png'
     output_file = 'grafo_mapeo_posiciones'
 
     # Guardar el grafo en un archivo en formato DOT
-    dot_file = f"{output_file}.dot"
-    dot.render(dot_file, format='png', cleanup=True)
+    #dot.render(output_file, format='png', cleanup=True)
+
+
+    dot.write_png(target_path)
 
     # Mostrar la imagen
-    return dot_file
+    return target_path
+
 
 def obtener_resultados(texto):
     # Procesar texto
@@ -112,30 +127,28 @@ def obtener_resultados(texto):
     dim_Z_k_N = calcular_dim_Z_k_N(r1, r0, val_y_multi, loops)
 
     # Crear el grafo y obtener el archivo
-    archivo_grafo = crear_grafo(mapeo_posiciones)
+    # archivo_grafo = crear_grafo(mapeo_posiciones)
 
     # Retornar todos los resultados
     resultados = {
-        "Valor de dimension del algebra de configuracion de brauer (dim_k_N)": dim_k_N,
-        "Valor de dimension del centro del álgebra de una configuración de Brauer (dim_Z_k_N)": dim_Z_k_N,
-        "Grafo (archivo_grafo)": archivo_grafo,
+        "D": dim_k_N,
+        "DZ": dim_Z_k_N,
         "Ciclos": mapeo_posiciones,
         "Diccionario de vertices con sus valencias y multiplicidad": val_y_multi,
-        "Numero de loops:": loops,
-        "R1 (Poligonos)": r1,
-        "R0 (Vertices)": r0,
+        "NLoops": loops,
+        "R1": r1,
+        "R0": r0
     }
 
     return resultados
 
 # Ejemplo de uso
-texto_entrada = "cotyyhogapmf adrps rota xe mregh"
+#texto_entrada = "cotyyhogapmf adrps rota xe mregh"
 
 # Obtener todos los resultados
-resultados = obtener_resultados(texto_entrada)
+#resultados = obtener_resultados(texto_entrada)
 
 # Imprimir todos los resultados
-for nombre, valor in resultados.items():
-    print(f"{nombre}: {valor}\n\n")
-
-
+#for nombre, valor in resultados.items():
+#    print(f"{nombre}: {valor}\n\n")
+#crear_grafo(resultados["Ciclos"])

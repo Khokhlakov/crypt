@@ -107,30 +107,62 @@ class Vigenere(Sistema):
         return self.getCipherString()
 
     def generateKey(self):
-        return [randint(0,25) for x in range(randint(3,15))]
+        return [randint(0,25) for x in range(randint(2,15))]
     
     def getFreqIndex(self, string):
         finDict = {}
         upperBound = 16
         if len(string) < 16:
             upperBound = len(string)
-        for i in range(3, upperBound):
-            text = string[0::i]
-            tempDict = {}
-            n = len(text)
+        for i in range(2, upperBound):
+            CIsum = 0
+            for j in range(i):
+                text = string[j::i]
+                tempDict = {}
+                n = len(text)
 
-            for letter in text:
-                if letter in tempDict.keys():
-                    tempDict[letter] += 1
-                else:
-                    tempDict[letter] = 1
+                for letter in text:
+                    if letter in tempDict.keys():
+                        tempDict[letter] += 1
+                    else:
+                        tempDict[letter] = 1
 
-            sum = 0
-            for item in tempDict.items():
-                sum += item[1]*(item[1]-1)
+                sum = 0
+                for item in tempDict.items():
+                    sum += item[1]*(item[1]-1)
+                
+                CIsum += sum/(n*(n-1))
 
-            finDict[i] = sum/(n*(n-1))
+            finDict[i] = CIsum/i
         return sorted(finDict.items(), key=lambda x: abs(x[1]-Vigenere.kappa[self.lang]))
+
+    def getFreqIndexForKeyLen(self, string, keyLen):
+        cosetsNCI = {}
+        if len(string) > keyLen:
+            i = keyLen
+            CIsum = 0
+            for j in range(i):
+                text = string[j::i]
+                tempDict = {}
+                n = len(text)
+
+                for letter in text:
+                    if letter in tempDict.keys():
+                        tempDict[letter] += 1
+                    else:
+                        tempDict[letter] = 1
+
+                sum = 0
+                for item in tempDict.items():
+                    sum += item[1]*(item[1]-1)
+                
+                daKey = text.lower()
+                cosetsNCI[daKey] = sum/(n*(n-1))
+                CIsum += cosetsNCI[daKey]
+
+            averageCI = CIsum/i
+            return (cosetsNCI, averageCI)
+        return None
 
     def getFreq(self, string):
         tempDict = {}
@@ -162,18 +194,31 @@ class Vigenere(Sistema):
 
             keyOption1 = ""
             keyOption2 = ""
+            keyOption3 = ""
             for k in range(m):
                 freqDict = self.getFreq(string[k::m])
                 bestChoice = {}
+
+                Msubg = [0 for x in range(26)]
+
                 for i in range(26):
                     sum = 0
                     for key in freqDict.keys():
                         sum += Vigenere.characterFrequency[self.lang][chr(((ord(key)-65-i)%26)+65)]*freqDict[key]
                     bestChoice[chr(i+65)] = sum/100
+                    Msubg[i] = sum/100
                 
+                persistence = [1 for x in range(26)]
+                for i in range(25):
+                    for j in range(i+1, 26):
+                        persistence[i] = min(abs(Msubg[i]-Msubg[j]), persistence[i])
+                        persistence[j] = min(abs(Msubg[i]-Msubg[j]), persistence[j])
+                index_min = max(range(len(persistence)), key=persistence.__getitem__)
                 keyOption1 += max(bestChoice.items(), key=lambda x: x[1])[0]
                 keyOption2 += min(bestChoice.items(), key=lambda x: abs(x[1]-Vigenere.squaredFrequencySum[self.lang]))[0]
+                keyOption3 += chr(index_min+65)
+
             
-            keys.append((keyOption1, keyOption2))
+            keys.append((keyOption1, keyOption2, keyOption3))
         
         return keys
