@@ -81,6 +81,7 @@ name_image = customtkinter.CTkImage(dark_image=Image.open(path_to_name),
 
 
 
+
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
@@ -350,7 +351,7 @@ class HomePage(customtkinter.CTkFrame):
     def popUp2(self):
         # create popUp window (more like pop back)
         top = customtkinter.CTkToplevel()
-        top.geometry("750x500")
+        top.geometry("900x500")
         top.title("PiCKED")
         top.after(250, lambda: top.iconbitmap(path_to_icon))
         top.grid_columnconfigure(0, weight=1)
@@ -381,10 +382,25 @@ class HomePage(customtkinter.CTkFrame):
 
         # Calcular algebra stuff
         self.resultados = obtener_resultados(self.message)
-        the_image_path = crear_grafo(self.resultados["Ciclos"])
-        the_image = Image.open(the_image_path)
-        the_image.thumbnail((600,600), Image.LANCZOS)
-        the_image.save("Brauervisualization.ppm")
+        try:
+            the_image_path = crear_grafo(self.resultados["Ciclos"])
+            the_image = Image.open(the_image_path)
+            the_image.thumbnail((600,600), Image.LANCZOS)
+            the_image.save("Brauervisualization.ppm")
+
+            # Change label contents
+            imgObject = PhotoImage(file = "Brauervisualization.ppm")
+            
+            imageLabel.configure(image=imgObject)
+        except:
+            the_image = Image.open("sampleQuiver1.png")
+            the_image.thumbnail((600,600), Image.LANCZOS)
+            the_image.save("Brauervisualization.ppm")
+
+            # Change label contents
+            imgObject = PhotoImage(file = "Brauervisualization.ppm")
+            
+            imageLabel.configure(image=imgObject)
 
         # output
 
@@ -409,10 +425,7 @@ class HomePage(customtkinter.CTkFrame):
         textbox.insert("0.0", outStr)
         textbox.configure(state="disabled")
 
-        # Change label contents
-        imgObject = PhotoImage(file = "Brauervisualization.ppm")
         
-        imageLabel.configure(image=imgObject)
 
 
         # save button
@@ -1435,7 +1448,7 @@ class VigenerePage(customtkinter.CTkFrame):
 
         self.seg_button = customtkinter.CTkSegmentedButton(self.keyNumFrame)
         self.seg_button.grid(row=0, column=1, padx=(0,5), pady=(5,0), sticky="new")
-        self.seg_button.configure(values=["1", "2", "3", "4", "5", "6", "7"])
+        self.seg_button.configure(values=["1", "2", "3", "4", "5", "6", "7", "All"])
         self.seg_button.set("1")
 
         # language to be used
@@ -1519,29 +1532,102 @@ class VigenerePage(customtkinter.CTkFrame):
         self.system.setText(inputText)
         cleanString = self.system.getCleanString()
         if cleanString != "":
-            numKeys = int(self.seg_button.get())
+            numKeysStr = self.seg_button.get()
             afterMessage = ""
-            keys = self.system.getBestKeys(cleanString, num=numKeys)
-            if len(keys) < numKeys:
-                numKeys = len(keys)
-                afterMessage = "\n\nThe largest key length possible for the given ciphertext is {}. Anything longer will result in a one-time pad".format(len(keys)+1)
+            keys = self.system.getBestKeys(cleanString)
             
-            # Display recommended keys
-            self.keyTextbox.configure(state="normal")
-            outputString = "Test the following keys for " + self.system.lang + ". The keys have been ordered according to the coincidence index of their length. Additionally, 3 key candidates are given per key length, these candidates are computed with 3 different criteria:\n1) Maximum sum of products\n2) Minimum difference with sum of squared probabilities of the language\n3) Most persistent letter\n\n"
 
-            for i in range(numKeys):
-                outputString += "For a key of length {}:\n".format(len(keys[i][0]))
-                key1 = keys[i][0]
-                key2 = keys[i][1]
-                key3 = keys[i][2]
-                outputString += "\t1){}\n".format(key1)
-                outputString += "\t2){}\n".format(key2)
-                outputString += "\t3){}\n\n".format(key3)
-            outputString += afterMessage
-            self.keyTextbox.delete('0.0', tk.END)
-            self.keyTextbox.insert("0.0", outputString)
-            self.keyTextbox.configure(state="disabled")
+            if numKeysStr == "All":
+                # Display recommended keys
+                
+                self.keyTextbox.configure(state="normal")
+                outputString = "Test the following keys for " + self.system.lang + ". The keys have been ordered according to the coincidence index of their length. Additionally, 3 key candidates are given per key length, these candidates are computed with 3 different criteria:\n1) Maximum sum of products\n2) Minimum difference with sum of squared probabilities of the language\n3) Most persistent letter\n\n"
+
+                tempSys = Vigenere(text=cleanString)
+                tempSys.lang = self.seg_lang.get()
+                afterMessage = "\n\nAny key longer than {} will result in a one-time pad.".format(len(keys)+1)
+
+                for i in range(len(keys)):
+                    outputString += "For a key of length {}:\n".format(len(keys[i][0]))
+                    key1 = keys[i][0]
+                    key2 = keys[i][1]
+                    key3 = keys[i][2]
+
+
+                    tempSys.setKey(key1)
+                    result = tempSys.decrypt()
+                    splitText = True
+                    if len(result) <= 100:
+                        splitText = False
+                    else:
+                        rInt = randint(31, len(result)-61)
+                    if splitText:
+                        outputString += "\t1){}: ".format(key1)+ result[:30]+"..."+result[rInt:rInt+30]+"..."+ result[-30:] + "\n"
+                    else:
+                        outputString += "\t1){}: ".format(key1) + result + "\n"
+
+                    tempSys.setKey(key2)
+                    result = tempSys.decrypt()
+                    splitText = True
+                    if len(result) <= 100:
+                        splitText = False
+                    else:
+                        rInt = randint(31, len(result)-61)
+                    if splitText:
+                        outputString += "\t1){}: ".format(key2) + result[:30]+"..."+result[rInt:rInt+30]+"..."+ result[-30:] + "\n"
+                    else:
+                        outputString += "\t1){}: ".format(key2) + result + "\n"
+
+                    tempSys.setKey(key3)
+                    result = tempSys.decrypt()
+                    splitText = True
+                    if len(result) <= 100:
+                        splitText = False
+                    else:
+                        rInt = randint(31, len(result)-61)
+                    if splitText:
+                        outputString += "\t1){}: ".format(key3) + result[:30]+"..."+result[rInt:rInt+30]+"..."+ result[-30:] + "\n"
+                    else:
+                        outputString += "\t1){}: ".format(key3) + result + "\n"
+
+                    
+                    outputString += "\n"
+                
+                outputString += afterMessage
+                self.keyTextbox.delete('0.0', tk.END)
+                self.keyTextbox.insert("0.0", outputString)
+                self.keyTextbox.configure(state="disabled")
+
+            else:
+
+                numKeys = int(numKeysStr)
+                if len(keys) < numKeys:
+                    numKeys = len(keys)
+                    afterMessage = "\n\nThe largest key length possible for the given ciphertext is {}. Anything longer will result in a one-time pad.".format(len(keys)+1)
+                else:
+                    keys = keys[:numKeys]
+                # Display recommended keys
+                self.keyTextbox.configure(state="normal")
+                outputString = "Test the following keys for " + self.system.lang + ". The keys have been ordered according to the coincidence index of their length. Additionally, 3 key candidates are given per key length, these candidates are computed with 3 different criteria:\n1) Maximum sum of products\n2) Minimum difference with sum of squared probabilities of the language\n3) Most persistent letter\n\n"
+
+                for i in range(numKeys):
+                    outputString += "For a key of length {}:\n".format(len(keys[i][0]))
+                    key1 = keys[i][0]
+                    key2 = keys[i][1]
+                    key3 = keys[i][2]
+                    outputString += "\t1){}\n".format(key1)
+                    outputString += "\t2){}\n".format(key2)
+                    outputString += "\t3){}\n\n".format(key3)
+                outputString += afterMessage
+                self.keyTextbox.delete('0.0', tk.END)
+                self.keyTextbox.insert("0.0", outputString)
+                self.keyTextbox.configure(state="disabled")
+
+
+
+
+
+
         else:
             self.keyTextbox.configure(state="normal")
             self.keyTextbox.delete('0.0', tk.END)
@@ -1595,14 +1681,13 @@ class VigenerePage(customtkinter.CTkFrame):
 
             self.polygonString = polygonsString
             self.brauerString = newStr[:-1].lower()
-            print(self.brauerString)
 
             self.popUp2() # xD
     
     def popUp2(self):
         # create popUp window (more like pop back)
         top = customtkinter.CTkToplevel()
-        top.geometry("750x500")
+        top.geometry("900x500")
         top.title("PiCKED")
         top.after(250, lambda: top.iconbitmap(path_to_icon))
         top.grid_columnconfigure(0, weight=1)
@@ -1658,7 +1743,7 @@ class VigenerePage(customtkinter.CTkFrame):
         outStr += "Dimension of the Brauer Configuration Algebra:\n\t" + str(self.resultados["D"]) + "\n\n"
         outStr += "Dimension of the center:\n\t" + str(self.resultados["DZ"]) + "\n\n"
         if ICInfo != None:
-            outStr += "Average index of coincidence por cosets of length at least 2:\n\t" + str(ICInfo[1]) + "\n\nIndices of coincidence of each coset of length at least 2:\n"
+            outStr += "Average index of coincidence for cosets of length at least 2:\n\t" + str(ICInfo[1]) + "\n\nIndices of coincidence of each coset of length at least 2:\n"
             for coset in ICInfo[0]:
                 outStr += "\t"+ coset + ":\n\t\t" + str(ICInfo[0][coset]) + "\n\n"
         else:
@@ -2497,7 +2582,6 @@ class HillPage(customtkinter.CTkFrame):
             else:
                 pad = encoded_image_vector[-1,-1,-1]
                 if pad != 0:
-                    print("Say WHAAAT")
                     encoded_image_vector = encoded_image_vector[:-pad,:,:]
 
 
@@ -2535,7 +2619,7 @@ class HillPage(customtkinter.CTkFrame):
         # Display key
         self.textbox.configure(state="normal")
         self.textbox.delete('0.0', tk.END)
-        self.textbox.insert("0.0", "Key:\n"+self.system.getKeyStr()+"\n\nInitial vector:\n" + self.system.getIVStr())
+        self.textbox.insert("0.0", "Key:\n"+self.system.getKeyStr()+"\nInitial vector:\n" + self.system.getIVStr())
         self.textbox.configure(state="disabled")
     
     def changeOnlyKey(self, keySize):
@@ -2555,14 +2639,14 @@ class HillPage(customtkinter.CTkFrame):
                 # Display key
             self.textbox.configure(state="normal")
             self.textbox.delete('0.0', tk.END)
-            self.textbox.insert("0.0", "Key:\n"+self.system.getKeyStr()+"\n\nInitial vector:\n" + self.system.getIVStr())
+            self.textbox.insert("0.0", "Key:\n"+self.system.getKeyStr()+"\nInitial vector:\n" + self.system.getIVStr())
             self.textbox.configure(state="disabled")
         except:
             self.changeOnlyKey(int(self.seg_button.get()))
             # Display key
             self.textbox.configure(state="normal")
             self.textbox.delete('0.0', tk.END)
-            self.textbox.insert("0.0", "Matrix must be invertible module 256, resetting to:\n" + self.system.getKeyStr()+"\n\nInitial vector:\n" + self.system.getIVStr())
+            self.textbox.insert("0.0", "Matrix must be invertible module 256, resetting to:\n" + self.system.getKeyStr()+"\nInitial vector:\n" + self.system.getIVStr())
             self.textbox.configure(state="disabled")
 
         
@@ -4312,22 +4396,21 @@ class RabinPage(customtkinter.CTkFrame):
             inputText = inputText[:253]
             self.entry.delete('1.0', tk.END)
             self.entry.insert("0.0", inputText)
-
-        cipherText = Rabin.simpleEncryption(inputText, self.n)
-
+        
+        self.outText = Rabin.simpleEncryption(inputText, self.n)
         self.textbox.configure(state="normal")
         self.textbox.delete('1.0', tk.END)
-        self.textbox.insert("0.0", cipherText)
+        self.textbox.insert("0.0", self.outText)
         self.textbox.configure(state="disabled")
         
     def decrypt(self):
         inputText = self.entry.get("0.0", tk.END)
 
-        cipherText = Rabin.decrypt_rabin(int(inputText), self.p, self.q)
+        self.outText = Rabin.decrypt_rabin(int(inputText), self.p, self.q)
 
         self.textbox.configure(state="normal")
         self.textbox.delete('0.0', tk.END)
-        self.textbox.insert("0.0", cipherText)
+        self.textbox.insert("0.0", self.outText)
         self.textbox.configure(state="disabled")
     
     def copyToClipboard(self):
