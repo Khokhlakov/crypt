@@ -65,6 +65,7 @@ path_to_save = os.path.join(bundle_dir, "save.png")
 path_to_name = os.path.join(bundle_dir, "name.png")
 path_to_nameL = os.path.join(bundle_dir, "nameLight.png")
 path_to_icon = os.path.join(bundle_dir, "icono.ico")
+path_to_sampleQuiver = os.path.join(bundle_dir, "sampleQuiver1.png")
 
 
 dice_image = customtkinter.CTkImage(Image.open(path_to_dice), size=(18, 18))
@@ -80,6 +81,10 @@ name_image = customtkinter.CTkImage(dark_image=Image.open(path_to_name),
                                     size=(400/3, 100/3))
 
 
+# Everything will be stored here
+if not os.path.exists("PiCKED App"):
+   # Create a new directory because it does not exist
+   os.makedirs("PiCKED App")
 
 
 class App(customtkinter.CTk):
@@ -383,25 +388,39 @@ class HomePage(customtkinter.CTkFrame):
         # Calcular algebra stuff
         self.resultados = obtener_resultados(self.message)
         try:
+            a = 1/0
             the_image_path = crear_grafo(self.resultados["Ciclos"])
             the_image = Image.open(the_image_path)
             the_image.thumbnail((600,600), Image.LANCZOS)
-            the_image.save("Brauervisualization.ppm")
+            daPath = os.path.join("PiCKED App","Brauervisualization.ppm")
+            the_image.save(daPath)
 
             # Change label contents
-            imgObject = PhotoImage(file = "Brauervisualization.ppm")
+            imgObject = PhotoImage(file = daPath)
             
             imageLabel.configure(image=imgObject)
+
+            # save button
+            buttonSave = customtkinter.CTkButton(scrollable_frame, 
+                                                        text = "Save",
+                                                        command = lambda : self.saveQuiver(self.resultados))
+            buttonSave.grid(column = 0, row = 2, padx = (20,5), pady = (0,10), sticky="new")
         except:
-            the_image = Image.open("sampleQuiver1.png")
+            the_image = Image.open(path_to_sampleQuiver)
             the_image.thumbnail((600,600), Image.LANCZOS)
-            the_image.save("Brauervisualization.ppm")
+            daPath = os.path.join("PiCKED App","Brauervisualization.ppm")
+            the_image.save(daPath)
 
             # Change label contents
-            imgObject = PhotoImage(file = "Brauervisualization.ppm")
+            imgObject = PhotoImage(file = daPath)
             
             imageLabel.configure(image=imgObject)
 
+            # save button
+            buttonSave = customtkinter.CTkButton(scrollable_frame, 
+                                                        text = "Save",
+                                                        command = self.saveQuiverDemo)
+            buttonSave.grid(column = 0, row = 2, padx = (20,5), pady = (0,10), sticky="new")
         # output
 
         outStr = "Original message:\n\t" + self.message + "\n\nPolygons:\n"
@@ -426,13 +445,6 @@ class HomePage(customtkinter.CTkFrame):
         textbox.configure(state="disabled")
 
         
-
-
-        # save button
-        buttonSave = customtkinter.CTkButton(scrollable_frame, 
-                                                    text = "Save",
-                                                    command = lambda : self.saveQuiver(self.resultados)) 
-        buttonSave.grid(column = 0, row = 2, padx = (20,5), pady = (0,10), sticky="new")
     
     def saveQuiver(self, resultados):
         file = filedialog.asksaveasfile(mode='wb', 
@@ -441,6 +453,15 @@ class HomePage(customtkinter.CTkFrame):
                                         defaultextension=".png")
         if file:
             crear_grafo(resultados["Ciclos"], file.name)
+    
+    def saveQuiverDemo(self):
+        myImage = Image.open(path_to_sampleQuiver)
+        file = filedialog.asksaveasfile(mode='wb', 
+                                        filetypes = (("png","*.png"),
+                                                    ('All files', '*.*')),
+                                        defaultextension=".png")
+        if file:
+            myImage.save(file) # saves the image to the input file name. 
 
 
 # AffinePage window frame
@@ -673,7 +694,7 @@ class AffinePage(customtkinter.CTkFrame):
                 # Display recommended keys
 
                 self.keyTextbox.configure(state="normal")
-                outputString = "Test the following keys for " + self.system.lang + ":\n"
+                outputString = "Keep in mind that frequency analysis may be ineffective for short inputs.\nTest the following keys for " + self.system.lang + ":\n"
 
                 for i in range(numKeys):
                     key1 = keys1[i][0]
@@ -934,7 +955,7 @@ class MultiplicativePage(customtkinter.CTkFrame):
             else:
                 # Display recommended keys
                 self.keyTextbox.configure(state="normal")
-                outputString = "Test the following keys for " + self.system.lang + ":\n"
+                outputString = "Keep in mind that frequency analysis may be ineffective for short inputs.\nTest the following keys for " + self.system.lang + ":\n"
 
                 for i in range(numKeys):
                     key1 = keys1[i][0]
@@ -1201,7 +1222,7 @@ class ShiftPage(customtkinter.CTkFrame):
                         else:
                             outputString += str(key) + ":\n" + result + "\n\n"
                 else:
-                    outputString = "Test the following keys for " + self.system.lang + ":\n"
+                    outputString = "Keep in mind that frequency analysis may be ineffective for short inputs.\nTest the following keys for " + self.system.lang + ":\n"
 
                     for i in range(numKeys):
                         key = self.bestKeys[i][0]
@@ -1273,7 +1294,7 @@ class ShiftPage(customtkinter.CTkFrame):
                 else:
                     # Display recommended keys
                     self.keyTextbox.configure(state="normal")
-                    outputString = "Test the following keys for " + self.system.lang + ":\n"
+                    outputString = "Keep in mind that frequency analysis may be ineffective for short inputs.\nTest the following keys for " + self.system.lang + ":\n"
                     
                     for i in range(numKeys):
                         key1 = keys1[i][0]
@@ -1541,7 +1562,7 @@ class VigenerePage(customtkinter.CTkFrame):
                 # Display recommended keys
                 
                 self.keyTextbox.configure(state="normal")
-                outputString = "Test the following keys for " + self.system.lang + ". The keys have been ordered according to the coincidence index of their length. Additionally, 3 key candidates are given per key length, these candidates are computed with 3 different criteria:\n1) Maximum sum of products\n2) Minimum difference with sum of squared probabilities of the language\n3) Most persistent letter\n\n"
+                outputString = "Keep in mind that frequency analysis may be ineffective for short inputs, furthermore, longer keys may reduce its effectiveness.\nTest the following keys for " + self.system.lang + ". The keys have been ordered according to the coincidence index of their length. Additionally, 3 key candidates are given per key length, these candidates are computed with 3 different criteria:\n1) Maximum sum of products\n2) Minimum difference with sum of squared probabilities of the language\n3) Most persistent letter\n\n"
 
                 tempSys = Vigenere(text=cleanString)
                 tempSys.lang = self.seg_lang.get()
@@ -1608,7 +1629,7 @@ class VigenerePage(customtkinter.CTkFrame):
                     keys = keys[:numKeys]
                 # Display recommended keys
                 self.keyTextbox.configure(state="normal")
-                outputString = "Test the following keys for " + self.system.lang + ". The keys have been ordered according to the coincidence index of their length. Additionally, 3 key candidates are given per key length, these candidates are computed with 3 different criteria:\n1) Maximum sum of products\n2) Minimum difference with sum of squared probabilities of the language\n3) Most persistent letter\n\n"
+                outputString = "Keep in mind that frequency analysis may be ineffective for short inputs, furthermore, longer keys may reduce its effectiveness.\nTest the following keys for " + self.system.lang + ". The keys have been ordered according to the coincidence index of their length. Additionally, 3 key candidates are given per key length, these candidates are computed with 3 different criteria:\n1) Maximum sum of products\n2) Minimum difference with sum of squared probabilities of the language\n3) Most persistent letter\n\n"
 
                 for i in range(numKeys):
                     outputString += "For a key of length {}:\n".format(len(keys[i][0]))
@@ -1622,9 +1643,6 @@ class VigenerePage(customtkinter.CTkFrame):
                 self.keyTextbox.delete('0.0', tk.END)
                 self.keyTextbox.insert("0.0", outputString)
                 self.keyTextbox.configure(state="disabled")
-
-
-
 
 
 
@@ -1718,10 +1736,42 @@ class VigenerePage(customtkinter.CTkFrame):
 
         # Calcular algebra stuff
         self.resultados = obtener_resultados(self.brauerString)
-        the_image_path = crear_grafo(self.resultados["Ciclos"])
-        the_image = Image.open(the_image_path)
-        the_image.thumbnail((600,600), Image.LANCZOS)
-        the_image.save("Brauervisualization.ppm")
+
+        try:
+            a = 1/0
+            the_image_path = crear_grafo(self.resultados["Ciclos"])
+            the_image = Image.open(the_image_path)
+            the_image.thumbnail((600,600), Image.LANCZOS)
+            daPath = os.path.join("PiCKED App","Brauervisualization.ppm")
+            the_image.save(daPath)
+
+            # Change label contents
+            imgObject = PhotoImage(file = daPath)
+            
+            imageLabel.configure(image=imgObject)
+
+            # save button
+            buttonSave = customtkinter.CTkButton(scrollable_frame, 
+                                                        text = "Save",
+                                                        command = lambda : self.saveQuiver(self.resultados))
+            buttonSave.grid(column = 0, row = 2, padx = (20,5), pady = (0,10), sticky="new")
+        except:
+            the_image = Image.open(path_to_sampleQuiver)
+            the_image.thumbnail((600,600), Image.LANCZOS)
+            daPath = os.path.join("PiCKED App","Brauervisualization.ppm")
+            the_image.save(daPath)
+
+            # Change label contents
+            imgObject = PhotoImage(file = daPath)
+            
+            imageLabel.configure(image=imgObject)
+
+            # save button
+            buttonSave = customtkinter.CTkButton(scrollable_frame, 
+                                                        text = "Save",
+                                                        command = self.saveQuiverDemo) 
+            buttonSave.grid(column = 0, row = 2, padx = (20,5), pady = (0,10), sticky="new")
+
 
         # output
         ICInfo = self.system.getFreqIndexForKeyLen(self.originalBrauerMsg, int(self.seg_buttonBrauer.get()))
@@ -1749,22 +1799,13 @@ class VigenerePage(customtkinter.CTkFrame):
         else:
             outStr += "Since the key is at least as long as the ciphertext, no information can be extracted."
         
+        
         textbox = customtkinter.CTkTextbox(scrollable_frame, state="normal")
         textbox.grid(row=1, column=1, rowspan=2, padx=(5,20), pady=(10, 0), sticky="nsew")
         textbox.insert("0.0", outStr)
         textbox.configure(state="disabled")
 
-        # Change label contents
-        imgObject = PhotoImage(file = "Brauervisualization.ppm")
         
-        imageLabel.configure(image=imgObject)
-
-
-        # save button
-        buttonSave = customtkinter.CTkButton(scrollable_frame, 
-                                                    text = "Save",
-                                                    command = lambda : self.saveQuiver(self.resultados)) 
-        buttonSave.grid(column = 0, row = 2, padx = (20,5), pady = (0,10), sticky="new")
     
     def saveQuiver(self, resultados):
         file = filedialog.asksaveasfile(mode='wb', 
@@ -1773,6 +1814,15 @@ class VigenerePage(customtkinter.CTkFrame):
                                         defaultextension=".png")
         if file:
             crear_grafo(resultados["Ciclos"], file.name)
+    
+    def saveQuiverDemo(self):
+        myImage = Image.open(path_to_sampleQuiver)
+        file = filedialog.asksaveasfile(mode='wb', 
+                                        filetypes = (("png","*.png"),
+                                                    ('All files', '*.*')),
+                                        defaultextension=".png")
+        if file:
+            myImage.save(file) # saves the image to the input file name. 
 
 
 # Permutacion window frame
@@ -2482,14 +2532,14 @@ class HillPage(customtkinter.CTkFrame):
             self.anyFormatImage = Image.open(self.imgName)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
             self.originalFormat = imgList[1]
-            self.resizedImgName = imgList[0]+".ppm"
+            self.resizedImgName = "hillInput.ppm"
+            self.resizedImgName = os.path.join("PiCKED App",self.resizedImgName)
             self.anyFormatImage.save(self.resizedImgName)
 
             # Change label contents
             imgObject = PhotoImage(file = self.resizedImgName)
 
             self.inputImg.configure(image=imgObject)
-            self.inputImg.image = imgObject
 
     def tclearInput(self):
         self.tentry.delete('0.0', tk.END)
@@ -2530,8 +2580,8 @@ class HillPage(customtkinter.CTkFrame):
             # Reshape to the original shape of the image
             self.encoded_image = encoded_image_vector.reshape(self.original_shape)
 
-            self.encoded_img_name = 'output.' + "png"
-            self.encoded_img_name_for_display = 'dispOutput.' + "png"
+            self.encoded_img_name = os.path.join("PiCKED App", "output.png")
+            self.encoded_img_name_for_display = os.path.join("PiCKED App", 'dispOutput.png')
             img2 = self.encoded_image.astype('uint8')
             iio.imwrite(self.encoded_img_name, img2)
             iio.imwrite(self.encoded_img_name_for_display, img2)
@@ -2541,14 +2591,13 @@ class HillPage(customtkinter.CTkFrame):
             imgList = self.encoded_img_name.split(".")
             self.anyFormatImage = Image.open(self.encoded_img_name_for_display)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
-            self.resizedImageName = imgList[0]+".ppm"
+            self.resizedImageName = os.path.join("PiCKED App", "hillOutput.ppm")
             self.anyFormatImage.save(self.resizedImageName)
 
             # Change label contents
             imgObject = PhotoImage(file = self.resizedImageName)
 
             self.outputImg.configure(image=imgObject)
-            self.outputImg.image = imgObject
 
     def tencrypt(self):
         inputText = self.tentry.get('1.0', 'end-1c')
@@ -2588,8 +2637,8 @@ class HillPage(customtkinter.CTkFrame):
             # Reshape to the original shape of the image
             self.encoded_image = encoded_image_vector
 
-            self.encoded_img_name = 'output.' + "png"
-            self.encoded_img_name_for_display = 'dispOutput.' + "png"
+            self.encoded_img_name = os.path.join("PiCKED App", 'output.png')
+            self.encoded_img_name_for_display = os.path.join("PiCKED App", 'dispOutput.png')
             img2 = self.encoded_image.astype('uint8')
             iio.imwrite(self.encoded_img_name, img2)
             iio.imwrite(self.encoded_img_name_for_display, img2)
@@ -2599,14 +2648,13 @@ class HillPage(customtkinter.CTkFrame):
             imgList = self.encoded_img_name.split(".")
             self.anyFormatImage = Image.open(self.encoded_img_name_for_display)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
-            self.resizedImageName = imgList[0]+".ppm"
+            self.resizedImageName = os.path.join("PiCKED App", "hillOutput.ppm")
             self.anyFormatImage.save(self.resizedImageName)
 
             # Change label contents
             imgObject = PhotoImage(file = self.resizedImageName)
 
             self.outputImg.configure(image=imgObject)
-            self.outputImg.image = imgObject
 
 
     def changeKey(self, keySize):
@@ -2734,7 +2782,7 @@ class HillPage(customtkinter.CTkFrame):
             self.anyFormatImage = Image.open(self.imgName)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
             self.originalFormat = imgList[1]
-            self.resizedImgName = imgList[0]+".ppm"
+            self.resizedImgName = os.path.join("PiCKED App", "hillInput.ppm")
             self.anyFormatImage.save(self.resizedImgName)
 
             # Change label contents
@@ -2929,22 +2977,22 @@ class AESPage(customtkinter.CTkFrame):
 
             # Save file to "plain_image.png"
             imgToEncrypt = self.img.astype('uint8')
-            iio.imwrite("plain_image.png", imgToEncrypt)
-            self.inputImageName = "plain_image.png"
+            self.inputImageName = os.path.join("PiCKED App", "plain_image.png")
+            iio.imwrite(self.inputImageName, imgToEncrypt)
+            
 
             # file to be displayed
             imgList = self.imgName.split(".")
             self.anyFormatImage = Image.open(self.imgName)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
             self.originalFormat = imgList[1]
-            self.resizedImgName = imgList[0]+".ppm"
+            self.resizedImgName = os.path.join("PiCKED App", "AESOutput.ppm")
             self.anyFormatImage.save(self.resizedImgName)
 
             # Change label contents
             imgObject = PhotoImage(file = self.resizedImgName)
 
             self.inputImg.configure(image=imgObject)
-            self.inputImg.image = imgObject
     
     def encrypt(self):
         if self.dirty:
@@ -2956,14 +3004,14 @@ class AESPage(customtkinter.CTkFrame):
                               self.keyAES,
                               self.ivAES)
 
-            # Save save-able copy
-            shutil.copy("aes_output.png","output_image_for_saving.png")
-            self.imageOnOutputName = "aes_output.png"
+            # Save save-able copy 
+            shutil.copy(os.path.join("PiCKED App", "aes_output.png"),os.path.join("PiCKED App", "output_image_for_saving.png"))
+            self.imageOnOutputName = os.path.join("PiCKED App", "aes_output.png")
 
             # file to be displayed
-            self.anyFormatOutputImage = Image.open("aes_output.png")
+            self.anyFormatOutputImage = Image.open(os.path.join("PiCKED App", "aes_output.png"))
             self.anyFormatOutputImage.thumbnail((500,500), Image.LANCZOS)
-            self.resizedOutputImgName = "aes_output.ppm"
+            self.resizedOutputImgName = os.path.join("PiCKED App", "aes_output.ppm")
             self.anyFormatOutputImage.save(self.resizedOutputImgName)
 
             # Change label contents
@@ -2983,13 +3031,13 @@ class AESPage(customtkinter.CTkFrame):
                               self.ivAES)
 
             # Save save-able copy
-            shutil.copy("aes_output.png", "output_image_for_saving.png")
-            self.imageOnOutputName = "aes_output.png"
+            shutil.copy(os.path.join("PiCKED App", "aes_output.png"), os.path.join("PiCKED App", "output_image_for_saving.png"))
+            self.imageOnOutputName = os.path.join("PiCKED App", "aes_output.png")
 
             # file to be displayed
-            self.anyFormatOutputImage = Image.open("aes_output.png")
+            self.anyFormatOutputImage = Image.open(os.path.join("PiCKED App", "aes_output.png"))
             self.anyFormatOutputImage.thumbnail((500,500), Image.LANCZOS)
-            self.resizedOutputImgName = "aes_output.ppm"
+            self.resizedOutputImgName = os.path.join("PiCKED App", "aes_output.ppm")
             self.anyFormatOutputImage.save(self.resizedOutputImgName)
 
             # Change label contents
@@ -3061,7 +3109,7 @@ class AESPage(customtkinter.CTkFrame):
 
     def saveFile(self):
         if self.dirtyOutput:
-            myImage = Image.open("output_image_for_saving.png")
+            myImage = Image.open(os.path.join("PiCKED App", "output_image_for_saving.png"))
             file = filedialog.asksaveasfile(mode='wb', 
                                             filetypes = (("png","*.png"),
                                                         ('All files', '*.*')),
@@ -3077,21 +3125,20 @@ class AESPage(customtkinter.CTkFrame):
 
             # Save file to "plain_image.png"
             imgToEncrypt = self.img.astype('uint8')
-            iio.imwrite("plain_image.png", imgToEncrypt)
+            iio.imwrite(os.path.join("PiCKED App", "plain_image.png"), imgToEncrypt)
 
             # file to be displayed
             imgList = self.imgName.split(".")
             self.anyFormatImage = Image.open(self.imgName)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
             self.originalFormat = imgList[1]
-            self.resizedImgName = imgList[0]+".ppm"
+            self.resizedImgName = os.path.join("PiCKED App", "AESInput.ppm")
             self.anyFormatImage.save(self.resizedImgName)
 
             # Change label contents
             imgObject = PhotoImage(file = self.resizedImgName)
 
             self.inputImg.configure(image=imgObject)
-            self.inputImg.image = imgObject
     
     def byteToHex(self, bytes):
         listBytes = list(bytes)
@@ -3286,22 +3333,21 @@ class TDESPage(customtkinter.CTkFrame):
 
             # Save file to "plain_image.png"
             imgToEncrypt = self.img.astype('uint8')
-            iio.imwrite("plain_image_TDES.png", imgToEncrypt)
-            self.inputImageName = "plain_image_TDES.png"
+            iio.imwrite(os.path.join("PiCKED App", "plain_image_TDES.png"), imgToEncrypt)
+            self.inputImageName = os.path.join("PiCKED App", "plain_image_TDES.png")
 
             # file to be displayed
             imgList = self.imgName.split(".")
             self.anyFormatImage = Image.open(self.imgName)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
             self.originalFormat = imgList[1]
-            self.resizedImgName = imgList[0]+".ppm"
+            self.resizedImgName = os.path.join("PiCKED App", "TDESInput.ppm")
             self.anyFormatImage.save(self.resizedImgName)
 
             # Change label contents
             imgObject = PhotoImage(file = self.resizedImgName)
 
             self.inputImg.configure(image=imgObject)
-            self.inputImg.image = imgObject
     
     def encrypt(self):
         if self.dirty:
@@ -3314,13 +3360,13 @@ class TDESPage(customtkinter.CTkFrame):
                               self.ivTDES)
 
             # Save save-able copy
-            shutil.copy("TDES_output.png","output_image_for_saving_TDES.png")
-            self.imageOnOutputName = "TDES_output.png"
+            shutil.copy(os.path.join("PiCKED App", "TDES_output.png"), os.path.join("PiCKED App", "output_image_for_saving_TDES.png"))
+            self.imageOnOutputName = os.path.join("PiCKED App", "TDES_output.png")
 
             # file to be displayed
-            self.anyFormatOutputImage = Image.open("TDES_output.png")
+            self.anyFormatOutputImage = Image.open(os.path.join("PiCKED App", "TDES_output.png"))
             self.anyFormatOutputImage.thumbnail((500,500), Image.LANCZOS)
-            self.resizedOutputImgName = "TDES_output.ppm"
+            self.resizedOutputImgName = os.path.join("PiCKED App", "TDES_output.ppm")
             self.anyFormatOutputImage.save(self.resizedOutputImgName)
 
             # Change label contents
@@ -3340,13 +3386,13 @@ class TDESPage(customtkinter.CTkFrame):
                               self.ivTDES)
 
             # Save save-able copy
-            shutil.copy("TDES_output.png", "output_image_for_saving_TDES.png")
-            self.imageOnOutputName = "TDES_output.png"
+            shutil.copy(os.path.join("PiCKED App", "TDES_output.png"), os.path.join("PiCKED App", "output_image_for_saving_TDES.png"))
+            self.imageOnOutputName = os.path.join("PiCKED App", "TDES_output.png")
 
             # file to be displayed
-            self.anyFormatOutputImage = Image.open("TDES_output.png")
+            self.anyFormatOutputImage = Image.open(os.path.join("PiCKED App", "TDES_output.png"))
             self.anyFormatOutputImage.thumbnail((500,500), Image.LANCZOS)
-            self.resizedOutputImgName = "TDES_output.ppm"
+            self.resizedOutputImgName = os.path.join("PiCKED App", "TDES_output.ppm")
             self.anyFormatOutputImage.save(self.resizedOutputImgName)
 
             # Change label contents
@@ -3418,7 +3464,7 @@ class TDESPage(customtkinter.CTkFrame):
 
     def saveFile(self):
         if self.dirtyOutput:
-            myImage = Image.open("output_image_for_saving_TDES.png")
+            myImage = Image.open(os.path.join("PiCKED App", "output_image_for_saving_TDES.png"))
             file = filedialog.asksaveasfile(mode='wb', 
                                             filetypes = (("png","*.png"),
                                                         ('All files', '*.*')),
@@ -3434,21 +3480,20 @@ class TDESPage(customtkinter.CTkFrame):
 
             # Save file to "plain_image_TDES.png"
             imgToEncrypt = self.img.astype('uint8')
-            iio.imwrite("plain_image_TDES.png", imgToEncrypt)
+            iio.imwrite(os.path.join("PiCKED App", "plain_image_TDES.png"), imgToEncrypt)
 
             # file to be displayed
             imgList = self.imgName.split(".")
             self.anyFormatImage = Image.open(self.imgName)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
             self.originalFormat = imgList[1]
-            self.resizedImgName = imgList[0]+".ppm"
+            self.resizedImgName = os.path.join("PiCKED App", "TDESInput.ppm")
             self.anyFormatImage.save(self.resizedImgName)
 
             # Change label contents
             imgObject = PhotoImage(file = self.resizedImgName)
 
             self.inputImg.configure(image=imgObject)
-            self.inputImg.image = imgObject
     
     def byteToHex(self, bytes):
         listBytes = list(bytes)
@@ -3622,22 +3667,21 @@ class SDESPage(customtkinter.CTkFrame):
 
             # Save file to "plain_image_sdes.png"
             imgToEncrypt = self.img.astype('uint8')
-            iio.imwrite("plain_image_sdes.png", imgToEncrypt)
-            self.inputImageName = "plain_image_sdes.png"
+            iio.imwrite(os.path.join("PiCKED App", "plain_image_sdes.png"), imgToEncrypt)
+            self.inputImageName = os.path.join("PiCKED App", "plain_image_sdes.png")
 
             # file to be displayed
             imgList = self.imgName.split(".")
             self.anyFormatImage = Image.open(self.imgName)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
             self.originalFormat = imgList[1]
-            self.resizedImgName = imgList[0]+".ppm"
+            self.resizedImgName = os.path.join("PiCKED App", "SDESInput.ppm")
             self.anyFormatImage.save(self.resizedImgName)
 
             # Change label contents
             imgObject = PhotoImage(file = self.resizedImgName)
 
             self.inputImg.configure(image=imgObject)
-            self.inputImg.image = imgObject
     
     def encrypt(self):
         if self.dirty:
@@ -3655,13 +3699,13 @@ class SDESPage(customtkinter.CTkFrame):
 
 
             # Save save-able copy
-            shutil.copy("sdes_output.png","output_image_for_saving_sdes.png")
-            self.imageOnOutputName = "sdes_output.png"
+            shutil.copy(os.path.join("PiCKED App", "sdes_output.png"), os.path.join("PiCKED App", "output_image_for_saving_sdes.png"))
+            self.imageOnOutputName = os.path.join("PiCKED App", "sdes_output.png")
 
             # file to be displayed
-            self.anyFormatOutputImage = Image.open("sdes_output.png")
+            self.anyFormatOutputImage = Image.open(os.path.join("PiCKED App", "sdes_output.png"))
             self.anyFormatOutputImage.thumbnail((500,500), Image.LANCZOS)
-            self.resizedOutputImgName = "sdes_output.ppm"
+            self.resizedOutputImgName = os.path.join("PiCKED App", "sdes_output.ppm")
             self.anyFormatOutputImage.save(self.resizedOutputImgName)
 
             # Change label contents
@@ -3685,13 +3729,13 @@ class SDESPage(customtkinter.CTkFrame):
                 self.system.decryptCTR(self.inputImageName)
 
             # Save save-able copy
-            shutil.copy("sdes_output.png", "output_image_for_saving_sdes.png")
-            self.imageOnOutputName = "sdes_output.png"
+            shutil.copy(os.path.join("PiCKED App", "sdes_output.png"), os.path.join("PiCKED App", "output_image_for_saving_sdes.png"))
+            self.imageOnOutputName = os.path.join("PiCKED App", "sdes_output.png")
 
             # file to be displayed
-            self.anyFormatOutputImage = Image.open("sdes_output.png")
+            self.anyFormatOutputImage = Image.open(os.path.join("PiCKED App", "sdes_output.png"))
             self.anyFormatOutputImage.thumbnail((500,500), Image.LANCZOS)
-            self.resizedOutputImgName = "sdes_output.ppm"
+            self.resizedOutputImgName = os.path.join("PiCKED App", "sdes_output.ppm")
             self.anyFormatOutputImage.save(self.resizedOutputImgName)
 
             # Change label contents
@@ -3750,7 +3794,7 @@ class SDESPage(customtkinter.CTkFrame):
 
     def saveFile(self):
         if self.dirtyOutput:
-            myImage = Image.open("output_image_for_saving_sdes.png")
+            myImage = Image.open(os.path.join("PiCKED App", "output_image_for_saving_sdes.png"))
             file = filedialog.asksaveasfile(mode='wb', 
                                             filetypes = (("png","*.png"),
                                                         ('All files', '*.*')),
@@ -3766,21 +3810,20 @@ class SDESPage(customtkinter.CTkFrame):
 
             # Save file to "plain_image_sdes.png"
             imgToEncrypt = self.img.astype('uint8')
-            iio.imwrite("plain_image_sdes.png", imgToEncrypt)
+            iio.imwrite(os.path.join("PiCKED App", "plain_image_sdes.png"), imgToEncrypt)
 
             # file to be displayed
             imgList = self.imgName.split(".")
             self.anyFormatImage = Image.open(self.imgName)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
             self.originalFormat = imgList[1]
-            self.resizedImgName = imgList[0]+".ppm"
+            self.resizedImgName = os.path.join("PiCKED App", "SDESInput.ppm")
             self.anyFormatImage.save(self.resizedImgName)
 
             # Change label contents
             imgObject = PhotoImage(file = self.resizedImgName)
 
             self.inputImg.configure(image=imgObject)
-            self.inputImg.image = imgObject
     
     def byteToHex(self, bytes):
         listBytes = list(bytes)
@@ -3813,7 +3856,7 @@ class RSAPage(customtkinter.CTkFrame):
         self.entry.insert("0.0", "Attack at noon")
 
         self.maxNumLabel = customtkinter.CTkLabel(self, 
-                                                     text="Max. characters for encryption: 189",
+                                                     text="Max. characters for encryption: 190",
                                                      corner_radius=6, 
                                                      fg_color=['#979DA2', 'gray29'], 
                                                      text_color=['#DCE4EE', '#DCE4EE'])
@@ -3930,12 +3973,12 @@ class RSAPage(customtkinter.CTkFrame):
         
     
     def encrypt(self):
-        inputText = self.entry.get("0.0", tk.END)
+        inputText = self.entry.get("1.0", "end-1c")
 
-        if len(inputText) > 189:
-            inputText = inputText[:189]
-            self.entry.delete('1.0', tk.END)
-            self.entry.insert("0.0", inputText)
+        #if len(inputText) > 190:
+        #    inputText = inputText[:190]
+        #    self.entry.delete('1.0', tk.END)
+        #    self.entry.insert("0.0", inputText)
         
         self.system.encrypt_message(inputText)
         cipherText = self.system.encrypted_message
@@ -3946,7 +3989,7 @@ class RSAPage(customtkinter.CTkFrame):
         self.textbox.configure(state="disabled")
         
     def decrypt(self):
-        inputText = self.entry.get("0.0", tk.END)
+        inputText = self.entry.get("1.0", "end-1c")
 
         self.system.encrypted_message = inputText
         self.system.decrypt_message()
@@ -4150,7 +4193,7 @@ class ElGamalPage(customtkinter.CTkFrame):
         
     
     def encrypt(self):
-        inputText = self.entry.get("0.0", tk.END)
+        inputText = self.entry.get("1.0", "end-1c")
 
         self.system.encryption2(inputText, self.currentPublicKey)
         cipherText = self.system.encrypted_text_base64
@@ -4161,7 +4204,7 @@ class ElGamalPage(customtkinter.CTkFrame):
         self.textbox.configure(state="disabled")
         
     def decrypt(self):
-        inputText = self.entry.get("0.0", tk.END)
+        inputText = self.entry.get("1.0", "end-1c")
 
         cipherText = self.system.decryption(self.currentPrivateKey, inputText)
 
@@ -4247,7 +4290,7 @@ class RabinPage(customtkinter.CTkFrame):
         self.entry.insert("0.0", "Attack at noon")
 
         self.maxNumLabel = customtkinter.CTkLabel(self, 
-                                                     text="Max. characters for encryption: 253",
+                                                     text="Max. characters for encryption: 254",
                                                      corner_radius=6, 
                                                      fg_color=['#979DA2', 'gray29'], 
                                                      text_color=['#DCE4EE', '#DCE4EE'])
@@ -4390,12 +4433,13 @@ class RabinPage(customtkinter.CTkFrame):
         
     
     def encrypt(self):
-        inputText = self.entry.get("0.0", tk.END)
+        inputText = self.entry.get("1.0", "end-1c")
 
-        if len(inputText) > 253:
-            inputText = inputText[:253]
+        if len(inputText) > 254:
+            inputText = inputText[:254]
             self.entry.delete('1.0', tk.END)
             self.entry.insert("0.0", inputText)
+        
         
         self.outText = Rabin.simpleEncryption(inputText, self.n)
         self.textbox.configure(state="normal")
@@ -4404,7 +4448,7 @@ class RabinPage(customtkinter.CTkFrame):
         self.textbox.configure(state="disabled")
         
     def decrypt(self):
-        inputText = self.entry.get("0.0", tk.END)
+        inputText = self.entry.get("1.0", "end-1c")
 
         self.outText = Rabin.decrypt_rabin(int(inputText), self.p, self.q)
 

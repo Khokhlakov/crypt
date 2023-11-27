@@ -1,6 +1,7 @@
 from random import randint
 import numpy as np
 import imageio.v3 as iio
+import os
 
 class SimplerDES():
     IP = [1,5,2,0,3,7,4,6]
@@ -166,7 +167,7 @@ class SimplerDES():
         enc_img = np.frombuffer(bytes(output_bytes), np.uint8).reshape(img.shape)
 
         # Save the image 
-        iio.imwrite('sdes_output.png', enc_img)
+        iio.imwrite(os.path.join("PiCKED App", 'sdes_output.png'), enc_img)
 
     
     def decryptECB(self, img_path):
@@ -178,7 +179,7 @@ class SimplerDES():
             output_bytes[i] = self.undoMap[enc_img[i]]
         
         dec_img = np.frombuffer(bytes(output_bytes), np.uint8).reshape(img.shape)
-        iio.imwrite('sdes_output.png', dec_img) 
+        iio.imwrite(os.path.join("PiCKED App", 'sdes_output.png'), dec_img) 
     
     def encryptCBC(self, img_path):
         img = np.array(iio.imread(img_path))
@@ -196,7 +197,7 @@ class SimplerDES():
         enc_img = np.frombuffer(bytes(output_bytes), np.uint8).reshape(img.shape)
 
         # Save the image 
-        iio.imwrite('sdes_output.png', enc_img)
+        iio.imwrite(os.path.join("PiCKED App", 'sdes_output.png'), enc_img)
 
     
     def decryptCBC(self, img_path):
@@ -211,7 +212,7 @@ class SimplerDES():
             output_bytes[i] = self.undoMap[enc_img[i]]^enc_img[i-1]
         
         dec_img = np.frombuffer(bytes(output_bytes), np.uint8).reshape(img.shape)
-        iio.imwrite('sdes_output.png', dec_img) 
+        iio.imwrite(os.path.join("PiCKED App", 'sdes_output.png'), dec_img) 
 
     def encryptOFB(self, img_path):
         img = np.array(iio.imread(img_path))
@@ -232,7 +233,7 @@ class SimplerDES():
         enc_img = np.frombuffer(bytes(output_bytes), np.uint8).reshape(img.shape)
 
         # Save the image 
-        iio.imwrite('sdes_output.png', enc_img)
+        iio.imwrite(os.path.join("PiCKED App", 'sdes_output.png'), enc_img)
 
     
     def decryptOFB(self, img_path):
@@ -249,7 +250,7 @@ class SimplerDES():
             output_bytes[i] = enc_img[i]^cipherIV
         
         dec_img = np.frombuffer(bytes(output_bytes), np.uint8).reshape(img.shape)
-        iio.imwrite('sdes_output.png', dec_img)  
+        iio.imwrite(os.path.join("PiCKED App", 'sdes_output.png'), dec_img)  
     
     def encryptCTR(self, img_path):
         img = np.array(iio.imread(img_path))
@@ -267,7 +268,7 @@ class SimplerDES():
         enc_img = np.frombuffer(bytes(output_bytes), np.uint8).reshape(img.shape)
 
         # Save the image 
-        iio.imwrite('sdes_output.png', enc_img)
+        iio.imwrite(os.path.join("PiCKED App", 'sdes_output.png'), enc_img)
 
     
     def decryptCTR(self, img_path):
@@ -282,4 +283,4 @@ class SimplerDES():
             counter = (counter+1)%256
         
         dec_img = np.frombuffer(bytes(output_bytes), np.uint8).reshape(img.shape)
-        iio.imwrite('sdes_output.png', dec_img)  
+        iio.imwrite(os.path.join("PiCKED App", 'sdes_output.png'), dec_img)  
