@@ -388,7 +388,6 @@ class HomePage(customtkinter.CTkFrame):
         # Calcular algebra stuff
         self.resultados = obtener_resultados(self.message)
         try:
-            a = 1/0
             the_image_path = crear_grafo(self.resultados["Ciclos"])
             the_image = Image.open(the_image_path)
             the_image.thumbnail((600,600), Image.LANCZOS)
@@ -1738,7 +1737,6 @@ class VigenerePage(customtkinter.CTkFrame):
         self.resultados = obtener_resultados(self.brauerString)
 
         try:
-            a = 1/0
             the_image_path = crear_grafo(self.resultados["Ciclos"])
             the_image = Image.open(the_image_path)
             the_image.thumbnail((600,600), Image.LANCZOS)
