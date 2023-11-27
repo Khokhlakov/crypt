@@ -2,12 +2,11 @@
 #Author: Ryan Riddle (ryan.riddle@uky.edu)
 #Date of Completion: April 20, 2012
 
-import random
-import math
+from random import randint
 import sys
 import base64
 import pickle
-import Crypto
+from Crypto.Random import get_random_bytes
 from Crypto.Util.number import *
 
 #PART OF DESCRIPTION AND IMPLEMENTATION FROM Ryan Riddle
@@ -164,7 +163,7 @@ class ElGamalCryptosystem:
 
             #test random g's until one is found that is a primitive root mod p
             while( 1 ):
-                    g = random.randint( 2, p-1 )
+                    g = randint( 2, p-1 )
                     #g is a primitive root if for all prime factors of p-1, p[i]
                     #g^((p-1)/p[i]) (mod p) is not congruent to 1
                     if not (self.modexp( g, (p-1)//p1, p ) == 1):
@@ -173,7 +172,7 @@ class ElGamalCryptosystem:
 
     #find n bit prime
     def find_prime(self, iNumBits):
-        p = Crypto.Util.number.getPrime(iNumBits, randfunc=Crypto.Random.get_random_bytes)
+        p = getPrime(iNumBits, randfunc=get_random_bytes)
         return p
 
     #encodes bytes to integers mod p.  reads bytes from file
@@ -266,7 +265,7 @@ class ElGamalCryptosystem:
             p = self.find_prime(iNumBits)
             g = self.find_primitive_root(p)
             g = self.modexp( g, 2, p )
-            x = random.randint( 1, (p - 1) // 2 )
+            x = randint( 1, (p - 1) // 2 )
             h = self.modexp( g, x, p )
 
             publicKey = PublicKey(p, g, h, iNumBits)
@@ -284,7 +283,7 @@ class ElGamalCryptosystem:
             #i is an integer in z
             for i in z:
                     #pick random y from (0, p-1) inclusive
-                    y = random.randint( 0, key.p )
+                    y = randint( 0, key.p )
                     #c = g^y mod p
                     c = self.modexp( key.g, y, key.p )
                     #d = ih^y mod p

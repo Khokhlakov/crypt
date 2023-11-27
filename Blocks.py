@@ -3,7 +3,6 @@
 # Had to use: pip install pycryptodome ~JJ
 
 from Crypto.Cipher import AES, DES3
-from S_DES import SDES
 from Crypto.Random import get_random_bytes
 from PIL import Image
 import numpy as np
@@ -129,20 +128,7 @@ class Blocks:
                 self.cipher = DES3.new(self.key, DES3.MODE_CTR, nonce = self.iv[:4])
 
     def SDES_modes(self):
-        #Sets S-DES mode (key length: 10 bits)
-        if self.mode == "ECB":
-            self.cipher = SDES(self.key, "ECB")
-        else:
-            if self.mode == "CBC":
-                self.cipher = SDES(self.key, "CBC", self.iv) # iv must be an 8 bits string
-            elif self.mode == "OFB":
-                self.cipher = SDES(self.key, "OFB", self.iv)
-            elif self.mode == "CTR":
-                self.cipher = SDES(self.key, "CTR", self.iv)
-            if self.iv == None:
-                self.iv = self.cipher.generate_random_iv()
-        if self.key == None:
-            self.key = self.cipher.generate_random_key()
+        pass
 
 def getRandAES(keyLen):
     key = get_random_bytes(keyLen)

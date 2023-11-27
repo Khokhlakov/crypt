@@ -1,6 +1,4 @@
 import tkinter as tk
-from tkinter import ttk
-import tkinter.messagebox
 import customtkinter
 import imageio.v3 as iio
 import numpy as np
@@ -24,13 +22,10 @@ from Blocks import *
 
 from AlgBrauer import *
 
-from tkinter import PhotoImage
+from tkinter import PhotoImage, filedialog
 
 # Change image format (tkinter only receives .ppm)
 from PIL import Image
-
-# File explorer
-from tkinter import filedialog
 
 import sys
 import os
@@ -57,6 +52,7 @@ LARGEFONT =("Verdana", 35)
 
 path_to_dice = os.path.join(bundle_dir, "dice.png")
 path_to_larrow = os.path.join(bundle_dir, "larrow.png")
+path_to_clearIn = os.path.join(bundle_dir, "clearIn.png")
 path_to_swords = os.path.join(bundle_dir, "swords.png")
 path_to_lock1 = os.path.join(bundle_dir, "lock1.png")
 path_to_lock2 = os.path.join(bundle_dir, "lock2.png")
@@ -75,6 +71,7 @@ lock1_image = customtkinter.CTkImage(Image.open(path_to_lock1), size=(18, 18))
 lock2_image = customtkinter.CTkImage(Image.open(path_to_lock2), size=(18, 18))
 home_image = customtkinter.CTkImage(Image.open(path_to_home), size=(18, 18))
 save_image = customtkinter.CTkImage(Image.open(path_to_save), size=(18, 18))
+clearIn_image = customtkinter.CTkImage(Image.open(path_to_clearIn), size=(13, 13))
 
 name_image = customtkinter.CTkImage(dark_image=Image.open(path_to_name), 
                                     light_image=Image.open(path_to_nameL), 
@@ -533,9 +530,24 @@ class AffinePage(customtkinter.CTkFrame):
                                           command = self.generateKey)
         button1.grid(row = 0, column = 0, padx = (0,5), pady = 0)
 
-        self.entryKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input key and hit enter")
+        # inputkey Frame
+        self.inFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrame.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
+        self.inFrame.columnconfigure(0, weight=1)
+        self.entryKey = customtkinter.CTkEntry(self.inFrame, placeholder_text="Input key and hit enter")
         self.entryKey.bind("<Return>", command=lambda x: self.setKeyFromEntry())
-        self.entryKey.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
+        self.entryKey.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+
+        self.clearInFrame = customtkinter.CTkFrame(self.inFrame, width=28, height=28, fg_color=self.cget("fg_color")) #their units in pixels
+        clearIn = customtkinter.CTkButton(self.clearInFrame, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryKey.delete(0, tk.END))
+        self.clearInFrame.grid_propagate(False)
+        self.clearInFrame.columnconfigure(0, weight=1)
+        self.clearInFrame.rowconfigure(0,weight=1)
+        self.clearInFrame.grid(row=0, column=1, sticky="")
+        clearIn.grid(sticky="wens")
 
         # Key display
         self.currentKeyFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
@@ -567,7 +579,7 @@ class AffinePage(customtkinter.CTkFrame):
         self.keyNumFrame.grid(row = 2, column = 1, padx =0, pady = 20, sticky="new")
 
         self.keyLenFrame = customtkinter.CTkFrame(self.keyNumFrame)
-        self.keyLenFrame.grid(row = 0, column = 0, padx=0, pady=0, sticky="new")
+        self.keyLenFrame.grid(row = 0, column = 0, padx=(5,0), pady=(5,0), sticky="e")
         self.keyLenFrame.grid_columnconfigure(0, weight=1)
         self.keyLenFrame.grid_rowconfigure(0, weight=1)
         self.ds_frame_label = customtkinter.CTkLabel(self.keyLenFrame, 
@@ -577,22 +589,23 @@ class AffinePage(customtkinter.CTkFrame):
 
 
         self.seg_button = customtkinter.CTkSegmentedButton(self.keyNumFrame)
-        self.seg_button.grid(row=0, column=1, padx=0, pady=0, sticky="new")
+        self.seg_button.grid(row=0, column=1, padx=(0,5), pady=(5,0), sticky="new")
         self.seg_button.configure(values=["1", "2", "3", "4", "5", "6", "7", "All"])
         self.seg_button.set("1")
 
         # language to be used
         self.langTextFrame = customtkinter.CTkFrame(self.keyNumFrame)
-        self.langTextFrame.grid(row = 1, column = 0, padx=0, pady=(5,0), sticky="new")
+        self.langTextFrame.grid(row = 1, column = 0, padx=(5,0), pady=5, sticky="new")
         self.langTextFrame.grid_columnconfigure(0, weight=1)
         self.langTextFrame.grid_rowconfigure(0, weight=1)
+        self.langTextFrame.propagate(False)
         self.langLabel = customtkinter.CTkLabel(self.langTextFrame, 
                                                      text="Language",
                                                      corner_radius=6)
         self.langLabel.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
 
         self.seg_lang = customtkinter.CTkSegmentedButton(self.keyNumFrame)
-        self.seg_lang.grid(row=1, column=1, padx=0, pady=(5,0), sticky="new")
+        self.seg_lang.grid(row=1, column=1, padx=(0,5), pady=5, sticky="new")
         self.seg_lang.configure(values=["English", "French", "German", "Italian", "Portuguese", "Spanish"])
         self.seg_lang.set("English")
 
@@ -799,9 +812,26 @@ class MultiplicativePage(customtkinter.CTkFrame):
                                           command = self.generateKey)
         button1.grid(row = 0, column = 0, padx = (0,5), pady = 0)
 
-        self.entryKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input key and hit enter")
+
+        # inputkey Frame
+        self.inFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrame.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
+        self.inFrame.columnconfigure(0, weight=1)
+        #
+        self.entryKey = customtkinter.CTkEntry(self.inFrame, placeholder_text="Input key and hit enter")
         self.entryKey.bind("<Return>", command=lambda x: self.setKeyFromEntry())
-        self.entryKey.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
+        self.entryKey.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrame = customtkinter.CTkFrame(self.inFrame, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearIn = customtkinter.CTkButton(self.clearInFrame, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryKey.delete(0, tk.END))
+        self.clearInFrame.grid_propagate(False)
+        self.clearInFrame.columnconfigure(0, weight=1)
+        self.clearInFrame.rowconfigure(0,weight=1)
+        self.clearInFrame.grid(row=0, column=1, sticky="")
+        clearIn.grid(sticky="wens")
 
         # Key display
         self.currentKeyFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
@@ -833,7 +863,7 @@ class MultiplicativePage(customtkinter.CTkFrame):
         self.keyNumFrame.grid(row = 2, column = 1, padx =0, pady = 20, sticky="new")
 
         self.keyLenFrame = customtkinter.CTkFrame(self.keyNumFrame)
-        self.keyLenFrame.grid(row = 0, column = 0, padx=0, pady=0, sticky="new")
+        self.keyLenFrame.grid(row = 0, column = 0, padx=(5,0), pady=(5,0), sticky="new")
         self.keyLenFrame.grid_columnconfigure(0, weight=1)
         self.keyLenFrame.grid_rowconfigure(0, weight=1)
         self.ds_frame_label = customtkinter.CTkLabel(self.keyLenFrame, 
@@ -843,13 +873,13 @@ class MultiplicativePage(customtkinter.CTkFrame):
 
 
         self.seg_button = customtkinter.CTkSegmentedButton(self.keyNumFrame)
-        self.seg_button.grid(row=0, column=1, padx=0, pady=0, sticky="new")
+        self.seg_button.grid(row=0, column=1, padx=(0,5), pady=(5,0), sticky="new")
         self.seg_button.configure(values=["1", "2", "3", "4", "5", "6", "7", "All"])
         self.seg_button.set("1")
 
         # language to be used
         self.langTextFrame = customtkinter.CTkFrame(self.keyNumFrame)
-        self.langTextFrame.grid(row = 1, column = 0, padx=0, pady=(5,0), sticky="new")
+        self.langTextFrame.grid(row = 1, column = 0, padx=(5,0), pady=5, sticky="new")
         self.langTextFrame.grid_columnconfigure(0, weight=1)
         self.langTextFrame.grid_rowconfigure(0, weight=1)
         self.langLabel = customtkinter.CTkLabel(self.langTextFrame, 
@@ -858,7 +888,7 @@ class MultiplicativePage(customtkinter.CTkFrame):
         self.langLabel.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
 
         self.seg_lang = customtkinter.CTkSegmentedButton(self.keyNumFrame)
-        self.seg_lang.grid(row=1, column=1, padx=0, pady=(5,0), sticky="new")
+        self.seg_lang.grid(row=1, column=1, padx=(0,5), pady=5, sticky="new")
         self.seg_lang.configure(values=["English", "French", "German", "Italian", "Portuguese", "Spanish"])
         self.seg_lang.set("English")
 
@@ -1061,9 +1091,25 @@ class ShiftPage(customtkinter.CTkFrame):
                                           command = self.generateKey)
         button1.grid(row = 0, column = 0, padx = (0,5), pady = 0)
 
-        self.entryKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input key and hit enter")
+        # inputkey Frame
+        self.inFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrame.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
+        self.inFrame.columnconfigure(0, weight=1)
+        #
+        self.entryKey = customtkinter.CTkEntry(self.inFrame, placeholder_text="Input key and hit enter")
         self.entryKey.bind("<Return>", command=lambda x: self.setKeyFromEntry())
-        self.entryKey.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
+        self.entryKey.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrame = customtkinter.CTkFrame(self.inFrame, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearIn = customtkinter.CTkButton(self.clearInFrame, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryKey.delete(0, tk.END))
+        self.clearInFrame.grid_propagate(False)
+        self.clearInFrame.columnconfigure(0, weight=1)
+        self.clearInFrame.rowconfigure(0,weight=1)
+        self.clearInFrame.grid(row=0, column=1, sticky="")
+        clearIn.grid(sticky="wens")
 
         # Key display
         self.currentKeyFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
@@ -1100,7 +1146,7 @@ class ShiftPage(customtkinter.CTkFrame):
         self.keyNumFrame.grid(row = 3, column = 1, padx =0, pady = 20, sticky="new")
 
         self.keyLenFrame = customtkinter.CTkFrame(self.keyNumFrame)
-        self.keyLenFrame.grid(row = 0, column = 0, padx=0, pady=0, sticky="new")
+        self.keyLenFrame.grid(row = 0, column = 0, padx=(5,0), pady=(5,0), sticky="new")
         self.keyLenFrame.grid_columnconfigure(0, weight=1)
         self.keyLenFrame.grid_rowconfigure(0, weight=1)
         self.ds_frame_label = customtkinter.CTkLabel(self.keyLenFrame, 
@@ -1110,13 +1156,13 @@ class ShiftPage(customtkinter.CTkFrame):
 
 
         self.seg_button = customtkinter.CTkSegmentedButton(self.keyNumFrame)
-        self.seg_button.grid(row=0, column=1, padx=0, pady=0, sticky="new")
+        self.seg_button.grid(row=0, column=1, padx=(0,5), pady=(5,0), sticky="new")
         self.seg_button.configure(values=["1", "2", "3", "4", "5", "6", "7", "All"])
         self.seg_button.set("1")
 
         # language to be used
         self.langTextFrame = customtkinter.CTkFrame(self.keyNumFrame)
-        self.langTextFrame.grid(row = 1, column = 0, padx=0, pady=(5,0), sticky="new")
+        self.langTextFrame.grid(row = 1, column = 0, padx=(5,0), pady=5, sticky="new")
         self.langTextFrame.grid_columnconfigure(0, weight=1)
         self.langTextFrame.grid_rowconfigure(0, weight=1)
         self.langLabel = customtkinter.CTkLabel(self.langTextFrame, 
@@ -1125,7 +1171,7 @@ class ShiftPage(customtkinter.CTkFrame):
         self.langLabel.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
 
         self.seg_lang = customtkinter.CTkSegmentedButton(self.keyNumFrame)
-        self.seg_lang.grid(row=1, column=1, padx=0, pady=(5,0), sticky="new")
+        self.seg_lang.grid(row=1, column=1, padx=(0,5), pady=5, sticky="new")
         self.seg_lang.configure(values=["English", "French", "German", "Italian", "Portuguese", "Spanish"])
         self.seg_lang.set("English")
 
@@ -1424,9 +1470,26 @@ class VigenerePage(customtkinter.CTkFrame):
                                           command = self.generateKey)
         button1.grid(row = 0, column = 0, padx = (0,5), pady = 0)
 
-        self.entryKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input key and hit enter")
+        # inputkey Frame
+        self.inFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrame.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
+        self.inFrame.columnconfigure(0, weight=1)
+        #
+        self.entryKey = customtkinter.CTkEntry(self.inFrame, placeholder_text="Input key and hit enter")
         self.entryKey.bind("<Return>", command=lambda x: self.setKeyFromEntry())
-        self.entryKey.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
+        self.entryKey.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrame = customtkinter.CTkFrame(self.inFrame, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearIn = customtkinter.CTkButton(self.clearInFrame, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryKey.delete(0, tk.END))
+        self.clearInFrame.grid_propagate(False)
+        self.clearInFrame.columnconfigure(0, weight=1)
+        self.clearInFrame.rowconfigure(0,weight=1)
+        self.clearInFrame.grid(row=0, column=1, sticky="")
+        clearIn.grid(sticky="wens")
+
 
         # Key display
         self.currentKeyFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
@@ -1894,9 +1957,25 @@ class PermutationPage(customtkinter.CTkFrame):
                                           command = self.generateKey)
         button1.grid(row = 0, column = 0, padx = (0,5), pady = 0)
 
-        self.entryKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input key and hit enter")
+        # inputkey Frame
+        self.inFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrame.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
+        self.inFrame.columnconfigure(0, weight=1)
+        #
+        self.entryKey = customtkinter.CTkEntry(self.inFrame, placeholder_text="Input key and hit enter")
         self.entryKey.bind("<Return>", command=lambda x: self.setKeyFromEntry())
-        self.entryKey.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
+        self.entryKey.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrame = customtkinter.CTkFrame(self.inFrame, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearIn = customtkinter.CTkButton(self.clearInFrame, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryKey.delete(0, tk.END))
+        self.clearInFrame.grid_propagate(False)
+        self.clearInFrame.columnconfigure(0, weight=1)
+        self.clearInFrame.rowconfigure(0,weight=1)
+        self.clearInFrame.grid(row=0, column=1, sticky="")
+        clearIn.grid(sticky="wens")
 
         # Key display
         self.currentKeyFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
@@ -1938,7 +2017,7 @@ class PermutationPage(customtkinter.CTkFrame):
 
 
         self.seg_button = customtkinter.CTkSegmentedButton(self.keyNumFrame)
-        self.seg_button.grid(row=0, column=1, padx=(0, 5), pady=0, sticky="new")
+        self.seg_button.grid(row=0, column=1, padx=0, pady=0, sticky="new")
         self.seg_button.configure(values=["10", "100", "1000", "46232"])
         self.seg_button.set("10")
         
@@ -2110,9 +2189,25 @@ class SubstitutionPage(customtkinter.CTkFrame):
                                           command = self.generateKey)
         button1.grid(row = 0, column = 0, padx = (0,5), pady = 0)
 
-        self.entryKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input key and hit enter")
+        # inputkey Frame
+        self.inFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrame.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
+        self.inFrame.columnconfigure(0, weight=1)
+        #
+        self.entryKey = customtkinter.CTkEntry(self.inFrame, placeholder_text="Input key and hit enter")
         self.entryKey.bind("<Return>", command=lambda x: self.setKeyFromEntry())
-        self.entryKey.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
+        self.entryKey.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrame = customtkinter.CTkFrame(self.inFrame, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearIn = customtkinter.CTkButton(self.clearInFrame, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryKey.delete(0, tk.END))
+        self.clearInFrame.grid_propagate(False)
+        self.clearInFrame.columnconfigure(0, weight=1)
+        self.clearInFrame.rowconfigure(0,weight=1)
+        self.clearInFrame.grid(row=0, column=1, sticky="")
+        clearIn.grid(sticky="wens")
 
         # Key display
         self.currentKeyFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
@@ -2154,7 +2249,7 @@ class SubstitutionPage(customtkinter.CTkFrame):
 
 
         self.seg_button = customtkinter.CTkSegmentedButton(self.keyNumFrame)
-        self.seg_button.grid(row=0, column=1, padx=(0, 5), pady=0, sticky="new")
+        self.seg_button.grid(row=0, column=1, padx=0, pady=0, sticky="new")
         self.seg_button.configure(values=["10", "100", "1000", "10000"])
         self.seg_button.set("10")
         
@@ -2366,14 +2461,46 @@ class HillPage(customtkinter.CTkFrame):
         self.keyFrame.columnconfigure(2, weight=1)
         self.keyFrame.grid(row = 5, column = 0, columnspan=3, padx=20, pady=20, sticky="new")
 
-        # key input
-        self.entryKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input key and hit enter")
+        # inputkey Frame
+        self.inFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrame.grid(row=1, column=1, columnspan=3, padx=(0,5), pady=0, sticky="new")
+        self.inFrame.columnconfigure(0, weight=1)
+        #
+        self.entryKey = customtkinter.CTkEntry(self.inFrame, placeholder_text="Input key and hit enter")
         self.entryKey.bind("<Return>", command=lambda x: self.setKeyFromEntry())
-        self.entryKey.grid(row=1, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="new")
-        self.entryIV = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input initial vector and hit enter (length must coincide with key)")
-        self.entryIV.bind("<Return>", command=lambda x: self.setIVFromEntry())
-        self.entryIV.grid(row=2, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="new")
+        self.entryKey.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrame = customtkinter.CTkFrame(self.inFrame, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearIn = customtkinter.CTkButton(self.clearInFrame, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryKey.delete(0, tk.END))
+        self.clearInFrame.grid_propagate(False)
+        self.clearInFrame.columnconfigure(0, weight=1)
+        self.clearInFrame.rowconfigure(0,weight=1)
+        self.clearInFrame.grid(row=0, column=1, sticky="")
+        clearIn.grid(sticky="wens")
 
+
+        # inputiv Frame
+        self.inFrame1 = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrame1.grid(row=2, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="new")
+        self.inFrame1.columnconfigure(0, weight=1)
+        #
+        self.entryIV = customtkinter.CTkEntry(self.inFrame1, placeholder_text="Input initial vector and hit enter (length must coincide with key)")
+        self.entryIV.bind("<Return>", command=lambda x: self.setIVFromEntry())
+        self.entryIV.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrame1 = customtkinter.CTkFrame(self.inFrame1, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearIn1 = customtkinter.CTkButton(self.clearInFrame1, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryIV.delete(0, tk.END))
+        self.clearInFrame1.grid_propagate(False)
+        self.clearInFrame1.columnconfigure(0, weight=1)
+        self.clearInFrame1.rowconfigure(0,weight=1)
+        self.clearInFrame1.grid(row=0, column=1, sticky="")
+        clearIn1.grid(sticky="wens")
 
 
         button1 = customtkinter.CTkButton(self.keyFrame, 
@@ -2464,10 +2591,29 @@ class HillPage(customtkinter.CTkFrame):
         self.tkeyFrame.columnconfigure(2, weight=1)
         self.tkeyFrame.grid(row = 5, column = 0, columnspan=3, padx=20, pady=20, sticky="new")
 
-        # key input
-        self.tentryKey = customtkinter.CTkEntry(self.tkeyFrame, placeholder_text="Input key in hexadecimal and hit enter")
+        
+        # inputkey Frame
+        self.tinFrame = customtkinter.CTkFrame(self.tkeyFrame, fg_color=self.cget("fg_color"))
+        self.tinFrame.grid(row=0, column=1, columnspan=3, padx=(0, 5), pady=20, sticky="ew")
+        self.tinFrame.columnconfigure(0, weight=1)
+        #
+        self.tentryKey = customtkinter.CTkEntry(self.tinFrame, placeholder_text="Input key in hexadecimal and hit enter")
         self.tentryKey.bind("<Return>", command=lambda x: self.tsetKeyFromEntry())
-        self.tentryKey.grid(row=0, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="new")
+        self.tentryKey.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.tclearInFrame = customtkinter.CTkFrame(self.tinFrame, width=28, height=28, fg_color=self.cget("fg_color")) 
+        tclearIn = customtkinter.CTkButton(self.tclearInFrame, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.tentryKey.delete(0, tk.END))
+        self.tclearInFrame.grid_propagate(False)
+        self.tclearInFrame.columnconfigure(0, weight=1)
+        self.tclearInFrame.rowconfigure(0,weight=1)
+        self.tclearInFrame.grid(row=0, column=1, sticky="")
+        tclearIn.grid(sticky="wens")
+
+
+
 
         tbutton12 = customtkinter.CTkButton(self.tkeyFrame, 
                                           compound="right",
@@ -2884,12 +3030,45 @@ class AESPage(customtkinter.CTkFrame):
         self.keyFrame.grid(row = 5, column = 0, columnspan=3, padx=20, pady=20, sticky="new")
 
         # key input
-        self.entryKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input key and hit enter")
+        # inputkey Frame
+        self.inFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrame.grid(row=0, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="new")
+        self.inFrame.columnconfigure(0, weight=1)
+        #
+        self.entryKey = customtkinter.CTkEntry(self.inFrame, placeholder_text="Input key and hit enter")
         self.entryKey.bind("<Return>", command=lambda x: self.setKeyFromEntry())
-        self.entryKey.grid(row=0, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="new")
-        self.entryIV = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input initial vector and hit enter")
+        self.entryKey.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrame = customtkinter.CTkFrame(self.inFrame, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearIn = customtkinter.CTkButton(self.clearInFrame, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryKey.delete(0, tk.END))
+        self.clearInFrame.grid_propagate(False)
+        self.clearInFrame.columnconfigure(0, weight=1)
+        self.clearInFrame.rowconfigure(0,weight=1)
+        self.clearInFrame.grid(row=0, column=1, sticky="")
+        clearIn.grid(sticky="wens")
+        # inputkey Frame
+        self.inFrameIV = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrameIV.grid(row=1, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="new")
+        self.inFrameIV.columnconfigure(0, weight=1)
+        #
+        self.entryIV = customtkinter.CTkEntry(self.inFrameIV, placeholder_text="Input initial vector and hit enter")
         self.entryIV.bind("<Return>", command=lambda x: self.setIVFromEntry())
-        self.entryIV.grid(row=1, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="new")
+        self.entryIV.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrameIV = customtkinter.CTkFrame(self.inFrameIV, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearInIV = customtkinter.CTkButton(self.clearInFrameIV, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryIV.delete(0, tk.END))
+        self.clearInFrameIV.grid_propagate(False)
+        self.clearInFrameIV.columnconfigure(0, weight=1)
+        self.clearInFrameIV.rowconfigure(0,weight=1)
+        self.clearInFrameIV.grid(row=0, column=1, sticky="")
+        clearInIV.grid(sticky="wens")
+        
 
 
         self.genButton = customtkinter.CTkButton(self.keyFrame, 
@@ -3238,12 +3417,44 @@ class TDESPage(customtkinter.CTkFrame):
         self.keyFrame.grid(row = 5, column = 0, columnspan=3, padx=20, pady=20, sticky="new")
 
         # key input
-        self.entryKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input key and hit enter")
+        # inputkey Frame
+        self.inFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrame.grid(row=0, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="new")
+        self.inFrame.columnconfigure(0, weight=1)
+        #
+        self.entryKey = customtkinter.CTkEntry(self.inFrame, placeholder_text="Input key and hit enter")
         self.entryKey.bind("<Return>", command=lambda x: self.setKeyFromEntry())
-        self.entryKey.grid(row=0, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="new")
-        self.entryIV = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input initial vector and hit enter")
+        self.entryKey.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrame = customtkinter.CTkFrame(self.inFrame, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearIn = customtkinter.CTkButton(self.clearInFrame, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryKey.delete(0, tk.END))
+        self.clearInFrame.grid_propagate(False)
+        self.clearInFrame.columnconfigure(0, weight=1)
+        self.clearInFrame.rowconfigure(0,weight=1)
+        self.clearInFrame.grid(row=0, column=1, sticky="")
+        clearIn.grid(sticky="wens")
+        # inputIV Frame
+        self.inFrameIV = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrameIV.grid(row=1, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="new")
+        self.inFrameIV.columnconfigure(0, weight=1)
+        #
+        self.entryIV = customtkinter.CTkEntry(self.inFrameIV, placeholder_text="Input initial vector and hit enter")
         self.entryIV.bind("<Return>", command=lambda x: self.setIVFromEntry())
-        self.entryIV.grid(row=1, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="new")
+        self.entryIV.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrameIV = customtkinter.CTkFrame(self.inFrameIV, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearInIV = customtkinter.CTkButton(self.clearInFrameIV, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryIV.delete(0, tk.END))
+        self.clearInFrameIV.grid_propagate(False)
+        self.clearInFrameIV.columnconfigure(0, weight=1)
+        self.clearInFrameIV.rowconfigure(0,weight=1)
+        self.clearInFrameIV.grid(row=0, column=1, sticky="")
+        clearInIV.grid(sticky="wens")
 
 
         self.genButton = customtkinter.CTkButton(self.keyFrame, 
@@ -3594,15 +3805,45 @@ class SDESPage(customtkinter.CTkFrame):
         self.keyFrame.columnconfigure(2, weight=1)
         self.keyFrame.grid(row = 5, column = 0, columnspan=3, padx=20, pady=20, sticky="new")
 
-        # key input
-        self.entryKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input key and hit enter")
+        # inputkey Frame
+        self.inFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrame.grid(row=0, column=1, columnspan=3, padx=(0, 5), pady=5, sticky="new")
+        self.inFrame.columnconfigure(0, weight=1)
+        #
+        self.entryKey = customtkinter.CTkEntry(self.inFrame, placeholder_text="Input key and hit enter")
         self.entryKey.bind("<Return>", command=lambda x: self.setKeyFromEntry())
-        self.entryKey.grid(row=0, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="new")
-        # entry private key
-        self.entryIV = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input iv (integer in range [0,255]) and hit enter")
+        self.entryKey.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrame = customtkinter.CTkFrame(self.inFrame, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearIn = customtkinter.CTkButton(self.clearInFrame, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryKey.delete(0, tk.END))
+        self.clearInFrame.grid_propagate(False)
+        self.clearInFrame.columnconfigure(0, weight=1)
+        self.clearInFrame.rowconfigure(0,weight=1)
+        self.clearInFrame.grid(row=0, column=1, sticky="")
+        clearIn.grid(sticky="wens")
+        # inputIV Frame
+        self.inFrameIV = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrameIV.grid(row=1, column=1, columnspan=3, padx=(0, 5), pady=(0,5), sticky="ew")
+        self.inFrameIV.columnconfigure(0, weight=1)
+        #
+        self.entryIV = customtkinter.CTkEntry(self.inFrameIV, placeholder_text="Input iv (integer in range [0,255]) and hit enter")
         self.entryIV.bind("<Return>", command=lambda x: self.setIVFromEntry())
-        self.entryIV.grid(row=1, column=1, columnspan=3, padx=(0, 5), pady=0, sticky="ew")
-
+        self.entryIV.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrameIV = customtkinter.CTkFrame(self.inFrameIV, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearInIV = customtkinter.CTkButton(self.clearInFrameIV, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryIV.delete(0, tk.END))
+        self.clearInFrameIV.grid_propagate(False)
+        self.clearInFrameIV.columnconfigure(0, weight=1)
+        self.clearInFrameIV.rowconfigure(0,weight=1)
+        self.clearInFrameIV.grid(row=0, column=1, sticky="")
+        clearInIV.grid(sticky="wens")
+    
 
         self.genButton = customtkinter.CTkButton(self.keyFrame, 
                                           compound="right",
@@ -3910,15 +4151,45 @@ class RSAPage(customtkinter.CTkFrame):
                                           command = self.generateKey)
         button1.grid(row = 0, column = 0, padx = (0,5), pady = 0, sticky="new")
 
-        # entry public key
-        self.entryPublicKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input public key and hit enter")
+        # inputkey Frame
+        self.inFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrame.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
+        self.inFrame.columnconfigure(0, weight=1)
+        #
+        self.entryPublicKey = customtkinter.CTkEntry(self.inFrame, placeholder_text="Input public key and hit enter")
         self.entryPublicKey.bind("<Return>", command=lambda x: self.setPublicKeyFromEntry())
-        self.entryPublicKey.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
-        # entry private key
-        self.entryPrivateKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input private key and hit enter")
+        self.entryPublicKey.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrame = customtkinter.CTkFrame(self.inFrame, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearIn = customtkinter.CTkButton(self.clearInFrame, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryPublicKey.delete(0, tk.END))
+        self.clearInFrame.grid_propagate(False)
+        self.clearInFrame.columnconfigure(0, weight=1)
+        self.clearInFrame.rowconfigure(0,weight=1)
+        self.clearInFrame.grid(row=0, column=1, sticky="")
+        clearIn.grid(sticky="wens")
+        # entry public key
+        # inputkey Frame
+        self.inFrame2 = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrame2.grid(row=1, column=1, padx=(5, 0), pady=(5,0), sticky="ew")
+        self.inFrame2.columnconfigure(0, weight=1)
+        #
+        self.entryPrivateKey = customtkinter.CTkEntry(self.inFrame2, placeholder_text="Input private key and hit enter")
         self.entryPrivateKey.bind("<Return>", command=lambda x: self.setPrivateKeyFromEntry())
-        self.entryPrivateKey.grid(row=1, column=1, padx=(5, 0), pady=(5,0), sticky="ew")
-
+        self.entryPrivateKey.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrame2 = customtkinter.CTkFrame(self.inFrame2, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearIn2 = customtkinter.CTkButton(self.clearInFrame2, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryPrivateKey.delete(0, tk.END))
+        self.clearInFrame2.grid_propagate(False)
+        self.clearInFrame2.columnconfigure(0, weight=1)
+        self.clearInFrame2.rowconfigure(0,weight=1)
+        self.clearInFrame2.grid(row=0, column=1, sticky="")
+        clearIn2.grid(sticky="wens")
         # Key display
         self.currentKeyFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
         self.currentKeyFrame.columnconfigure((0,1), weight=1)
@@ -4130,14 +4401,46 @@ class ElGamalPage(customtkinter.CTkFrame):
         button1.grid(row = 0, column = 0, padx = (0,5), pady = 0, sticky="new")
 
 
-        # entry public key
-        self.entryPublicKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input public key and hit enter")
+        # inputkey Frame
+        self.inFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrame.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
+        self.inFrame.columnconfigure(0, weight=1)
+        #
+        self.entryPublicKey = customtkinter.CTkEntry(self.inFrame, placeholder_text="Input public key and hit enter")
         self.entryPublicKey.bind("<Return>", command=lambda x: self.setPublicKeyFromEntry())
-        self.entryPublicKey.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
+        self.entryPublicKey.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrame = customtkinter.CTkFrame(self.inFrame, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearIn = customtkinter.CTkButton(self.clearInFrame, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryPublicKey.delete(0, tk.END))
+        self.clearInFrame.grid_propagate(False)
+        self.clearInFrame.columnconfigure(0, weight=1)
+        self.clearInFrame.rowconfigure(0,weight=1)
+        self.clearInFrame.grid(row=0, column=1, sticky="")
+        clearIn.grid(sticky="wens")
         # entry public key
-        self.entryPrivateKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input private key and hit enter")
+        # inputkey Frame
+        self.inFrame2 = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrame2.grid(row=1, column=1, padx=(5, 0), pady=0, sticky="ew")
+        self.inFrame2.columnconfigure(0, weight=1)
+        #
+        self.entryPrivateKey = customtkinter.CTkEntry(self.inFrame2, placeholder_text="Input private key and hit enter")
         self.entryPrivateKey.bind("<Return>", command=lambda x: self.setPrivateKeyFromEntry())
-        self.entryPrivateKey.grid(row=1, column=1, padx=(5, 0), pady=(5,0), sticky="ew")
+        self.entryPrivateKey.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrame2 = customtkinter.CTkFrame(self.inFrame2, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearIn2 = customtkinter.CTkButton(self.clearInFrame2, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryPrivateKey.delete(0, tk.END))
+        self.clearInFrame2.grid_propagate(False)
+        self.clearInFrame2.columnconfigure(0, weight=1)
+        self.clearInFrame2.rowconfigure(0,weight=1)
+        self.clearInFrame2.grid(row=0, column=1, sticky="")
+        clearIn2.grid(sticky="wens")
+        
 
         # Key display
         self.currentKeyFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
@@ -4344,19 +4647,67 @@ class RabinPage(customtkinter.CTkFrame):
                                           command = self.generateKey)
         button1.grid(row = 0, column = 0, padx = (0,5), pady = 0, sticky="new")
 
-
+        # inputkey Frame
+        self.inFrame = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrame.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
+        self.inFrame.columnconfigure(0, weight=1)
+        #
         # entry public key
-        self.entryPublicKey = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input public key and hit enter")
+        self.entryPublicKey = customtkinter.CTkEntry(self.inFrame, placeholder_text="Input public key and hit enter")
         self.entryPublicKey.bind("<Return>", command=lambda x: self.setPublicKeyFromEntry())
-        self.entryPublicKey.grid(row=0, column=1, padx=(5, 0), pady=0, sticky="ew")
+        self.entryPublicKey.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrame = customtkinter.CTkFrame(self.inFrame, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearIn = customtkinter.CTkButton(self.clearInFrame, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryPublicKey.delete(0, tk.END))
+        self.clearInFrame.grid_propagate(False)
+        self.clearInFrame.columnconfigure(0, weight=1)
+        self.clearInFrame.rowconfigure(0,weight=1)
+        self.clearInFrame.grid(row=0, column=1, sticky="")
+        clearIn.grid(sticky="wens")
+        # entry public key
+        # inputkey Frame
+        self.inFrame2 = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrame2.grid(row=1, column=1, padx=(5, 0), pady=(5,0), sticky="ew")
+        self.inFrame2.columnconfigure(0, weight=1)
+        #
         # entry public key1
-        self.entryPrivateKey1 = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input private key part p and hit enter")
+        self.entryPrivateKey1 = customtkinter.CTkEntry(self.inFrame2, placeholder_text="Input private key part p and hit enter")
         self.entryPrivateKey1.bind("<Return>", command=lambda x: self.setPrivateKeyFromEntry1())
-        self.entryPrivateKey1.grid(row=1, column=1, padx=(5, 0), pady=(5,0), sticky="ew")
+        self.entryPrivateKey1.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrame2 = customtkinter.CTkFrame(self.inFrame2, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearIn2 = customtkinter.CTkButton(self.clearInFrame2, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryPrivateKey1.delete(0, tk.END))
+        self.clearInFrame2.grid_propagate(False)
+        self.clearInFrame2.columnconfigure(0, weight=1)
+        self.clearInFrame2.rowconfigure(0,weight=1)
+        self.clearInFrame2.grid(row=0, column=1, sticky="")
+        clearIn2.grid(sticky="wens")
+         # inputkey Frame
+        self.inFrame3 = customtkinter.CTkFrame(self.keyFrame, fg_color=self.cget("fg_color"))
+        self.inFrame3.grid(row=3, column=1, padx=(5, 0), pady=(5,0), sticky="ew")
+        self.inFrame3.columnconfigure(0, weight=1)
+        #
         # entry public key2
-        self.entryPrivateKey2 = customtkinter.CTkEntry(self.keyFrame, placeholder_text="Input private key part q and hit enter")
+        self.entryPrivateKey2 = customtkinter.CTkEntry(self.inFrame3, placeholder_text="Input private key part q and hit enter")
         self.entryPrivateKey2.bind("<Return>", command=lambda x: self.setPrivateKeyFromEntry2())
-        self.entryPrivateKey2.grid(row=3, column=1, padx=(5, 0), pady=(5,0), sticky="ew")
+        self.entryPrivateKey2.grid(row=0, column=0, padx=0, pady=0, sticky="ew")
+        #
+        self.clearInFrame3 = customtkinter.CTkFrame(self.inFrame3, width=28, height=28, fg_color=self.cget("fg_color")) 
+        clearIn3 = customtkinter.CTkButton(self.clearInFrame3, 
+                                          text ="",
+                                          image=clearIn_image,
+                                          command=lambda : self.entryPrivateKey2.delete(0, tk.END))
+        self.clearInFrame3.grid_propagate(False)
+        self.clearInFrame3.columnconfigure(0, weight=1)
+        self.clearInFrame3.rowconfigure(0,weight=1)
+        self.clearInFrame3.grid(row=0, column=1, sticky="")
+        clearIn3.grid(sticky="wens")
 
 
         # Key display

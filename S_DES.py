@@ -1,5 +1,5 @@
 
-import random
+from random import choice
 
 
 class SDES:
@@ -36,7 +36,7 @@ class SDES:
     def generate_random_key(self):
 
         # Generate a random sequence of 10 bits
-        random_key = [random.choice([0, 1]) for _ in range(10)]
+        random_key = [choice([0, 1]) for _ in range(10)]
         # Convert the list into a bit string
         random_key = ''.join(map(str, random_key))
         # Upgrade key
@@ -46,7 +46,7 @@ class SDES:
     
     def generate_random_iv(self):
         # Generate a random sequence of 8 bits
-        random_iv = [random.choice([0, 1]) for _ in range(8)]
+        random_iv = [choice([0, 1]) for _ in range(8)]
         # Convert the list into a bit string
         random_iv = ''.join(map(str, random_iv))
         #Upgrade iv

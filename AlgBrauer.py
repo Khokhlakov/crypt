@@ -1,6 +1,6 @@
 # pip install graphviz
 # pip install ipython
-from IPython.display import Image
+#from IPython.display import Image
 import pydot
 import os
 

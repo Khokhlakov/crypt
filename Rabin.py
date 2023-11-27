@@ -1,10 +1,7 @@
 #source: https://asecuritysite.com/encryption/rabin2
 
-import random
 from Crypto.Util.number import *
-import codecs
-import Crypto
-from Crypto import Random
+from Crypto.Random import get_random_bytes
 
 def encryption(plaintext, n):
     # c = m^2 mod n
@@ -100,11 +97,11 @@ def egcd(a, b):
 #bits (tamaño de la clave publica) debe ser par, preferiblemente: 2048, 1024, 512
 def generate_keys_rabin(bits = 2048):
     while True:
-            p = Crypto.Util.number.getPrime(bits//2, randfunc=Crypto.Random.get_random_bytes)
+            p = getPrime(bits//2, randfunc=get_random_bytes)
             if ((p % 4)==3): break
 
     while True:
-            q = Crypto.Util.number.getPrime(bits//2, randfunc=Crypto.Random.get_random_bytes)
+            q = getPrime(bits//2, randfunc=get_random_bytes)
             if ((q % 4)==3): break
     n = p*q
     return n, p, q
