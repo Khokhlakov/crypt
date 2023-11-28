@@ -8,6 +8,7 @@ from PIL import Image
 import numpy as np
 import imageio.v3 as iio
 import os
+import sys
 
 class Blocks:
     def __init__(self, cipher_type, mode, key_length, key=None, iv = None):
@@ -23,11 +24,11 @@ class Blocks:
         self.cipher = None
         self.width = None
         self.height = None
-        self.plain_image_path = os.path.join("PiCKED App", "plain_image.png")
-        self.ciphered_image_path = os.path.join("PiCKED App", "ciphered_image.png")
+        self.plain_image_path = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "plain_image.png")
+        self.ciphered_image_path = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "ciphered_image.png")
 
         self.plain_image_output = None
-        self.plain_image_path_output = os.path.join("PiCKED App", "plain_image_output.png")
+        self.plain_image_path_output = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "plain_image_output.png")
 
 #image proccessing
     def load_plain_image(self):
@@ -169,7 +170,7 @@ def encrypt_image_AES(image_path, mode, key, iv):
     enc_img = np.frombuffer(enc_img_bytes, np.uint8).reshape(img.shape)
 
     # Save the image 
-    iio.imwrite(os.path.join("PiCKED App", 'aes_output.png'), enc_img)
+    iio.imwrite(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", 'aes_output.png'), enc_img)
 
 
 def decrypt_image_AES(image_path, mode, key, iv):
@@ -192,7 +193,7 @@ def decrypt_image_AES(image_path, mode, key, iv):
     if pad != 0:
         dec_img = dec_img[0:-pad, :, :].copy()  # Remove the padding rows when pad is different from 0
 
-    iio.imwrite(os.path.join("PiCKED App", 'aes_output.png'), dec_img) 
+    iio.imwrite(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", 'aes_output.png'), dec_img) 
 
 
 # TDES:
@@ -239,7 +240,7 @@ def encrypt_image_TDES(image_path, mode, key, iv):
     enc_img = np.frombuffer(enc_img_bytes, np.uint8).reshape(img.shape)
 
     # Save the image 
-    iio.imwrite(os.path.join("PiCKED App", 'TDES_output.png'), enc_img)
+    iio.imwrite(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", 'TDES_output.png'), enc_img)
 
 
 def decrypt_image_TDES(image_path, mode, key, iv):
@@ -261,7 +262,7 @@ def decrypt_image_TDES(image_path, mode, key, iv):
     if pad != 0:
         dec_img = dec_img[0:-pad, :, :].copy()  # Remove the padding rows when pad is different from 0
 
-    iio.imwrite(os.path.join("PiCKED App", 'TDES_output.png'), dec_img) 
+    iio.imwrite(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", 'TDES_output.png'), dec_img) 
 
 #README
     #Put an image in the folder where the code is located, name it "plain_image.png"

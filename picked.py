@@ -61,6 +61,7 @@ path_to_save = os.path.join(bundle_dir, "save.png")
 path_to_name = os.path.join(bundle_dir, "name.png")
 path_to_nameL = os.path.join(bundle_dir, "nameLight.png")
 path_to_icon = os.path.join(bundle_dir, "icono.ico")
+path_to_icon2 = os.path.join(bundle_dir, "Pilogo.ico")
 path_to_sampleQuiver = os.path.join(bundle_dir, "sampleQuiver1.png")
 
 
@@ -79,9 +80,9 @@ name_image = customtkinter.CTkImage(dark_image=Image.open(path_to_name),
 
 
 # Everything will be stored here
-if not os.path.exists("PiCKED App"):
+if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App")):
    # Create a new directory because it does not exist
-   os.makedirs("PiCKED App")
+   os.makedirs(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App"))
 
 
 class App(customtkinter.CTk):
@@ -388,7 +389,7 @@ class HomePage(customtkinter.CTkFrame):
             the_image_path = crear_grafo(self.resultados["Ciclos"])
             the_image = Image.open(the_image_path)
             the_image.thumbnail((600,600), Image.LANCZOS)
-            daPath = os.path.join("PiCKED App","Brauervisualization.ppm")
+            daPath = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App","Brauervisualization.ppm")
             the_image.save(daPath)
 
             # Change label contents
@@ -404,7 +405,7 @@ class HomePage(customtkinter.CTkFrame):
         except:
             the_image = Image.open(path_to_sampleQuiver)
             the_image.thumbnail((600,600), Image.LANCZOS)
-            daPath = os.path.join("PiCKED App","Brauervisualization.ppm")
+            daPath = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App","Brauervisualization.ppm")
             the_image.save(daPath)
 
             # Change label contents
@@ -1803,7 +1804,7 @@ class VigenerePage(customtkinter.CTkFrame):
             the_image_path = crear_grafo(self.resultados["Ciclos"])
             the_image = Image.open(the_image_path)
             the_image.thumbnail((600,600), Image.LANCZOS)
-            daPath = os.path.join("PiCKED App","Brauervisualization.ppm")
+            daPath = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App","Brauervisualization.ppm")
             the_image.save(daPath)
 
             # Change label contents
@@ -1819,7 +1820,7 @@ class VigenerePage(customtkinter.CTkFrame):
         except:
             the_image = Image.open(path_to_sampleQuiver)
             the_image.thumbnail((600,600), Image.LANCZOS)
-            daPath = os.path.join("PiCKED App","Brauervisualization.ppm")
+            daPath = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App","Brauervisualization.ppm")
             the_image.save(daPath)
 
             # Change label contents
@@ -2677,7 +2678,7 @@ class HillPage(customtkinter.CTkFrame):
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
             self.originalFormat = imgList[1]
             self.resizedImgName = "hillInput.ppm"
-            self.resizedImgName = os.path.join("PiCKED App",self.resizedImgName)
+            self.resizedImgName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App",self.resizedImgName)
             self.anyFormatImage.save(self.resizedImgName)
 
             # Change label contents
@@ -2724,8 +2725,8 @@ class HillPage(customtkinter.CTkFrame):
             # Reshape to the original shape of the image
             self.encoded_image = encoded_image_vector.reshape(self.original_shape)
 
-            self.encoded_img_name = os.path.join("PiCKED App", "output.png")
-            self.encoded_img_name_for_display = os.path.join("PiCKED App", 'dispOutput.png')
+            self.encoded_img_name = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "output.png")
+            self.encoded_img_name_for_display = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", 'dispOutput.png')
             img2 = self.encoded_image.astype('uint8')
             iio.imwrite(self.encoded_img_name, img2)
             iio.imwrite(self.encoded_img_name_for_display, img2)
@@ -2735,7 +2736,7 @@ class HillPage(customtkinter.CTkFrame):
             imgList = self.encoded_img_name.split(".")
             self.anyFormatImage = Image.open(self.encoded_img_name_for_display)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
-            self.resizedImageName = os.path.join("PiCKED App", "hillOutput.ppm")
+            self.resizedImageName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "hillOutput.ppm")
             self.anyFormatImage.save(self.resizedImageName)
 
             # Change label contents
@@ -2781,8 +2782,8 @@ class HillPage(customtkinter.CTkFrame):
             # Reshape to the original shape of the image
             self.encoded_image = encoded_image_vector
 
-            self.encoded_img_name = os.path.join("PiCKED App", 'output.png')
-            self.encoded_img_name_for_display = os.path.join("PiCKED App", 'dispOutput.png')
+            self.encoded_img_name = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", 'output.png')
+            self.encoded_img_name_for_display = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", 'dispOutput.png')
             img2 = self.encoded_image.astype('uint8')
             iio.imwrite(self.encoded_img_name, img2)
             iio.imwrite(self.encoded_img_name_for_display, img2)
@@ -2792,7 +2793,7 @@ class HillPage(customtkinter.CTkFrame):
             imgList = self.encoded_img_name.split(".")
             self.anyFormatImage = Image.open(self.encoded_img_name_for_display)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
-            self.resizedImageName = os.path.join("PiCKED App", "hillOutput.ppm")
+            self.resizedImageName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "hillOutput.ppm")
             self.anyFormatImage.save(self.resizedImageName)
 
             # Change label contents
@@ -2926,7 +2927,7 @@ class HillPage(customtkinter.CTkFrame):
             self.anyFormatImage = Image.open(self.imgName)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
             self.originalFormat = imgList[1]
-            self.resizedImgName = os.path.join("PiCKED App", "hillInput.ppm")
+            self.resizedImgName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "hillInput.ppm")
             self.anyFormatImage.save(self.resizedImgName)
 
             # Change label contents
@@ -3154,7 +3155,7 @@ class AESPage(customtkinter.CTkFrame):
 
             # Save file to "plain_image.png"
             imgToEncrypt = self.img.astype('uint8')
-            self.inputImageName = os.path.join("PiCKED App", "plain_image.png")
+            self.inputImageName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "plain_image.png")
             iio.imwrite(self.inputImageName, imgToEncrypt)
             
 
@@ -3163,7 +3164,7 @@ class AESPage(customtkinter.CTkFrame):
             self.anyFormatImage = Image.open(self.imgName)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
             self.originalFormat = imgList[1]
-            self.resizedImgName = os.path.join("PiCKED App", "AESOutput.ppm")
+            self.resizedImgName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "AESOutput.ppm")
             self.anyFormatImage.save(self.resizedImgName)
 
             # Change label contents
@@ -3182,13 +3183,13 @@ class AESPage(customtkinter.CTkFrame):
                               self.ivAES)
 
             # Save save-able copy 
-            shutil.copy(os.path.join("PiCKED App", "aes_output.png"),os.path.join("PiCKED App", "output_image_for_saving.png"))
-            self.imageOnOutputName = os.path.join("PiCKED App", "aes_output.png")
+            shutil.copy(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "aes_output.png"),os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "output_image_for_saving.png"))
+            self.imageOnOutputName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "aes_output.png")
 
             # file to be displayed
-            self.anyFormatOutputImage = Image.open(os.path.join("PiCKED App", "aes_output.png"))
+            self.anyFormatOutputImage = Image.open(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "aes_output.png"))
             self.anyFormatOutputImage.thumbnail((500,500), Image.LANCZOS)
-            self.resizedOutputImgName = os.path.join("PiCKED App", "aes_output.ppm")
+            self.resizedOutputImgName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "aes_output.ppm")
             self.anyFormatOutputImage.save(self.resizedOutputImgName)
 
             # Change label contents
@@ -3208,13 +3209,13 @@ class AESPage(customtkinter.CTkFrame):
                               self.ivAES)
 
             # Save save-able copy
-            shutil.copy(os.path.join("PiCKED App", "aes_output.png"), os.path.join("PiCKED App", "output_image_for_saving.png"))
-            self.imageOnOutputName = os.path.join("PiCKED App", "aes_output.png")
+            shutil.copy(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "aes_output.png"), os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "output_image_for_saving.png"))
+            self.imageOnOutputName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "aes_output.png")
 
             # file to be displayed
-            self.anyFormatOutputImage = Image.open(os.path.join("PiCKED App", "aes_output.png"))
+            self.anyFormatOutputImage = Image.open(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "aes_output.png"))
             self.anyFormatOutputImage.thumbnail((500,500), Image.LANCZOS)
-            self.resizedOutputImgName = os.path.join("PiCKED App", "aes_output.ppm")
+            self.resizedOutputImgName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "aes_output.ppm")
             self.anyFormatOutputImage.save(self.resizedOutputImgName)
 
             # Change label contents
@@ -3286,7 +3287,7 @@ class AESPage(customtkinter.CTkFrame):
 
     def saveFile(self):
         if self.dirtyOutput:
-            myImage = Image.open(os.path.join("PiCKED App", "output_image_for_saving.png"))
+            myImage = Image.open(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "output_image_for_saving.png"))
             file = filedialog.asksaveasfile(mode='wb', 
                                             filetypes = (("png","*.png"),
                                                         ('All files', '*.*')),
@@ -3302,14 +3303,14 @@ class AESPage(customtkinter.CTkFrame):
 
             # Save file to "plain_image.png"
             imgToEncrypt = self.img.astype('uint8')
-            iio.imwrite(os.path.join("PiCKED App", "plain_image.png"), imgToEncrypt)
+            iio.imwrite(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "plain_image.png"), imgToEncrypt)
 
             # file to be displayed
             imgList = self.imgName.split(".")
             self.anyFormatImage = Image.open(self.imgName)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
             self.originalFormat = imgList[1]
-            self.resizedImgName = os.path.join("PiCKED App", "AESInput.ppm")
+            self.resizedImgName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "AESInput.ppm")
             self.anyFormatImage.save(self.resizedImgName)
 
             # Change label contents
@@ -3542,15 +3543,15 @@ class TDESPage(customtkinter.CTkFrame):
 
             # Save file to "plain_image.png"
             imgToEncrypt = self.img.astype('uint8')
-            iio.imwrite(os.path.join("PiCKED App", "plain_image_TDES.png"), imgToEncrypt)
-            self.inputImageName = os.path.join("PiCKED App", "plain_image_TDES.png")
+            iio.imwrite(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "plain_image_TDES.png"), imgToEncrypt)
+            self.inputImageName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "plain_image_TDES.png")
 
             # file to be displayed
             imgList = self.imgName.split(".")
             self.anyFormatImage = Image.open(self.imgName)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
             self.originalFormat = imgList[1]
-            self.resizedImgName = os.path.join("PiCKED App", "TDESInput.ppm")
+            self.resizedImgName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "TDESInput.ppm")
             self.anyFormatImage.save(self.resizedImgName)
 
             # Change label contents
@@ -3569,13 +3570,13 @@ class TDESPage(customtkinter.CTkFrame):
                               self.ivTDES)
 
             # Save save-able copy
-            shutil.copy(os.path.join("PiCKED App", "TDES_output.png"), os.path.join("PiCKED App", "output_image_for_saving_TDES.png"))
-            self.imageOnOutputName = os.path.join("PiCKED App", "TDES_output.png")
+            shutil.copy(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "TDES_output.png"), os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "output_image_for_saving_TDES.png"))
+            self.imageOnOutputName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "TDES_output.png")
 
             # file to be displayed
-            self.anyFormatOutputImage = Image.open(os.path.join("PiCKED App", "TDES_output.png"))
+            self.anyFormatOutputImage = Image.open(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "TDES_output.png"))
             self.anyFormatOutputImage.thumbnail((500,500), Image.LANCZOS)
-            self.resizedOutputImgName = os.path.join("PiCKED App", "TDES_output.ppm")
+            self.resizedOutputImgName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "TDES_output.ppm")
             self.anyFormatOutputImage.save(self.resizedOutputImgName)
 
             # Change label contents
@@ -3595,13 +3596,13 @@ class TDESPage(customtkinter.CTkFrame):
                               self.ivTDES)
 
             # Save save-able copy
-            shutil.copy(os.path.join("PiCKED App", "TDES_output.png"), os.path.join("PiCKED App", "output_image_for_saving_TDES.png"))
-            self.imageOnOutputName = os.path.join("PiCKED App", "TDES_output.png")
+            shutil.copy(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "TDES_output.png"), os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "output_image_for_saving_TDES.png"))
+            self.imageOnOutputName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "TDES_output.png")
 
             # file to be displayed
-            self.anyFormatOutputImage = Image.open(os.path.join("PiCKED App", "TDES_output.png"))
+            self.anyFormatOutputImage = Image.open(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "TDES_output.png"))
             self.anyFormatOutputImage.thumbnail((500,500), Image.LANCZOS)
-            self.resizedOutputImgName = os.path.join("PiCKED App", "TDES_output.ppm")
+            self.resizedOutputImgName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "TDES_output.ppm")
             self.anyFormatOutputImage.save(self.resizedOutputImgName)
 
             # Change label contents
@@ -3673,7 +3674,7 @@ class TDESPage(customtkinter.CTkFrame):
 
     def saveFile(self):
         if self.dirtyOutput:
-            myImage = Image.open(os.path.join("PiCKED App", "output_image_for_saving_TDES.png"))
+            myImage = Image.open(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "output_image_for_saving_TDES.png"))
             file = filedialog.asksaveasfile(mode='wb', 
                                             filetypes = (("png","*.png"),
                                                         ('All files', '*.*')),
@@ -3689,14 +3690,14 @@ class TDESPage(customtkinter.CTkFrame):
 
             # Save file to "plain_image_TDES.png"
             imgToEncrypt = self.img.astype('uint8')
-            iio.imwrite(os.path.join("PiCKED App", "plain_image_TDES.png"), imgToEncrypt)
+            iio.imwrite(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "plain_image_TDES.png"), imgToEncrypt)
 
             # file to be displayed
             imgList = self.imgName.split(".")
             self.anyFormatImage = Image.open(self.imgName)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
             self.originalFormat = imgList[1]
-            self.resizedImgName = os.path.join("PiCKED App", "TDESInput.ppm")
+            self.resizedImgName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "TDESInput.ppm")
             self.anyFormatImage.save(self.resizedImgName)
 
             # Change label contents
@@ -3906,15 +3907,15 @@ class SDESPage(customtkinter.CTkFrame):
 
             # Save file to "plain_image_sdes.png"
             imgToEncrypt = self.img.astype('uint8')
-            iio.imwrite(os.path.join("PiCKED App", "plain_image_sdes.png"), imgToEncrypt)
-            self.inputImageName = os.path.join("PiCKED App", "plain_image_sdes.png")
+            iio.imwrite(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "plain_image_sdes.png"), imgToEncrypt)
+            self.inputImageName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "plain_image_sdes.png")
 
             # file to be displayed
             imgList = self.imgName.split(".")
             self.anyFormatImage = Image.open(self.imgName)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
             self.originalFormat = imgList[1]
-            self.resizedImgName = os.path.join("PiCKED App", "SDESInput.ppm")
+            self.resizedImgName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "SDESInput.ppm")
             self.anyFormatImage.save(self.resizedImgName)
 
             # Change label contents
@@ -3938,13 +3939,13 @@ class SDESPage(customtkinter.CTkFrame):
 
 
             # Save save-able copy
-            shutil.copy(os.path.join("PiCKED App", "sdes_output.png"), os.path.join("PiCKED App", "output_image_for_saving_sdes.png"))
-            self.imageOnOutputName = os.path.join("PiCKED App", "sdes_output.png")
+            shutil.copy(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "sdes_output.png"), os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "output_image_for_saving_sdes.png"))
+            self.imageOnOutputName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "sdes_output.png")
 
             # file to be displayed
-            self.anyFormatOutputImage = Image.open(os.path.join("PiCKED App", "sdes_output.png"))
+            self.anyFormatOutputImage = Image.open(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "sdes_output.png"))
             self.anyFormatOutputImage.thumbnail((500,500), Image.LANCZOS)
-            self.resizedOutputImgName = os.path.join("PiCKED App", "sdes_output.ppm")
+            self.resizedOutputImgName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "sdes_output.ppm")
             self.anyFormatOutputImage.save(self.resizedOutputImgName)
 
             # Change label contents
@@ -3968,13 +3969,13 @@ class SDESPage(customtkinter.CTkFrame):
                 self.system.decryptCTR(self.inputImageName)
 
             # Save save-able copy
-            shutil.copy(os.path.join("PiCKED App", "sdes_output.png"), os.path.join("PiCKED App", "output_image_for_saving_sdes.png"))
-            self.imageOnOutputName = os.path.join("PiCKED App", "sdes_output.png")
+            shutil.copy(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "sdes_output.png"), os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "output_image_for_saving_sdes.png"))
+            self.imageOnOutputName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "sdes_output.png")
 
             # file to be displayed
-            self.anyFormatOutputImage = Image.open(os.path.join("PiCKED App", "sdes_output.png"))
+            self.anyFormatOutputImage = Image.open(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "sdes_output.png"))
             self.anyFormatOutputImage.thumbnail((500,500), Image.LANCZOS)
-            self.resizedOutputImgName = os.path.join("PiCKED App", "sdes_output.ppm")
+            self.resizedOutputImgName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "sdes_output.ppm")
             self.anyFormatOutputImage.save(self.resizedOutputImgName)
 
             # Change label contents
@@ -4033,7 +4034,7 @@ class SDESPage(customtkinter.CTkFrame):
 
     def saveFile(self):
         if self.dirtyOutput:
-            myImage = Image.open(os.path.join("PiCKED App", "output_image_for_saving_sdes.png"))
+            myImage = Image.open(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "output_image_for_saving_sdes.png"))
             file = filedialog.asksaveasfile(mode='wb', 
                                             filetypes = (("png","*.png"),
                                                         ('All files', '*.*')),
@@ -4049,14 +4050,14 @@ class SDESPage(customtkinter.CTkFrame):
 
             # Save file to "plain_image_sdes.png"
             imgToEncrypt = self.img.astype('uint8')
-            iio.imwrite(os.path.join("PiCKED App", "plain_image_sdes.png"), imgToEncrypt)
+            iio.imwrite(os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "plain_image_sdes.png"), imgToEncrypt)
 
             # file to be displayed
             imgList = self.imgName.split(".")
             self.anyFormatImage = Image.open(self.imgName)
             self.anyFormatImage.thumbnail((500,500), Image.LANCZOS)
             self.originalFormat = imgList[1]
-            self.resizedImgName = os.path.join("PiCKED App", "SDESInput.ppm")
+            self.resizedImgName = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "SDESInput.ppm")
             self.anyFormatImage.save(self.resizedImgName)
 
             # Change label contents
