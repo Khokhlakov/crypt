@@ -75,7 +75,9 @@ def calcular_dim_Z_k_N(r1, r0, val_y_multi, loops):
     dim_Z_k_N = 1 + sum(multi for val, [val, multi] in val_y_multi.items()) + len(r1) + sum(loops.values()) - tamanio_r0 - num_simbolos_val_1
     return dim_Z_k_N
 
-def crear_grafo(mapeo_posiciones, target_path = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "algBr42h399rh23ru8934.png")):
+def crear_grafo(mapeo_posiciones, target_path = None):
+    if target_path == None:
+        target_path = os.path.join(os.path.dirname(sys.argv[0]),"PiCKED App", "algBr42h399rh23ru8934.png")
     # Crear un grafo dirigido con Graphviz
     dot = pydot.Dot(graph_type = "digraph")
 
