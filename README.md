@@ -17,4 +17,5 @@ Includes encryptation methods like:
  - Rabin
  - Simple DES
  - Vigenere
-and some methods for breaking some of the ciphers.
+
+As well as some methods for breaking some of the ciphers.
