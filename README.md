@@ -6,15 +6,15 @@ A hands-on educational application for experimenting with some cryptographic met
 
 ## Key Features  
 Includes encryptation methods like:
--DSA
--ElGammal
--Hill
--Affine
--Multiplicative
--Permutation
--Shifting
--RSA
--Rabin
--Simple DES
--Vigenere
+ - DSA
+ - ElGammal
+ - Hill
+ - Affine
+ - Multiplicative
+ - Permutation
+ - Shifting
+ - RSA
+ - Rabin
+ - Simple DES
+ - Vigenere
 and some methods for breaking some of the ciphers.
