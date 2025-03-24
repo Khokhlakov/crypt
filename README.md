@@ -1,6 +1,5 @@
 ![PiCKED](name.png)
 
-# {PiCKED} 
 **Explore Cryptography Through Interactive Text & Image Manipulation**
 
 A hands-on educational application for experimenting with some cryptographic methods. Encrypt, decrypt, and analyze both text messages and images using various algorithms in a simple interface.
